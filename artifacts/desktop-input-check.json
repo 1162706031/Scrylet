@@ -1,0 +1,26 @@
+{
+  "at": "2026-11-05T17:06:32.947Z",
+  "platform": "win32",
+  "nativeHotkey": true,
+  "nativeLongPress": true,
+  "timeoutReset": true,
+  "escapeCancel": true,
+  "draftPreserved": true,
+  "mockedModelRequests": 2,
+  "region": {
+    "width": 720,
+    "height": 480
+  },
+  "scaleFactor": 1.5,
+  "externalModelRequests": 0,
+  "settingsPersisted": true,
+  "silentCaptureFeedback": {
+    "shows": 0,
+    "notifications": 0,
+    "captureTooltips": 0,
+    "overlays": 0
+  },
+  "enabledOverlayVerified": true,
+  "enabledNotificationRequested": true,
+  "silentSettingPersisted": true
+}

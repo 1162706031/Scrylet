@@ -22,12 +22,27 @@ flowchart LR
 - 二维码携带高熵短期凭证，放在 URL fragment 中；配对后移除 fragment，只保存 HttpOnly / SameSite=Strict cookie。
 - 服务器只持久化设备 token 的哈希；配对尝试限速，最多 8 台设备。
 - 撤销设备会销毁对应连接，后续请求必须重新配对。暂停访问会断开手机通道，**不等于停止后台模型生成**。
-- 正常退出终止运行层；父进程异常消失时，Python watchdog 也会退出，避免留下孤儿服务。
+- 正常退出终止运行层；Windows 结束虚拟环境启动器及其解释器的进程树，避免遗留数据库和目录锁。父进程异常消失时，Python watchdog 也会退出，避免留下孤儿服务。
 - 网关优先复用持久化端口；冲突时重新分配。局域网地址变化后重新扫码，后端 Origin 始终是 loopback。
+- 默认网卡排序优先普通局域网 IPv4，将 Meta / TUN / VPN、虚拟网卡、基准测试网段及链路本地地址后置，所有网卡仍可手动选择。`network.json` 在端口外记录用户选中的网卡名称与地址；DHCP 变化按网卡名称重新匹配，断开时临时回退而不抹除选择。每份状态快照使用同一个地址生成二维码与手动链接，避免异步刷新和切换网卡时混用结果。
 
 HTTP 局域网链路没有传输加密，不提供公网反向代理部署方案。配对手机拥有同一个本地用户的聊天与管理权限，不是多租户系统。
 
 ## 截图附件
+
+桌面“截屏并发送”通过一个短期指令信箱连接到已配对的前台聊天页面。页面每秒报告接收状态与对话代次；电脑在截图前选定接收页面，图片只交付一次。页面使用同一个图片粘贴入口、纯文本粘贴和原生发送按钮提交，发送前再次验证指令有效性。草稿、生成中、后台、切换对话、暂停和撤销都会阻止提交；确认丢失时不自动重试。指令不持久化，不维护聊天历史或另一套生成状态。
+
+Electron `globalShortcut` 注册可配置的全屏 / 区域快捷键，取消键只在选区时注册。Windows 鼠标辅助进程通过系统按钮状态读取长按与释放，使用父进程和 stdin 共同管理生命周期，不拦截原有点击。两个角以 DIP 记录，再按真实截图尺寸裁剪，支持 Windows 缩放与负坐标屏幕；跨屏选区明确拒绝。透明选区窗口仅在开启截图提示时创建，不获取焦点，截图前先移除。设置写入 userData 的 `capture-settings.json`，默认提示词首次只读导入旧提示词。
+
+截图始终静默。`showCaptureHints` 仅作为兼容字段返回 `false`，旧配置或旧指令中的 `true` 不会开启反馈。截图路径不创建选区窗口、不发系统通知、不更新托盘提示、不恢复或聚焦主窗口；桌面 WebContents 强制静音。状态与错误保留在本机操作日志。手机截图与电脑指令均不触发截图 toast、附件高亮或主动聚焦。
+
+网关在上游模块执行前同步注入 `web/quiet.js`，阻止媒体 / Web Audio 播放、系统通知、通知权限弹窗、上游自动朗读和振动。上游通知 toast 从布局中隐藏，历史浏览器偏好不能绕过保护。运行层每次启动只合并产品持有的静默偏好，保留其他用户设置、密钥和聊天；固定的 Open WebUI wheel 保持原样。
+
+手机可通过 `web/read-aloud.js` 的“自动朗读回答”开关单独开启回答播报，默认关闭，偏好只存当前浏览器的 `snap.readAloud`。同步脚本只桥接 Open WebUI 0.12.2 私有 EventTarget 的 `chat:start` / `chat:finish` 事件，不拦截模型请求、不复制聊天状态。只朗读本页面观察到开始并完成的新回答；完成后消耗对应 ID，重复完成事件、旧历史、错误和切换对话不会触发重播。生成开始时停止旧朗读，关闭、停止、导航与后台切换均取消队列。正文去格式后按短句分段，逐段交给手机系统 SpeechSynthesis，不使用提供商 TTS 或新增服务。原始 `speechSynthesis.speak` 仍被阻止，只有识别为手机 / 平板且用户已开启时，专用窄接口可以调用捕获的语音方法；电脑浏览器不显示该开关，无法经此接口播放。首次开关点击以零音量短句建立 iOS 语音会话，刷新后的自然交互可重新建立；锁屏 / 后台能力不作保证。接口与界面检查使用模拟语音引擎，不等同实体手机扬声器验收。
+
+网关还在 `/audio/notification.mp3` 和 `/audio/greeting.mp3` 返回 0.1 秒、采样全零的 PCM WAV，并设置 `Cache-Control: no-store`。这两个无敏感信息的兼容地址位于配对检查前，旧标签页或尚未加载页面保护的播放器也只能获取静音，暂停或会话失效时同样生效。上游 wheel 中的原音频不做改动。回归同时检查实际解码采样与真实后台 `chat:completion` 事件后的原生播放器结束事件。
+
+`web/voice-settings.js` 负责设备声音列表、自动优选、手动选择、语速和试听面板。通过 `getVoices()` 获取实际音色，并监听 `voiceschanged` 处理延迟载入；同地区音色按名称 / URI 中的质量标识优选，属于启发式策略，不宣称设备必有自然音色。`snap.speechVoice` 保存 voiceURI（无 URI 时使用 name / lang），`snap.speechRate` 保存 0.8～1.2 范围的语速，默认 0.95。音色暂不可用时自动回退但不覆盖手选值，重新载入后可恢复；正文整段确定语言，按段落与长度分段，避免每个短句都重启一次合成。设置只留在当前浏览器，不修改上游共享偏好。试听通过同一专用接口要求手机、前台与真实点击事件，即使自动朗读关闭也只允许这次主动试听；原始 `speechSynthesis.speak` 仍被阻止。关闭面板或进入后台会取消试听，打开声音面板时桌面截图接收暂不可用。接口参考 [设备声音列表](https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis/getVoices) 与 [voiceschanged](https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis/voiceschanged_event)。
 
 原生截图最长边限制为 2560 像素。默认点击一次，向当前输入框追加一个 JPEG；文字草稿与既有附件不变。框选入口按需加载本地 Cropper.js，并复用上一次同屏幕、同尺寸的选区。
 
@@ -60,6 +75,18 @@ HTTP 局域网链路没有传输加密，不提供公网反向代理部署方案
 
 首次初始化导入内置模型显示配置与旧提示词，写入迁移标记。已有自定义设置不覆盖。模型连接修改串行执行，避免多手机同时保存导致配置丢失。
 
+## 操作日志与维护
+
+`activity-log.cjs` 在 userData 的 `logs/activity.jsonl` 保存固定事件与白名单元数据，当前文件约 1 MiB，保留 3 个轮换文件；读取只返回最近 200 条。事件记录不接收任意正文、URL、密钥或错误堆栈，读取时也重新校验磁盘内容。日志查看和缓存清理使用只接受本地连接窗口的窄 IPC，手机网关不暴露日志文件读取能力。
+
+`maintenance.cjs` 只调用 Electron 会话的 HTTP 缓存与代码缓存清理 API；不调用持久化存储清理，不删除 Python 数据目录、Cookie、localStorage、IndexedDB、附件、配对或日志。维护面板需用户手动展开，截图静默策略保持不变。
+
+## Windows 安装包
+
+`npm run dist:win` 先准备可重定位的 Python 3.12，再用固定版本 electron-builder 生成 x64 NSIS 安装器。`app.asar` 只包含 Electron 模块、网页、公共目录配置和生产 Node 依赖；`resources/python/` 保存独立解释器与锁定的 Python 依赖，`resources/runtime/` 保存物理启动脚本。Python 使用隔离模式启动，数据仍写入 Electron userData，程序资源可位于带空格的安装目录。开发目录、虚拟环境配置、真实本地设置、数据库和测试数据不打包。
+
+安装包为当前用户安装，允许选择目录，创建桌面 / 开始菜单入口；不包含代码签名或自动发布。仓库许可证、Python、Open WebUI 及 Chromium 等第三方许可随包保留。
+
 ## 依赖与开发配置
 
 - Electron 44.8.0 / Open WebUI 0.12.2 / Cropper.js 1.6.2。
@@ -71,3 +98,7 @@ HTTP 局域网链路没有传输加密，不提供公网反向代理部署方案
 - API Key 可通过目录里的 `envKey` 对应环境变量提供，首次连接配置会读取它；之后以保存到本机的设置为准。
 
 不使用前端 CDN、外部字体、远程裁剪库或在线二维码服务。新 App 运行时不再依赖旧 `app.py`、`models/`、模板或手写 Socket.IO 聊天流程。
+
+## Scrylet 品牌与升级兼容
+
+`desktop/brand.cjs` 统一名称、安装身份和 userData 路径。新安装使用 Scrylet；若旧 Snap-Solver 数据目录存在，则直接沿用，不移动或重写旧迁移文件。NSIS 保留 `com.snapsolver.desktop` 以识别旧安装；`SNAP_*` 环境变量、`/snap/` 路由、配对 Cookie、localStorage 和提示词命令保留兼容。应用 EXE、窗口、托盘与自有页面使用新图标；Open WebUI 自身的名称、标志和图标保留。图标源为 `web/brand/icon.svg`，`npm run icons` 生成 PNG、多尺寸 ICO 和 macOS 模板托盘图标。

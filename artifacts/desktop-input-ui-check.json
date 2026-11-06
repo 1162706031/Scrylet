@@ -1,0 +1,13 @@
+{
+  "at": "2026-11-05T15:53:10.936Z",
+  "platform": "win32",
+  "projects": [
+    "chromium",
+    "webkit"
+  ],
+  "passed": 30,
+  "failed": 0,
+  "skipped": 0,
+  "flaky": 0,
+  "externalModelRequests": 0
+}

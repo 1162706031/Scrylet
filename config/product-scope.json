@@ -37,5 +37,13 @@
     "task.autocomplete.enable": false,
     "task.voice.prompt.enable": false,
     "ui.prompt_suggestions": []
+  },
+  "ui": {
+    "notificationSound": false,
+    "notificationSoundAlways": false,
+    "notificationEnabled": false,
+    "hapticFeedback": false,
+    "responseAutoPlayback": false,
+    "responseAutoCopy": false
   }
 }

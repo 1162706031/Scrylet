@@ -5,6 +5,31 @@ const os = require("node:os");
 const path = require("node:path");
 const { Gateway } = require("../desktop/gateway.cjs");
 const { COOKIE } = require("../desktop/pairing.cjs");
+
+for (const cue of ["notification.mp3", "greeting.mp3"]) test(`旧音频地址 ${cue} 在未配对及暂停时也只返回无缓存的静音`, async t => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "snap-silent-audio-"));
+  const gateway = new Gateway(directory, {}, { ready: false });
+  await gateway.start();
+  t.after(async () => { await gateway.close(); fs.rmSync(directory, { recursive: true, force: true }); });
+  const url = "http://127.0.0.1:" + gateway.port + "/audio/" + cue;
+  for (const paused of [false, true]) {
+    gateway.pause(paused);
+    const response = await fetch(url);
+    assert.equal(response.status, 200);
+    assert.match(response.headers.get("content-type"), /audio\/wav/);
+    assert.equal(response.headers.get("cache-control"), "no-store");
+    const wave = Buffer.from(await response.arrayBuffer());
+    assert.equal(wave.toString("ascii", 0, 4), "RIFF");
+    assert.equal(wave.toString("ascii", 8, 12), "WAVE");
+    assert.equal(wave.readUInt32LE(40), wave.length - 44);
+    assert.ok(wave.subarray(44).length > 0);
+    assert.equal(wave.subarray(44).some(sample => sample !== 0), false);
+  }
+  const head = await fetch(url, { method: "HEAD" });
+  assert.equal(head.status, 200);
+  assert.ok(Number(head.headers.get("content-length")) > 44);
+  assert.equal((await head.arrayBuffer()).byteLength, 0);
+});
 test("局域网网关阻止未配对、跨站和撤销设备访问系统能力", async (t) => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "snap-gateway-"));
   let captures = 0;
@@ -147,4 +172,52 @@ test("重启复用局域网端口，被占用时重新选择", async (t) => {
     await third.close();
     fs.rmSync(directory, { recursive: true, force: true });
   });
+});
+
+test("安装目录包含点目录时仍能打开配对、模型设置、裁剪资源和等待页", async (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "snap-hidden-path-"));
+  const root = path.join(directory, ".apps", "Installed Client");
+  fs.mkdirSync(root, { recursive: true });
+  const source = path.resolve(__dirname, "..");
+  for (const name of ["desktop", "web"]) fs.cpSync(path.join(source, name), path.join(root, name), { recursive: true });
+  fs.mkdirSync(path.join(root, "config"));
+  for (const name of ["providers.json", "product-scope.json"])
+    fs.copyFileSync(path.join(source, "config", name), path.join(root, "config", name));
+  // The relocated gateway resolves production modules from the real workspace;
+  // only these two public vendor assets belong under its own resources root.
+  const { createRequire } = require("node:module");
+  const originalNodePath = process.env.NODE_PATH;
+  process.env.NODE_PATH = path.join(source, "node_modules");
+  require("node:module").Module._initPaths();
+  let HiddenGateway;
+  try { HiddenGateway = createRequire(path.join(root, "desktop/gateway.cjs"))(path.join(root, "desktop/gateway.cjs")).Gateway; }
+  finally {
+    if (originalNodePath === undefined) delete process.env.NODE_PATH;
+    else process.env.NODE_PATH = originalNodePath;
+    require("node:module").Module._initPaths();
+  }
+  const vendor = path.join(root, "node_modules/cropperjs/dist");
+  fs.mkdirSync(vendor, { recursive: true });
+  for (const name of ["cropper.min.js", "cropper.min.css"])
+    fs.copyFileSync(path.join(source, "node_modules/cropperjs/dist", name), path.join(vendor, name));
+  const runtime = { ready: false };
+  const gateway = new HiddenGateway(path.join(directory, "data"), { permission: () => "granted", displays: () => [] }, runtime);
+  await gateway.start();
+  t.after(async () => {
+    await gateway.close();
+    fs.rmSync(directory, { recursive: true, force: true });
+  });
+  const url = "http://127.0.0.1:" + gateway.port;
+  for (const route of ["/snap/pair", "/snap/assets/pair.js", "/snap/vendor/cropper.js", "/snap/vendor/cropper.css"])
+    assert.equal((await fetch(url + route)).status, 200, route);
+  const paired = await fetch(url + "/snap/api/pair", {
+    method: "POST", headers: { "Content-Type": "application/json", "X-Snap-Client": "mobile" },
+    body: JSON.stringify({ credential: gateway.pairing.info().token }),
+  });
+  assert.equal(paired.status, 200);
+  const headers = { Cookie: paired.headers.get("set-cookie").split(";")[0], Accept: "text/html" };
+  assert.equal((await fetch(url + "/snap/models", { headers })).status, 200);
+  const waiting = await fetch(url + "/", { headers });
+  assert.equal(waiting.status, 503);
+  assert.match(await waiting.text(), /connection-state/);
 });

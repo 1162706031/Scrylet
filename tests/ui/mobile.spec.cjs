@@ -10,19 +10,21 @@ test.beforeAll(async () => {
 });
 test.afterAll(async () => {
   await fixture?.stop();
-  if (directory) fs.rmSync(directory, { recursive: true, force: true });
+  if (directory) await fs.promises.rm(directory, { recursive: true, force: true, maxRetries: 10, retryDelay: 200 });
 });
 test("真实 Open WebUI 手机流程：配对、截图、框选、流式回复、追问、停止与撤销", async ({
   page,
 }, testInfo) => {
   const pageErrors = [];
-  const pendingModels = new Set();
+  const pendingRefreshes = new Set();
   page.on("pageerror", (error) => pageErrors.push(error.message));
   page.on("request", (request) => {
-    if (new URL(request.url()).pathname === "/api/models") pendingModels.add(request);
+    const pathname = new URL(request.url()).pathname;
+    if (["/api/models", "/api/v1/chats/", "/api/v1/chats/pinned"].includes(pathname))
+      pendingRefreshes.add(request);
   });
-  page.on("requestfinished", (request) => pendingModels.delete(request));
-  page.on("requestfailed", (request) => pendingModels.delete(request));
+  page.on("requestfinished", (request) => pendingRefreshes.delete(request));
+  page.on("requestfailed", (request) => pendingRefreshes.delete(request));
   await page.goto(fixture.url + "/snap/pair");
   await expect(page.locator("h1")).toContainText("连接你的电脑");
   await page.screenshot({
@@ -115,9 +117,9 @@ test("真实 Open WebUI 手机流程：配对、截图、框选、流式回复�
   await expect(
     page.getByRole("button", { name: "停止", exact: true }),
   ).not.toBeVisible();
-  // Let the native model-list refresh finish before deliberately unloading it.
-  // WebKit otherwise reports the cancelled old-document fetch as a page error.
-  await expect.poll(() => pendingModels.size).toBe(0);
+  // Generation completion refreshes the model and sidebar lists. Let those
+  // reads finish before reload; WebKit reports cancelled upstream promises.
+  await expect.poll(() => pendingRefreshes.size).toBe(0);
   await page.reload();
   await expect(
     page.getByText("前一轮的截图和对话上下文都保留了。", { exact: false }),
@@ -169,7 +171,8 @@ test("附件整理：多屏、编号、大图、删除与撤销，实际发送�
   const reachableSend = () => page.locator("#send-message-button").evaluate((element) => {
     const box = element.getBoundingClientRect();
     const hit = document.elementFromPoint(box.x + box.width / 2, box.y + box.height / 2);
-    return box.top >= 0 && box.bottom <= innerHeight && element.contains(hit);
+    const visibleHeight = Math.min(innerHeight, window.visualViewport?.height || innerHeight);
+    return box.top >= 0 && box.bottom <= visibleHeight && element.contains(hit);
   });
   await expect.poll(reachableSend).toBe(true);
   await page.locator(".snap-attachment").last().scrollIntoViewIfNeeded();
@@ -182,11 +185,18 @@ test("附件整理：多屏、编号、大图、删除与撤销，实际发送�
     window.visualViewport.dispatchEvent(new Event("resize"));
   });
   await expect.poll(async () => (await page.locator("#send-message-button").boundingBox()).y).toBeLessThan(420);
+  await editor.fill("请详细分析图片中的条件，并逐步解释解题过程。".repeat(60));
+  await expect.poll(reachableSend).toBe(true);
+  await page.screenshot({
+    path: "test-results/keyboard-long-" + testInfo.project.name + ".png",
+    clip: { x: 0, y: 0, width: 390, height: 460 },
+  });
+  await editor.fill("把这几张图一起解释一下");
   await page.evaluate(() => {
     delete window.visualViewport.height;
     window.visualViewport.dispatchEvent(new Event("resize"));
   });
-  await expect(page.locator(".snap-start").getByText("Snap-Solver (Open WebUI)", { exact: false })).toBeVisible();
+  await expect(page.locator(".snap-start").getByText("Scrylet (Open WebUI)", { exact: false })).toBeVisible();
   await expect(page.getByText("已登录。", { exact: true })).not.toBeVisible();
   expect(
     await page
@@ -300,7 +310,7 @@ test("截图未完成不能抢先发送，切换对话后不把截图加入新�
   } finally {
     release();
   }
-  await expect(page.locator("#snap-toast")).toContainText("对话已切换");
+  await expect(page.locator("#snap-toast")).toBeHidden();
   await expect(
     page.locator("#message-input-container .snap-attachment"),
   ).toHaveCount(0);
@@ -316,7 +326,7 @@ test("截图未完成不能抢先发送，切换对话后不把截图加入新�
   );
   await page.locator("#chat-input").fill("保留这段草稿");
   await page.locator("#snap-capture").click();
-  await expect(page.locator("#snap-toast")).toContainText("请先授予截屏权限");
+  await expect(page.locator("#snap-toast")).toBeHidden();
   await expect(page.locator("#chat-input")).toHaveText("保留这段草稿");
   await expect(page.locator("#snap-capture")).toBeEnabled();
 });
@@ -416,11 +426,39 @@ test("手机模型设置按需展开，保存保留密钥且不会调用模型",
     path: "test-results/models-" + testInfo.project.name + ".png",
   });
   await page.locator('[data-id="alibaba"]').click();
+  await expect(page.locator("#provider-name")).toBeFocused();
   await expect(page.locator("#api-key")).toHaveValue("");
   await expect(page.locator("#model-list")).not.toBeVisible();
   await page.screenshot({
     path: "test-results/model-sheet-" + testInfo.project.name + ".png",
   });
+  await page.evaluate(() => {
+    Object.defineProperty(window.visualViewport, "height", { configurable: true, get: () => 460 });
+    window.visualViewport.dispatchEvent(new Event("resize"));
+  });
+  await page.locator("#api-key").focus();
+  await expect.poll(() => page.locator("#provider-dialog").evaluate((element) =>
+    Math.round(element.getBoundingClientRect().bottom),
+  )).toBeLessThanOrEqual(460);
+  await page.locator("#save").scrollIntoViewIfNeeded();
+  await expect.poll(() => page.locator("#save").evaluate((element) => {
+    const bounds = element.getBoundingClientRect();
+    const hit = document.elementFromPoint(bounds.x + bounds.width / 2, bounds.y + bounds.height / 2);
+    return bounds.top >= 0 && bounds.bottom <= 460 && element.contains(hit);
+  })).toBe(true);
+  await page.screenshot({
+    path: "test-results/model-sheet-keyboard-" + testInfo.project.name + ".png",
+    clip: { x: 0, y: 0, width: 390, height: 460 },
+  });
+  await page.evaluate(() => {
+    delete window.visualViewport.height;
+    window.visualViewport.dispatchEvent(new Event("resize"));
+  });
+  await page.touchscreen.tap(8, 8);
+  await expect(page.locator("#provider-dialog")).toBeHidden();
+  await expect(page.locator('[data-id="alibaba"]')).toBeFocused();
+  await page.locator('[data-id="alibaba"]').click();
+  await expect(page.locator("#provider-name")).toBeFocused();
   await page.locator("#save").click();
   await expect(page.locator("#chat-input")).toBeVisible();
   const data = await (

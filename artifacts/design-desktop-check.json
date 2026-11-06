@@ -1,0 +1,15 @@
+{
+  "platform": "win32",
+  "minimumWindow": [
+    780,
+    700
+  ],
+  "controlsInViewport": [
+    "capture-send",
+    "capture-region",
+    "preview",
+    "pause",
+    "quit"
+  ],
+  "settingsExpanded": true
+}

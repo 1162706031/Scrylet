@@ -4,15 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'" />
-    <title>Snap-Solver</title>
+    <title>Scrylet</title>
     <link rel="stylesheet" href="style.css" />
     <script defer src="app.js"></script>
   </head>
   <body>
     <aside class="computer-panel">
       <div class="brand">
-        <span class="brand-mark"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M8 12h8m-4-4v8" /></svg></span>
-        <span>Snap-Solver</span>
+        <span class="brand-mark"><img src="../../web/brand/icon.svg" width="32" height="32" alt="" /></span>
+        <span>Scrylet</span>
       </div>
       <div class="host-overview">
         <div class="host-visual" aria-hidden="true">
@@ -37,20 +37,54 @@
     </aside>
     <div class="main-panel">
       <main>
-        <header class="page-heading"><h1>连接手机</h1><p>手机负责提问，电脑提供屏幕。</p></header>
+        <header class="page-heading"><span class="eyebrow">你的桌面解题助手</span><h1>问题在电脑，答案在手边。</h1><p>连接手机，随时截取屏幕上的问题。</p></header>
+        <section class="capture-card" aria-label="电脑截图">
+          <div class="capture-heading"><span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M8 12h8m-4-4v8" /></svg></span><div><h2>截取问题，直接提问</h2><p>截图与默认提示词一起发送到手机对话</p></div></div>
+          <div class="capture-actions">
+            <button id="capture-send" class="primary-button" disabled><span>截屏并发送</span><kbd id="full-shortcut">Ctrl+Alt+S</kbd></button>
+            <button id="capture-region" class="secondary-button" disabled><span>区域截屏</span><kbd id="region-shortcut">Ctrl+Alt+A</kbd></button>
+            <button id="capture-cancel" class="text-button" hidden>取消选区</button>
+          </div>
+          <p id="capture-target" class="capture-target" hidden>请在手机保持聊天页面打开</p>
+          <p id="capture-notice" class="capture-notice" role="status" aria-live="polite" hidden></p>
+        </section>
         <section class="pair-section" aria-label="连接手机">
           <div class="qr-frame"><img id="qr" alt="用手机相机扫描连接" width="224" height="224" /><div id="qr-cover">准备中…</div></div>
-          <h2>用手机相机扫码</h2>
+          <div class="pair-instructions"><span class="eyebrow">连接手机</span><h2>扫一扫，把答案带到手机</h2>
           <p class="wifi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a15 15 0 0 1 18 0M6 12a10 10 0 0 1 12 0m-9 4a5 5 0 0 1 6 0"/><circle cx="12" cy="20" r="1"/></svg>手机与电脑连接同一 Wi-Fi</p>
+          <ol class="pair-steps"><li>用手机相机扫描左侧二维码</li><li>连接模型，即可开始提问</li></ol>
           <div class="qr-caption"><span id="expiry"></span><span aria-hidden="true">·</span><button id="refresh-code" class="text-button" title="刷新二维码" aria-label="刷新二维码">换一个码</button></div>
+          </div>
         </section>
         <section class="devices-card" aria-label="已配对设备">
           <div class="section-heading"><h2>已配对设备</h2><span id="device-count">0 台</span></div>
           <div id="devices"><p class="empty">等待手机连接</p></div>
         </section>
         <div id="notice" role="status" aria-live="polite"></div>
+        <details class="capture-settings">
+          <summary><span>截图操作与默认提示词<small>快捷键、鼠标操作与提问方式</small></span></summary>
+          <form id="capture-settings-form">
+            <p class="setting-help">截图始终静默：不播放声音、不显示选区或结果提示，也不自动弹出窗口。异常可在操作日志中查看。</p>
+            <div class="settings-grid">
+              <label>全屏截图快捷键<input id="setting-full" class="shortcut-input" autocomplete="off" readonly aria-label="全屏截图快捷键" /></label>
+              <label>区域截图快捷键<input id="setting-region" class="shortcut-input" autocomplete="off" readonly aria-label="区域截图快捷键" /></label>
+              <label>取消选区快捷键<input id="setting-cancel" class="shortcut-input" autocomplete="off" readonly aria-label="取消选区快捷键" /></label>
+            </div>
+            <p class="setting-help">点击快捷键输入框，再按下想使用的组合键。取消键只在选区时生效。</p>
+            <label class="check-row"><input id="setting-mouse-enabled" type="checkbox" />启用全局鼠标操作（Windows）</label>
+            <div class="settings-grid">
+              <label>鼠标触发按键<select id="setting-mouse-button"><option value="left">左键</option><option value="right">右键</option><option value="middle">中键</option><option value="x1">侧键 1</option><option value="x2">侧键 2</option></select></label>
+              <label>每个角长按（秒）<input id="setting-hold" type="number" min="0.3" max="5" step="0.1" required /></label>
+              <label>第二次长按等待（秒）<input id="setting-timeout" type="number" min="1" max="30" step="0.5" required /></label>
+            </div>
+            <p class="setting-help">先按住左上角，松开后在时限内按住右下角；松开鼠标后截图并发送。拖动鼠标会取消本次长按。</p>
+            <div class="double-click-settings"><label class="check-row"><input id="setting-double-enabled" type="checkbox" />双击同一鼠标按键，截全屏并发送</label><label>双击间隔（秒）<input id="setting-double-time" type="number" min="0.15" max="1" step="0.05" required /></label></div>
+            <label class="prompt-label" for="setting-prompt">默认提示词</label><textarea id="setting-prompt" rows="5" maxlength="12000" required></textarea>
+            <div class="settings-footer"><span>已有手机草稿或回答生成中时，暂不自动发送。</span><button id="save-capture-settings" type="submit" class="primary-button">保存设置</button></div>
+          </form>
+        </details>
         <details class="connection-settings">
-          <summary>手动连接与网络设置</summary>
+          <summary><span>手动连接与网络设置<small>连接码、局域网地址与网络切换</small></span></summary>
           <div class="manual-grid">
             <div class="manual-address"><label>在手机浏览器打开</label><div class="address-row"><code id="address"></code><button id="copy" class="text-button">复制</button></div></div>
             <div><label>连接码</label><strong id="code">··· ···</strong></div>
@@ -58,8 +92,20 @@
           </div>
           <p>手机连不上时，可换用个人热点。Windows 防火墙请选择允许专用网络。</p>
         </details>
+        <details id="maintenance" class="maintenance-panel">
+          <summary><span>操作日志与缓存<small>查看运行记录，管理临时缓存</small></span></summary>
+          <div class="maintenance-cache">
+            <div><h2>临时缓存</h2><p id="cache-size">正在读取…</p></div>
+            <button id="clear-cache" class="secondary-button">清除缓存</button>
+          </div>
+          <p class="setting-help">仅清理页面与代码缓存，保留聊天、图片附件、密钥、配对、设置和操作日志。</p>
+          <div id="maintenance-status" role="status" aria-live="polite"></div>
+          <div class="log-toolbar"><h2>操作日志</h2><select id="log-level" aria-label="筛选操作日志"><option value="all">全部操作</option><option value="errors">仅异常</option></select><button id="refresh-logs" class="text-button">刷新日志</button></div>
+          <p class="setting-help">最近 200 条，按时间倒序。本机轮换保存，不记录密钥、提示词、图片或聊天正文。</p>
+          <div id="activity-log" class="activity-log" aria-label="操作日志列表"><p class="empty">暂无操作记录</p></div>
+        </details>
       </main>
-      <footer><button id="preview" class="text-button">预览手机端</button><div><button id="pause" class="text-button">暂停手机访问</button><button id="quit" class="text-button" title="退出 Snap-Solver" aria-label="退出 Snap-Solver">退出</button></div></footer>
+      <footer><button id="preview" class="text-button">预览手机端</button><div><button id="pause" class="text-button">暂停手机访问</button><button id="quit" class="text-button" title="退出 Scrylet" aria-label="退出 Scrylet">退出</button></div></footer>
     </div>
   </body>
 </html>

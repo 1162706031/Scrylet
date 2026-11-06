@@ -1,0 +1,56 @@
+{
+  "at": "2026-11-05T20:58:31.078Z",
+  "version": "2.0.0-dev.2",
+  "platform": "win32",
+  "architecture": "x64",
+  "installer": "Snap-Solver-2.0.0-dev.2-win-x64-Setup.exe",
+  "bytes": 308548198,
+  "sha256": "f6363a1ba157c872063e57291b30000eb02832214e36f909261d149ac70d3c9a",
+  "signed": false,
+  "bundledSourceMatches": true,
+  "packageMetadataMatches": true,
+  "sourceFilesCompared": 42,
+  "bundledRuntime": {
+    "python": "3.12.16",
+    "openWebUI": "0.12.2",
+    "architecture": "x64",
+    "requirementsSha256": "5bc824182d7381ef7ea40ed4e8f171a3648c704828db4141fba347307005466e"
+  },
+  "externalModelRequests": 0,
+  "noPrivateDataBundled": true,
+  "noDevelopmentDependenciesBundled": true,
+  "offlineTestsPassed": 32,
+  "browserTestsPassed": 38,
+  "browserProjects": [
+    "Chromium",
+    "WebKit"
+  ],
+  "packagedSilentCapture": {
+    "at": "2026-11-05T20:55:51.841Z",
+    "platform": "win32",
+    "packaged": true,
+    "version": "2.0.0-dev.2",
+    "nativeCapture": {
+      "width": 2560,
+      "height": 1440
+    },
+    "feedback": {
+      "shows": 0,
+      "focuses": 0,
+      "notifications": 0,
+      "beeps": 0,
+      "flashes": 0,
+      "tooltips": 0,
+      "overlays": 0,
+      "mainVisible": false,
+      "audioMuted": true
+    },
+    "legacyHintsIgnored": true,
+    "draftPreserved": true,
+    "mockedModelRequests": 1,
+    "externalModelRequests": 0,
+    "physicalInputSynthesized": false
+  },
+  "freshInstallationTested": false,
+  "physicalPhoneTested": false
+}

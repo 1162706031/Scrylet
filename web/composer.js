@@ -20,10 +20,10 @@ export class Composer {
           this.epoch++;
           this.changed();
         }
-        if (this.busy && target?.matches("#send-message-button")) {
+        if (this.busy && !this.desktopSubmit && target?.matches("#send-message-button")) {
           event.preventDefault();
           event.stopImmediatePropagation();
-          this.say("图片正在加入，稍等一下");
+          if (!this.silentFeedback) this.say("图片正在加入，稍等一下");
         }
       },
       true,
@@ -87,20 +87,22 @@ export class Composer {
     if (!this.isCurrent(context))
       throw new Error("对话已切换，请在当前对话重新添加图片");
   }
-  async run(action) {
+  async run(action, { silent = false } = {}) {
     if (this.busy) return;
     this.busy = true;
+    this.silentFeedback = silent;
     this.changed();
     try {
       return await action();
     } catch (error) {
-      this.say(error.message || "图片操作失败，请重试", true);
+      if (!silent) this.say(error.message || "图片操作失败，请重试", true);
     } finally {
       this.busy = false;
+      this.silentFeedback = false;
       this.changed();
     }
   }
-  async append(blob, context, name = "Snap-Solver-" + Date.now() + ".jpg") {
+  async append(blob, context, name = "Scrylet-" + Date.now() + ".jpg", { showFeedback = true } = {}) {
     this.assertCurrent(context);
     const before = new Set(this.entries().map((entry) => entry.key));
     if (before.size >= this.maxImages)
@@ -123,9 +125,11 @@ export class Composer {
       this.assertCurrent(context);
       const entry = this.entries().find((item) => !before.has(item.key));
       if (entry) {
-        entry.row.classList.add("snap-just-added");
-        entry.row.scrollIntoView({ block: "nearest", inline: "nearest" });
-        setTimeout(() => entry.row.classList.remove("snap-just-added"), 800);
+        if (showFeedback) {
+          entry.row.classList.add("snap-just-added");
+          entry.row.scrollIntoView({ block: "nearest", inline: "nearest" });
+          setTimeout(() => entry.row.classList.remove("snap-just-added"), 800);
+        }
         return entry;
       }
       await new Promise((resolve) => setTimeout(resolve, 50));
@@ -162,5 +166,50 @@ export class Composer {
     });
     if (!response.ok) throw new Error("图片读取失败，原图已保留");
     return response.blob();
+  }
+  desktopReadiness() {
+    if (document.hidden) return "hidden";
+    if (!this.context().editor) return "loading";
+    if (this.generating()) return "generating";
+    if (this.busy) return "busy";
+    if (this.entries().length || this.context().editor.textContent.trim()) return "draft";
+    return "";
+  }
+  generating() {
+    return Boolean(this.container()?.querySelector('button[aria-label="停止"],button[aria-label="Stop"]'));
+  }
+  async submitDesktop(blob, prompt, context, validate) {
+    // The caller owns this.busy until the upstream form accepts the send.
+    this.assertCurrent(context);
+    await this.append(blob, context, undefined, { showFeedback: false });
+    this.assertCurrent(context);
+    if (document.hidden) throw new Error("手机聊天页面已切到后台，截图保留在草稿中");
+    if (context.editor.textContent.trim()) throw new Error("手机草稿已变化，截图保留在草稿中");
+    const transfer = new DataTransfer();
+    transfer.setData("text/plain", prompt);
+    context.editor.dispatchEvent(new ClipboardEvent("paste", {
+      bubbles: true, cancelable: true, clipboardData: transfer,
+    }));
+    const deadline = Date.now() + 10000;
+    while (Date.now() < deadline) {
+      this.assertCurrent(context);
+      const send = document.querySelector("#send-message-button");
+      if (context.editor.textContent.trim() && send && !send.disabled) {
+        await validate();
+        this.assertCurrent(context);
+        if (document.hidden) throw new Error("手机聊天页面已切到后台，截图保留在草稿中");
+        this.desktopSubmit = true;
+        try { send.click(); } finally { this.desktopSubmit = false; }
+        // Observe the original composer clearing, not an independent chat state.
+        while (Date.now() < deadline) {
+          if (!this.entries().length && !document.querySelector("#chat-input")?.textContent.trim()) return;
+          if (this.generating()) return;
+          await new Promise((resolve) => setTimeout(resolve, 50));
+        }
+        throw new Error("未确认聊天框提交，请查看手机记录后再重试");
+      }
+      await new Promise((resolve) => setTimeout(resolve, 50));
+    }
+    throw new Error("聊天框尚未就绪，截图保留在草稿中");
   }
 }

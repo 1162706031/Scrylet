@@ -1,0 +1,53 @@
+{
+  "at": "2026-11-06T08:59:06.915855+00:00",
+  "version": "2.0.0-dev.4",
+  "syntaxCheckPassed": true,
+  "offlineTestsPassed": 38,
+  "browserIntegration": {
+    "engines": [
+      "chromium",
+      "webkit"
+    ],
+    "passed": 58,
+    "failed": 0,
+    "flaky": 0,
+    "skipped": 0,
+    "durationMs": 306402.187,
+    "newReadAloudCases": 16,
+    "upstreamVersion": "0.12.2",
+    "speechEngine": "mock",
+    "modelProvider": "local mock"
+  },
+  "covered": [
+    "default off and legacy playback blocked",
+    "completed streamed answers and follow-up automatically read once",
+    "desktop capture auto-submit response read on phone",
+    "stop current reading and disable immediately",
+    "browser preference persistence without history replay",
+    "background and navigation cancellation",
+    "speech error without retry loops",
+    "desktop UA cannot use speech channel even with saved true",
+    "missing speech API disables control",
+    "390px and 320px rendered phone layouts"
+  ],
+  "firstRun": {
+    "passed": 10,
+    "failed": 4,
+    "causes": [
+      "test clicked hidden upstream new-chat button instead of visible sidebar link",
+      "desktop test context inherited phone user agent"
+    ],
+    "traces": ".test-data/read-aloud-first-run-failure/"
+  },
+  "screenshots": [
+    "artifacts/read-aloud-phone-chromium.png",
+    "artifacts/read-aloud-phone-webkit.png",
+    "artifacts/read-aloud-narrow-chromium.png",
+    "artifacts/read-aloud-narrow-webkit.png"
+  ],
+  "externalModelRequests": 0,
+  "physicalPhoneTested": false,
+  "actualSpeechOutputTested": false,
+  "nativeDesktopCaptureTestedThisRun": false,
+  "freshInstallationTestedThisRun": false
+}

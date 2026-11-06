@@ -2,9 +2,11 @@ import { Composer } from "./composer.js";
 import { Attachments } from "./attachments.js";
 import { applyScope } from "./scope.js";
 import { Layout } from "./layout.js";
+import { receiveDesktop } from "./desktop-capture.js";
+import { ReadAloud } from "./read-aloud.js";
 
 /* Integration surface for Open WebUI 0.12.2. Conversation and generation stay
- * entirely in the upstream UI; this module only attaches a cropped image. */
+ * entirely in the upstream UI; desktop commands use its existing submit path. */
 (() => {
   if (window.__snapSolver) return;
   window.__snapSolver = true;
@@ -134,7 +136,15 @@ import { Layout } from "./layout.js";
   }
   const composer = new Composer(say, () => refresh());
   const attachments = new Attachments(composer, say);
+  receiveDesktop({
+    composer, api, changed: () => refresh(),
+    available: () => Boolean(state?.ready && !state.paused && !state.error && hasModels && !dialog && !document.querySelector("#snap-voice-dialog[open]")),
+    beforeSend: () => attachments.clearUndo(),
+  });
   const layout = new Layout();
+  const readAloud = new ReadAloud();
+  sourceLabel.append(readAloud.voiceSettings.button);
+  bar.append(readAloud.status);
   let refreshQueued = false;
   function refresh() {
     if (refreshQueued) return;
@@ -143,7 +153,7 @@ import { Layout } from "./layout.js";
       refreshQueued = false;
       visibility();
       attachments.sync();
-      layout.sync(composer.container(), document.querySelector("#chat-container nav"), connection, modelLink, hasModels);
+      layout.sync(composer.container(), document.querySelector("#chat-container nav"), connection, modelLink, hasModels, readAloud.button);
       applyScope();
       const blocked =
         state?.paused ||
@@ -195,12 +205,13 @@ import { Layout } from "./layout.js";
       retry.hidden = !(modelsFailed || state?.disconnected);
     });
   }
-  async function api(url, body) {
+  async function api(url, body, options = {}) {
     const response = await fetch(
       url,
       body === undefined
         ? { signal: AbortSignal.timeout(15000) }
         : {
+            ...options,
             signal: AbortSignal.timeout(20000),
             method: "POST",
             headers: {
@@ -337,7 +348,7 @@ import { Layout } from "./layout.js";
           .drawImage(picture, 0, 0, canvas.width, canvas.height);
         await attachCanvas(canvas, context);
       }
-    });
+    }, { silent: true });
   }
   function showCrop(result, context) {
     if (dialog) closeCrop();
@@ -486,7 +497,7 @@ import { Layout } from "./layout.js";
       canvas.toBlob(resolve, "image/jpeg", 0.93),
     );
     if (!blob) throw new Error("图片处理失败，请重新截屏");
-    return composer.append(blob, context);
+    return composer.append(blob, context, undefined, { showFeedback: false });
   }
   capture.onclick = () => takeScreenshot();
   crop.onclick = () => takeScreenshot(undefined, true);

@@ -6,28 +6,35 @@ const QRCode = require("qrcode");
 const { Pairing, COOKIE, readJson, writeJson } = require("./pairing.cjs");
 const { addresses } = require("./native.cjs");
 const { scope, restrict } = require("./product-scope.cjs");
+const { CaptureDelivery } = require("./capture-delivery.cjs");
+const { reasonFor } = require("./activity-log.cjs");
+const { sendSilentAudio } = require("./silent-audio.cjs");
 
 const ASSETS = path.resolve(__dirname, "../web");
 const extension =
-  '<link rel="stylesheet" href="/snap/assets/mobile.css"><script type="module" src="/snap/assets/extension.js"></script>';
+  '<script src="/snap/assets/quiet.js"></script><link rel="stylesheet" href="/snap/assets/mobile.css"><script type="module" src="/snap/assets/extension.js"></script>';
 
 function unavailable(request, response, status, error) {
   const isPage = request.method === "GET" &&
     String(request.headers.accept || "").includes("text/html") &&
     !/^\/(api|snap\/api|openai|ollama)(\/|$)/.test(request.url);
-  if (isPage) return response.status(status).sendFile(path.join(ASSETS, "unavailable.html"));
+  if (isPage) return response.status(status).sendFile("unavailable.html", { root: ASSETS });
   return response.status(status).json({ error });
 }
 
 class Gateway {
-  constructor(directory, native, runtime) {
+  constructor(directory, native, runtime, { activity } = {}) {
+    this.activity = activity;
     this.networkFile = path.join(directory, "network.json");
+    this.networkSettings = readJson(this.networkFile, {});
+    this.preferredNetwork = this.networkSettings.selectedNetwork;
     this.pairing = new Pairing(directory);
     this.native = native;
     this.runtime = runtime;
     this.paused = false;
     this.selectedAddress = "";
     this.sockets = new Map();
+    this.delivery = new CaptureDelivery();
     this.proxy = httpProxy.createProxyServer({
       ws: true,
       changeOrigin: true,
@@ -39,6 +46,8 @@ class Gateway {
       } else response?.destroy();
     });
     this.proxy.on("proxyRes", (upstream, request, response) => {
+      if (request.method === "POST" && request.url.split("?")[0] === "/api/chat/completions")
+        this.activity?.record(upstream.statusCode < 400 ? "chat.requested" : "chat.failed");
       const headers = { ...upstream.headers };
       delete headers["access-control-allow-origin"];
       delete headers["access-control-allow-credentials"];
@@ -95,24 +104,25 @@ class Gateway {
       next();
     });
     this.app.use("/snap/assets", express.static(ASSETS, { index: false }));
+    this.app.get(["/audio/notification.mp3", "/audio/greeting.mp3"], sendSilentAudio);
     this.app.get("/snap/vendor/cropper.js", (_request, response) =>
-      response.sendFile(
-        path.resolve(
+      response.sendFile("cropper.min.js", {
+        root: path.resolve(
           __dirname,
-          "../node_modules/cropperjs/dist/cropper.min.js",
+          "../node_modules/cropperjs/dist",
         ),
-      ),
+      }),
     );
     this.app.get("/snap/vendor/cropper.css", (_request, response) =>
-      response.sendFile(
-        path.resolve(
+      response.sendFile("cropper.min.css", {
+        root: path.resolve(
           __dirname,
-          "../node_modules/cropperjs/dist/cropper.min.css",
+          "../node_modules/cropperjs/dist",
         ),
-      ),
+      }),
     );
     this.app.get("/snap/pair", (_request, response) =>
-      response.sendFile(path.join(ASSETS, "pair.html")),
+      response.sendFile("pair.html", { root: ASSETS }),
     );
     this.app.post(
       "/snap/api/pair",
@@ -130,6 +140,7 @@ class Gateway {
             request.body.name,
             request.socket.remoteAddress,
           );
+          this.activity?.record("device.paired", { count: this.pairing.list().length });
           response.cookie(COOKIE, token, {
             httpOnly: true,
             sameSite: "strict",
@@ -164,7 +175,7 @@ class Gateway {
       next();
     });
     this.app.get("/snap/models", (_request, response) =>
-      response.sendFile(path.join(ASSETS, "models.html")),
+      response.sendFile("models.html", { root: ASSETS }),
     );
     this.app.get("/snap/api/status", (_request, response) =>
       response.json({
@@ -176,6 +187,27 @@ class Gateway {
         maxImages: scope.maxImages,
       }),
     );
+    for (const [route, action] of [
+      ["poll", (device, data) => this.delivery.poll(device, data)],
+      ["validate", (device, data) => {
+        if (!this.runtime.ready || this.runtime.error) throw new Error("聊天服务尚未就绪，截图已保留在草稿中");
+        this.delivery.validate(device, data);
+        return { success: true };
+      }],
+      ["ack", (device, data) => {
+        this.delivery.acknowledge(device, data);
+        return { success: true };
+      }],
+    ]) {
+      this.app.post("/snap/api/desktop/" + route, express.json({ limit: "2kb" }), (request, response) => {
+        if (request.headers["x-snap-client"] !== "mobile") return response.sendStatus(403);
+        try {
+          response.json(action(request.device, request.body));
+        } catch (error) {
+          response.status(400).json({ error: error.message });
+        }
+      });
+    }
     this.app.post(
       "/snap/api/capture",
       express.json({ limit: "2kb" }),
@@ -183,8 +215,11 @@ class Gateway {
         if (request.headers["x-snap-client"] !== "mobile")
           return response.sendStatus(403);
         try {
-          response.json(await this.native.capture(request.body?.displayId));
+          const capture = await this.native.capture(request.body?.displayId);
+          this.activity?.record("capture.completed", { origin: "phone", width: capture.width, height: capture.height });
+          response.json(capture);
         } catch (error) {
+          this.activity?.record("capture.failed", { origin: "phone", reason: reasonFor(error) });
           response.status(400).json({ error: error.message });
         }
       },
@@ -214,6 +249,7 @@ class Gateway {
           response.json(
             await this.runtime.saveProvider(request.params.id, request.body),
           );
+          this.activity?.record("provider.saved");
         } catch (error) {
           response.status(400).json({ error: error.message });
         }
@@ -269,7 +305,7 @@ class Gateway {
     });
   }
   async start(port = 0) {
-    const saved = readJson(this.networkFile, {}).port;
+    const saved = this.networkSettings.port;
     const preferred =
       port ||
       (Number.isInteger(saved) && saved > 1023 && saved <= 65535 ? saved : 0);
@@ -295,23 +331,45 @@ class Gateway {
       await listen(0);
     }
     this.port = this.server.address().port;
-    writeJson(this.networkFile, { port: this.port });
+    this.saveNetwork();
     return this.port;
+  }
+  saveNetwork() {
+    writeJson(this.networkFile, {
+      ...this.networkSettings, port: this.port,
+      ...(this.preferredNetwork ? { selectedNetwork: this.preferredNetwork } : {}),
+    });
+  }
+  selectNetwork(address) {
+    const network = addresses().find((item) => item.address === address);
+    if (!network) throw new Error("网络地址已失效，请刷新");
+    const previous = this.preferredNetwork;
+    this.preferredNetwork = { name: network.name, address: network.address };
+    try { this.saveNetwork(); } catch (error) {
+      this.preferredNetwork = previous;
+      throw error;
+    }
   }
   async state() {
     const networks = addresses();
-    if (!networks.some((item) => item.address === this.selectedAddress)) {
-      this.selectedAddress = networks[0]?.address || "127.0.0.1";
-    }
-    const baseUrl = "http://" + this.selectedAddress + ":" + this.port;
+    const preferred = this.preferredNetwork;
+    // Remember the adapter as well as its address, so DHCP changes still use
+    // the chosen network. A disconnected preference falls back without erasing it.
+    const selected = networks.find((item) => item.name === preferred?.name && item.address === preferred?.address) ||
+      networks.find((item) => item.name === preferred?.name) || networks[0];
+    const selectedAddress = selected?.address || "127.0.0.1";
+    this.selectedAddress = selectedAddress;
+    const baseUrl = "http://" + selectedAddress + ":" + this.port;
     const pairing = this.pairing.info();
     const url = baseUrl + "/snap/pair#token=" + pairing.token;
-    if (this.qrUrl !== url) {
-      this.qr = await QRCode.toDataURL(url, {
+    let qr = this.qrUrl === url ? this.qr : null;
+    if (!qr) {
+      qr = await QRCode.toDataURL(url, {
         width: 280,
         margin: 2,
         color: { dark: "#192c27", light: "#ffffff" },
       });
+      this.qr = qr;
       this.qrUrl = url;
     }
     return {
@@ -319,12 +377,12 @@ class Gateway {
       error: this.runtime.error,
       paused: this.paused,
       networks,
-      selectedAddress: this.selectedAddress,
+      selectedAddress,
       baseUrl,
       pairingUrl: url,
       code: pairing.code,
       expiresAt: pairing.expiresAt,
-      qr: this.qr,
+      qr,
       devices: this.pairing.list(),
       permission: this.native.permission(),
       platform: process.platform,
@@ -332,15 +390,20 @@ class Gateway {
     };
   }
   revoke(id) {
+    this.activity?.record("device.revoked");
     this.pairing.revoke(id);
+    this.delivery.revoke(id);
     for (const [socket, owner] of this.sockets)
       if (owner === id) socket.destroy();
   }
   pause(value) {
+    this.activity?.record(value ? "access.paused" : "access.resumed");
     this.paused = Boolean(value);
+    if (this.paused) this.delivery.cancel("手机访问已暂停，截图发送已取消");
     if (this.paused) for (const socket of this.sockets.keys()) socket.destroy();
   }
   async close() {
+    this.delivery.close();
     for (const socket of this.sockets.keys()) socket.destroy();
     this.proxy.close();
     this.server.closeAllConnections();

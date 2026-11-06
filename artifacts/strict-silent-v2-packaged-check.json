@@ -1,0 +1,26 @@
+{
+  "at": "2026-11-05T20:55:51.841Z",
+  "platform": "win32",
+  "packaged": true,
+  "version": "2.0.0-dev.2",
+  "nativeCapture": {
+    "width": 2560,
+    "height": 1440
+  },
+  "feedback": {
+    "shows": 0,
+    "focuses": 0,
+    "notifications": 0,
+    "beeps": 0,
+    "flashes": 0,
+    "tooltips": 0,
+    "overlays": 0,
+    "mainVisible": false,
+    "audioMuted": true
+  },
+  "legacyHintsIgnored": true,
+  "draftPreserved": true,
+  "mockedModelRequests": 1,
+  "externalModelRequests": 0,
+  "physicalInputSynthesized": false
+}

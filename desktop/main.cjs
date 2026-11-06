@@ -13,19 +13,26 @@ const path = require("node:path");
 const { pathToFileURL } = require("node:url");
 const { Runtime } = require("./runtime.cjs");
 const { Gateway } = require("./gateway.cjs");
-const { createNative, addresses } = require("./native.cjs");
+const { createNative } = require("./native.cjs");
+const { CaptureControls } = require("./capture-controls.cjs");
+const { ActivityLog, reasonFor } = require("./activity-log.cjs");
+const { Maintenance } = require("./maintenance.cjs");
+const { NAME, APP_ID, dataDirectory } = require("./brand.cjs");
 const ROOT = path.resolve(__dirname, "..");
 const page = path.join(__dirname, "ui/index.html");
 let window,
   tray,
   runtime,
   gateway,
+  captureControls,
+  activity,
+  maintenance,
   quitting = false,
   shutDown = false;
 
-app.setName("Snap-Solver");
-if (process.env.SNAP_DATA_DIR)
-  app.setPath("userData", path.resolve(process.env.SNAP_DATA_DIR));
+app.setName(NAME);
+if (process.platform === "win32") app.setAppUserModelId(APP_ID);
+app.setPath("userData", dataDirectory(app.getPath("appData"), process.env.SNAP_DATA_DIR));
 if (!app.requestSingleInstanceLock()) {
   app.quit();
 } else {
@@ -37,19 +44,26 @@ if (!app.requestSingleInstanceLock()) {
     .whenReady()
     .then(start)
     .catch((error) => {
-      dialog.showErrorBox("无法启动 Snap-Solver", error.message);
+      activity?.record("runtime.failed", { reason: reasonFor(error) });
+      dialog.showErrorBox("无法启动 " + NAME, error.message);
       app.quit();
     });
 }
 
 async function start() {
+  activity = new ActivityLog(app.getPath("userData"));
+  activity.record("app.started");
   const native = createNative(electron);
   runtime = new Runtime(app.getPath("userData"), {
     legacyDirectory:
       process.env.SNAP_LEGACY_DIR || path.join(ROOT, ".snapsolver"),
   });
-  gateway = new Gateway(app.getPath("userData"), native, runtime);
+  gateway = new Gateway(app.getPath("userData"), native, runtime, { activity });
   await gateway.start(Number(process.env.SNAP_PORT || 0));
+  captureControls = new CaptureControls(electron, app.getPath("userData"), {
+    native, gateway, runtime, activity, getWindow: () => window,
+    legacyDirectory: process.env.SNAP_LEGACY_DIR || path.join(ROOT, ".snapsolver"),
+  });
   function handle(channel, callback) {
     ipcMain.handle(channel, (event, ...args) => {
       if (
@@ -64,6 +78,7 @@ async function start() {
   const connectionState = async () => ({
     ...(await gateway.state()),
     backgroundAvailable: Boolean(tray),
+    capture: captureControls.snapshot(),
   });
   handle("snap:state", connectionState);
   handle("snap:refresh-code", () => {
@@ -71,9 +86,7 @@ async function start() {
     return connectionState();
   });
   handle("snap:network", (address) => {
-    if (!addresses().some((item) => item.address === address))
-      throw new Error("网络地址已失效，请刷新");
-    gateway.selectedAddress = address;
+    gateway.selectNetwork(address);
     return connectionState();
   });
   handle("snap:revoke", (id) => {
@@ -86,8 +99,14 @@ async function start() {
   });
   handle("snap:permission", () => native.openPermission());
   handle("snap:test-capture", async () => {
-    const result = await native.capture();
-    return { width: result.width, height: result.height };
+    try {
+      const result = await native.capture();
+      activity.record("capture.completed", { origin: "check", width: result.width, height: result.height });
+      return { width: result.width, height: result.height };
+    } catch (error) {
+      activity.record("capture.failed", { origin: "check", reason: reasonFor(error) });
+      throw error;
+    }
   });
   handle("snap:copy", async () => native.copy((await gateway.state()).baseUrl));
   handle("snap:preview", async () => {
@@ -95,8 +114,17 @@ async function start() {
     await shell.openExternal(state.pairingUrl);
   });
   handle("snap:quit", () => app.quit());
+  handle("snap:capture-send", () => captureControls.capture("full"));
+  handle("snap:capture-region", () => captureControls.arm());
+  handle("snap:capture-cancel", () => captureControls.cancel());
+  handle("snap:capture-settings", (settings) => captureControls.configure(settings));
+  handle("snap:capture-suspend", (value) => captureControls.suspend(value));
+  handle("snap:activity", () => activity.list());
+  handle("snap:cache-info", () => maintenance.stats());
+  handle("snap:cache-clear", () => maintenance.clearCache());
   window = new BrowserWindow({
-    title: "Snap-Solver",
+    title: NAME,
+    icon: path.join(ROOT, "web/brand/icon.png"),
     width: 860,
     height: 740,
     minWidth: 780,
@@ -111,7 +139,9 @@ async function start() {
       sandbox: true,
     },
   });
+  window.webContents.setAudioMuted(true);
   window.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
+  maintenance = new Maintenance(window.webContents.session, app.getPath("sessionData"), activity);
   window.webContents.on("will-navigate", (event) => event.preventDefault());
   window.webContents.session.setPermissionRequestHandler(
     (_webContents, _permission, callback) => callback(false),
@@ -124,14 +154,21 @@ async function start() {
   });
   await window.loadFile(page);
   window.show();
+  captureControls.start();
+  captureControls.on("change", (state) => {
+    if (!window?.isDestroyed()) window?.webContents.send("snap:capture-state", state);
+  });
+  window.on("blur", () => captureControls.suspend(false));
   Menu.setApplicationMenu(
     Menu.buildFromTemplate([
       {
-        label: "Snap-Solver",
+        label: NAME,
         submenu: [
           { label: "显示连接窗口", click: () => window.show() },
+          { label: "截屏并发送", click: () => captureControls.run(() => captureControls.capture("full")) },
+          { label: "区域截屏", click: () => captureControls.run(() => captureControls.arm()) },
           { type: "separator" },
-          { role: "quit", label: "退出 Snap-Solver" },
+          { role: "quit", label: "退出 " + NAME },
         ],
       },
       { role: "editMenu", label: "编辑" },
@@ -139,42 +176,16 @@ async function start() {
     ]),
   );
   try {
-    // nativeImage accepts bitmap/PNG, not SVG. Draw a small template bitmap so
-    // the tray remains visible on both platforms and at Retina scale.
-    const pixels = Buffer.alloc(44 * 44 * 4);
-    const rectangles = [
-      [6, 6, 10, 4],
-      [6, 6, 4, 10],
-      [28, 6, 10, 4],
-      [34, 6, 4, 10],
-      [6, 28, 4, 10],
-      [6, 34, 10, 4],
-      [34, 28, 4, 10],
-      [28, 34, 10, 4],
-      [15, 20, 14, 4],
-      [20, 15, 4, 14],
-    ];
-    for (const [x, y, width, height] of rectangles) {
-      for (let row = y; row < y + height; row++)
-        for (let column = x; column < x + width; column++) {
-          const index = (row * 44 + column) * 4;
-          pixels[index] = 76;
-          pixels[index + 1] = 130;
-          pixels[index + 2] = 90;
-          pixels[index + 3] = 255;
-        }
-    }
-    const icon = nativeImage.createFromBitmap(pixels, {
-      width: 44,
-      height: 44,
-      scaleFactor: 2,
-    });
+    const icon = nativeImage.createFromPath(path.join(ROOT, "web/brand", process.platform === "darwin" ? "trayTemplate.png" : "icon.png"));
+    if (icon.isEmpty()) throw new Error("应用图标未加载");
     if (process.platform === "darwin") icon.setTemplateImage(true);
     tray = new Tray(icon);
-    tray.setToolTip("Snap-Solver · 手机连接服务");
+    tray.setToolTip(NAME + " · 手机连接服务");
     tray.setContextMenu(
       Menu.buildFromTemplate([
-        { label: "打开 Snap-Solver", click: () => window.show() },
+        { label: "打开 " + NAME, click: () => window.show() },
+        { label: "截屏并发送", click: () => captureControls.run(() => captureControls.capture("full")) },
+        { label: "区域截屏", click: () => captureControls.run(() => captureControls.arm()) },
         { label: "退出", click: () => app.quit() },
       ]),
     );
@@ -184,7 +195,9 @@ async function start() {
   }
   try {
     await runtime.start();
+    activity.record("runtime.ready");
   } catch (error) {
+    activity.record("runtime.failed", { reason: reasonFor(error) });
     runtime.error = error.message;
     await runtime.stop();
   }
@@ -197,7 +210,9 @@ app.on("before-quit", (event) => {
   quitting = true;
   if (shutDown) return;
   event.preventDefault();
+  captureControls?.close();
   Promise.allSettled([runtime?.stop(), gateway?.close()]).then(() => {
+    activity?.record("app.stopped");
     shutDown = true;
     tray?.destroy();
     app.quit();

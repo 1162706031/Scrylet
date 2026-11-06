@@ -1,0 +1,18 @@
+[
+  {
+    "cue": "notification.mp3",
+    "status": 200,
+    "type": "audio/wav",
+    "duration": 0.1,
+    "peak": 0,
+    "measurement": "pcm-payload"
+  },
+  {
+    "cue": "greeting.mp3",
+    "status": 200,
+    "type": "audio/wav",
+    "duration": 0.1,
+    "peak": 0,
+    "measurement": "pcm-payload"
+  }
+]

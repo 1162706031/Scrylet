@@ -1,0 +1,36 @@
+{
+  "at": "2026-11-06T10:07:30.750Z",
+  "version": "2.0.0-dev.6",
+  "platform": "win32",
+  "architecture": "x64",
+  "installer": "Scrylet-2.0.0-dev.6-win-x64-Setup.exe",
+  "bytes": 308753932,
+  "sha256": "13bbf529f3f0bb34165aaab6b85934398477f91a3df0138607d9feaa7aec7d55",
+  "signed": false,
+  "bundledSourceMatches": true,
+  "packageMetadataMatches": true,
+  "sourceFilesCompared": 50,
+  "bundledRuntime": {
+    "python": "3.12.16",
+    "openWebUI": "0.12.2",
+    "architecture": "x64",
+    "requirementsSha256": "5bc824182d7381ef7ea40ed4e8f171a3648c704828db4141fba347307005466e"
+  },
+  "externalModelRequests": 0,
+  "name": "Scrylet",
+  "noPrivateData": true,
+  "noDevelopmentDependencies": true,
+  "archiveEntries": 835,
+  "offlineTestsPassed": 47,
+  "browserBrandTestsPassed": 4,
+  "nativeSourceCheck": "scrylet-native-check.json",
+  "nativePackagedCheck": "scrylet-packaged-check.json",
+  "physicalPhoneTested": false,
+  "upgradeInstallationTested": false,
+  "screenshotsPairingDataMasked": true,
+  "mandatoryDependencies": {
+    "packages": 99,
+    "mandatoryDependencyLinks": 160,
+    "allMandatoryDependenciesPresent": true
+  }
+}

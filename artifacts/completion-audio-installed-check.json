@@ -1,0 +1,38 @@
+{
+  "at": "2026-11-05T21:21:02.779Z",
+  "platform": "win32",
+  "packaged": true,
+  "version": "2.0.0-dev.3",
+  "nativeCapture": {
+    "width": 2560,
+    "height": 1440
+  },
+  "feedback": {
+    "shows": 0,
+    "focuses": 0,
+    "notifications": 0,
+    "beeps": 0,
+    "flashes": 0,
+    "tooltips": 0,
+    "overlays": 0,
+    "mainVisible": false,
+    "audioMuted": true
+  },
+  "completionAudio": [
+    {
+      "cue": "notification.mp3",
+      "peak": 0,
+      "duration": 0.1
+    },
+    {
+      "cue": "greeting.mp3",
+      "peak": 0,
+      "duration": 0.1
+    }
+  ],
+  "legacyHintsIgnored": true,
+  "draftPreserved": true,
+  "mockedModelRequests": 1,
+  "externalModelRequests": 0,
+  "physicalInputSynthesized": false
+}

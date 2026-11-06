@@ -2,7 +2,7 @@
 
 ## Project structure
 
-Snap-Solver 2 is an Electron desktop companion and a LAN phone web experience. `desktop/main.cjs` owns lifecycle and narrow IPC, `native.cjs` owns screen capture, `pairing.cjs` owns device credentials, and `gateway.cjs` authenticates and proxies phone traffic. The unmodified Open WebUI 0.12.2 wheel runs on loopback through `runtime/launch.py`.
+Scrylet (formerly Snap-Solver 2) is an Electron desktop companion and a LAN phone web experience. `desktop/main.cjs` owns lifecycle and narrow IPC, `native.cjs` owns screen capture, `pairing.cjs` owns device credentials, and `gateway.cjs` authenticates and proxies phone traffic. The unmodified Open WebUI 0.12.2 wheel runs on loopback through `runtime/launch.py`.
 
 `desktop/ui/` contains the connection window. `web/` contains pairing, provider setup, and an additive screenshot attachment extension for the upstream chat UI. Model catalog and prompt seeds live in `config/`. Do not rebuild a parallel chat state machine or provider SDK layer.
 
@@ -14,10 +14,14 @@ Snap-Solver 2 is an Electron desktop companion and a LAN phone web experience. `
 - `npm test`: offline pairing / gateway tests.
 - `npx playwright install chromium webkit && npm run test:ui`: actual upstream UI against a local mock provider.
 - `npm run test:desktop`: isolated Electron launch, native capture, close-to-tray check.
+- `npm run test:desktop-input`: Windows system hotkeys, long-press region capture and auto-submit against a local mock provider.
+- `npm run test:maintenance`: isolated operation-log, cache cleanup and data-preservation acceptance.
+- `npm run test:network`: native desktop network selection, restart persistence and pairing at the LAN origin.
+- `npm run dist:win`: prepare the bundled Python runtime and build the Windows x64 NSIS installer on native Windows.
 
 ## Implementation
 
-Use small CommonJS modules and plain browser modules. The screenshot button appends an image to the current upstream composer, never automatically submits and never replaces previous attachments. Region selection is optional. Keep primary screens visual and concise; reveal configuration details only when requested.
+Use small CommonJS modules and plain browser modules. Phone screenshot buttons append images to the current upstream composer without submitting or replacing previous attachments. Explicit desktop capture-and-send actions may append a screenshot and the configured default prompt, then submit through the upstream composer. Use one authenticated receiver page, reject existing drafts or active generation, and never replay an uncertain submission. Screenshot feedback is opt-in and defaults off: silent capture must not display overlays, notifications or capture hints, or automatically show the desktop window. Region selection is optional. Keep primary screens visual and concise; reveal configuration details only when requested.
 
 Keep Open WebUI fixed at one explicitly tested version. `runtime/requirements-slim.txt` is the upstream dependency source; `runtime/requirements.lock` pins transitive packages with platform markers. Regenerate it deliberately after a dependency upgrade and rerun the browser integration checks.
 

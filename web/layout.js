@@ -26,16 +26,17 @@ export class Layout {
         </div>
         <span class="snap-paper-plus">+</span>
       </div>
+      <span class="snap-welcome-tag">让解答，跟上你的思路</span>
       <h1>从一张截图开始</h1>
-      <p>连续截屏，放在一起问。</p>`;
+      <p>截取电脑上的问题，也能添加手机图片。</p>`;
     this.context = document.createElement("div");
     this.context.id = "snap-context";
   }
 
-  sync(container, navbar, connection, models, hasModels) {
+  sync(container, navbar, connection, models, hasModels, readAloud) {
     document.documentElement.classList.toggle("snap-no-models", hasModels === false);
     const title = hasModels === false ? "连接模型，即可开始" : "从一张截图开始";
-    const caption = hasModels === false ? "在右上角添加模型密钥。" : "连续截屏，放在一起问。";
+    const caption = hasModels === false ? "轻点右上角「连接模型」，添加你的密钥。" : "截取电脑上的问题，也能添加手机图片。";
     if (this.welcome.querySelector("h1").textContent !== title) this.welcome.querySelector("h1").textContent = title;
     if (this.welcome.querySelector("p").textContent !== caption) this.welcome.querySelector("p").textContent = caption;
     if (navbar) {
@@ -43,6 +44,7 @@ export class Layout {
       navbar.querySelector(".pointer-events-none.invisible:has(.truncate)")?.classList.add("snap-chat-title");
       if (this.context.parentElement !== navbar) navbar.append(this.context);
       if (connection.parentElement !== this.context) this.context.append(connection);
+      if (readAloud && readAloud.parentElement !== this.context) this.context.append(readAloud);
       if (models.parentElement !== this.context) this.context.append(models);
     }
     if (!container) return;

@@ -10,4 +10,13 @@ contextBridge.exposeInMainWorld("snap", {
   copyAddress: () => ipcRenderer.invoke("snap:copy"),
   openPhonePreview: () => ipcRenderer.invoke("snap:preview"),
   quit: () => ipcRenderer.invoke("snap:quit"),
+  captureAndSend: () => ipcRenderer.invoke("snap:capture-send"),
+  selectRegion: () => ipcRenderer.invoke("snap:capture-region"),
+  cancelRegion: () => ipcRenderer.invoke("snap:capture-cancel"),
+  saveCaptureSettings: (settings) => ipcRenderer.invoke("snap:capture-settings", settings),
+  suspendCaptureShortcuts: (value) => ipcRenderer.invoke("snap:capture-suspend", value),
+  onCaptureState: (callback) => ipcRenderer.on("snap:capture-state", (_event, state) => callback(state)),
+  activityLog: () => ipcRenderer.invoke("snap:activity"),
+  cacheInfo: () => ipcRenderer.invoke("snap:cache-info"),
+  clearCache: () => ipcRenderer.invoke("snap:cache-clear"),
 });

@@ -8,6 +8,7 @@ function notice(text, error = false, source = "action") {
 }
 function render(next) {
   state = next;
+  if (next.capture) renderCapture(next.capture);
   const online = next.ready && !next.paused && !next.error && next.networks.length > 0;
   $("service-status").textContent = next.error
     ? "启动失败"
@@ -144,18 +145,10 @@ $("networks").onchange = () =>
 $("pause").onclick = () => action(() => window.snap.pause(!state.paused));
 $("permission").onclick = () => action(() => window.snap.permission());
 $("test").onclick = () =>
-  action(async () => {
+  desktopCapture(async () => {
     $("test").disabled = true;
-    $("test").textContent = "检查中…";
     try {
-      const result = await window.snap.testCapture();
-      notice(
-        "截屏成功 · " +
-          result.width +
-          " × " +
-          result.height +
-          "，可以在手机上开始使用。",
-      );
+      await window.snap.testCapture();
     } finally {
       $("test").disabled = false;
       $("test").textContent = "检查截屏";
@@ -163,6 +156,150 @@ $("test").onclick = () =>
   });
 $("preview").onclick = () => action(() => window.snap.openPhonePreview());
 $("quit").onclick = () => window.snap.quit();
+let settingsSignature;
+function renderCapture(next) {
+  const serviceReady = state?.ready && !state.paused && !state.error && state.permission === "granted";
+  $("capture-send").disabled = !serviceReady || !next.receiver.ready || next.busy;
+  $("capture-region").disabled = !serviceReady || !next.receiver.ready || next.busy || !next.mouseSupported;
+  $("capture-cancel").hidden = true;
+  $("full-shortcut").textContent = next.settings.fullShortcut;
+  $("region-shortcut").textContent = next.settings.regionShortcut;
+  $("capture-target").hidden = true;
+  $("capture-notice").hidden = true;
+  $("capture-notice").textContent = "";
+  const signature = JSON.stringify(next.settings);
+  if (settingsSignature !== signature) {
+    fillCaptureSettings(next.settings);
+    settingsSignature = signature;
+  }
+  $("setting-mouse-enabled").disabled = !next.mouseSupported;
+}
+function fillCaptureSettings(settings) {
+  for (const [id, key] of [["full", "fullShortcut"], ["region", "regionShortcut"], ["cancel", "cancelShortcut"], ["mouse-button", "mouseButton"], ["prompt", "prompt"]])
+    $("setting-" + id).value = settings[key];
+  for (const [id, key] of [["hold", "holdMs"], ["timeout", "timeoutMs"], ["double-time", "doubleClickMs"]])
+    $("setting-" + id).value = settings[key] / 1000;
+  $("setting-mouse-enabled").checked = settings.mouseEnabled;
+  $("setting-double-enabled").checked = settings.doubleClickEnabled;
+}
+for (const input of document.querySelectorAll(".shortcut-input")) {
+  input.onfocus = () => window.snap.suspendCaptureShortcuts(true);
+  input.onblur = () => window.snap.suspendCaptureShortcuts(false);
+  input.onkeydown = (event) => {
+    event.preventDefault();
+    if (["Control", "Shift", "Alt", "Meta", "Tab"].includes(event.key)) {
+      if (event.key === "Tab") input.blur();
+      return;
+    }
+    const key = /^Key[A-Z]$/.test(event.code) ? event.code.slice(3)
+      : /^Digit[0-9]$/.test(event.code) ? event.code.slice(5)
+        : event.key === " " ? "Space" : event.key;
+    input.value = [event.ctrlKey && "Ctrl", event.metaKey && "Super", event.altKey && "Alt", event.shiftKey && "Shift", key].filter(Boolean).join("+");
+  };
+}
+$("capture-settings-form").onsubmit = (event) => {
+  event.preventDefault();
+  action(async () => {
+    const result = await window.snap.saveCaptureSettings({
+      fullShortcut: $("setting-full").value, regionShortcut: $("setting-region").value,
+      cancelShortcut: $("setting-cancel").value, mouseEnabled: $("setting-mouse-enabled").checked,
+      mouseButton: $("setting-mouse-button").value, doubleClickEnabled: $("setting-double-enabled").checked,
+      holdMs: Math.round(Number($("setting-hold").value) * 1000),
+      timeoutMs: Math.round(Number($("setting-timeout").value) * 1000),
+      doubleClickMs: Math.round(Number($("setting-double-time").value) * 1000), prompt: $("setting-prompt").value,
+    });
+    renderCapture(result);
+    notice("");
+  });
+};
+async function desktopCapture(action) {
+  try { await action(); } catch { /* Capture failures stay in the operation log. */ }
+  finally { refresh(); }
+}
+$("capture-send").onclick = () => desktopCapture(() => window.snap.captureAndSend());
+$("capture-region").onclick = () => desktopCapture(() => window.snap.selectRegion());
+$("capture-cancel").onclick = () => window.snap.cancelRegion();
+window.snap.onCaptureState(renderCapture);
+let logEntries = [], clearingCache = false;
+function formatBytes(bytes) {
+  return bytes >= 1024 * 1024 ? (bytes / 1024 / 1024).toFixed(1) + " MB"
+    : bytes >= 1024 ? (bytes / 1024).toFixed(1) + " KB" : bytes + " B";
+}
+function renderLogs() {
+  const entries = logEntries.filter((entry) => $("log-level").value !== "errors" || entry.level !== "info");
+  $("activity-log").replaceChildren();
+  if (!entries.length) {
+    const empty = document.createElement("p");
+    empty.className = "empty";
+    empty.textContent = $("log-level").value === "errors" ? "暂无异常记录" : "暂无操作记录";
+    $("activity-log").append(empty);
+  }
+  for (const entry of entries) {
+    const row = document.createElement("div");
+    row.className = "log-entry";
+    row.dataset.level = entry.level;
+    const heading = document.createElement("div");
+    heading.className = "log-heading";
+    const time = document.createElement("time");
+    time.dateTime = entry.at;
+    time.textContent = new Date(entry.at).toLocaleString("zh-CN", { hour12: false });
+    const message = document.createElement("strong");
+    message.textContent = entry.message;
+    heading.append(time, message);
+    row.append(heading);
+    const details = [];
+    const metadata = entry.metadata;
+    if (metadata.origin) details.push({ desktop: "电脑操作", phone: "手机操作", check: "截屏检查" }[metadata.origin]);
+    if (metadata.mode) details.push(metadata.mode === "region" ? "区域截图" : "全屏截图");
+    if (metadata.width && metadata.height) details.push(metadata.width + " × " + metadata.height);
+    if (metadata.bytes !== undefined) details.push("释放 " + formatBytes(metadata.bytes));
+    if (entry.reason) details.push(entry.reason);
+    if (details.length) {
+      const detail = document.createElement("small");
+      detail.textContent = details.join(" · ");
+      row.append(detail);
+    }
+    $("activity-log").append(row);
+  }
+}
+async function loadMaintenance() {
+  try {
+    const [logs, cache] = await Promise.all([window.snap.activityLog(), window.snap.cacheInfo()]);
+    logEntries = logs.entries;
+    renderLogs();
+    $("cache-size").textContent = "可重新生成的页面与代码缓存 · " + formatBytes(cache.bytes);
+    if (logs.error) {
+      $("maintenance-status").textContent = logs.error;
+      $("maintenance-status").classList.add("error");
+    }
+  } catch {
+    $("maintenance-status").textContent = "暂时无法读取日志或缓存，请稍后重试。";
+    $("maintenance-status").classList.add("error");
+  }
+}
+$("maintenance").ontoggle = () => { if ($("maintenance").open) loadMaintenance(); };
+$("refresh-logs").onclick = loadMaintenance;
+$("log-level").onchange = renderLogs;
+$("clear-cache").onclick = async () => {
+  if (clearingCache) return;
+  clearingCache = true;
+  $("clear-cache").disabled = true;
+  $("clear-cache").textContent = "正在清理…";
+  $("maintenance-status").textContent = "";
+  $("maintenance-status").classList.remove("error");
+  try {
+    const result = await window.snap.clearCache();
+    $("maintenance-status").textContent = "缓存已清理，释放 " + formatBytes(result.bytes) + "。聊天记录与设置已保留。";
+  } catch {
+    $("maintenance-status").textContent = "缓存未能全部清理，请稍后重试。聊天记录与设置已保留。";
+    $("maintenance-status").classList.add("error");
+  } finally {
+    clearingCache = false;
+    $("clear-cache").disabled = false;
+    $("clear-cache").textContent = "清除缓存";
+    await loadMaintenance();
+  }
+};
 async function refresh() {
   try {
     render(await window.snap.state());

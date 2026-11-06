@@ -7,6 +7,7 @@ const { setTimeout: delay } = require("node:timers/promises");
 const { readJson, writeJson } = require("./pairing.cjs");
 const catalog = require("../config/providers.json");
 const { scope } = require("./product-scope.cjs");
+const { runtimePaths } = require("./runtime-paths.cjs");
 const VERSION = "0.12.2";
 const ROOT = path.resolve(__dirname, "..");
 
@@ -60,15 +61,9 @@ class Runtime {
   async start() {
     this.port = await freePort();
     this.url = "http://127.0.0.1:" + this.port;
-    const python =
-      process.env.SNAP_PYTHON ||
-      path.join(
-        ROOT,
-        ".runtime",
-        process.platform === "win32" ? "Scripts/python.exe" : "bin/python",
-      );
+    const { python, launcher, packaged } = runtimePaths();
     if (!fs.existsSync(python))
-      throw new Error("尚未安装聊天运行环境。请先运行 npm run setup。");
+      throw new Error(packaged ? "安装文件不完整，请重新安装 Scrylet。" : "尚未安装聊天运行环境。请先运行 npm run setup。");
     fs.mkdirSync(this.directory, { recursive: true, mode: 0o700 });
     const secretFile = path.join(this.directory, "runtime-secret.json");
     const secret = readJson(secretFile, {
@@ -88,7 +83,7 @@ class Runtime {
       WEBUI_AUTH: "False",
       USE_SLIM_DOCKER: "True",
       OFFLINE_MODE: "True",
-      WEBUI_NAME: "Snap-Solver",
+      WEBUI_NAME: "Scrylet",
       DEFAULT_LOCALE: "zh-CN",
       DEFAULT_PROMPT_SUGGESTIONS: "[]",
       ENABLE_OLLAMA_API: "False",
@@ -131,7 +126,7 @@ class Runtime {
     this.child = spawn(
       python,
       [
-        path.join(ROOT, "runtime/launch.py"),
+        "-I", "-B", launcher,
         "--port",
         String(this.port),
         "--parent",
@@ -145,6 +140,7 @@ class Runtime {
       },
     );
     fs.closeSync(log);
+    this.child.stdin.on("error", () => {});
     this.child.on("error", (error) => {
       this.error = error.message;
     });
@@ -176,20 +172,7 @@ class Runtime {
           // Environment defaults do not override persisted Open WebUI settings.
           // Apply only product-owned switches; preserve keys, models and chats.
           await this.applyProductScope();
-          // Seed the upstream interface once, without replacing later choices.
-          const preferences = await this.request("/api/v1/users/user/settings");
-          if (!preferences?.ui) {
-            await this.request("/api/v1/users/user/settings/update", {
-              method: "POST",
-              body: {
-                ui: {
-                  showChangelog: false,
-                  showUpdateToast: false,
-                  language: "zh-CN",
-                },
-              },
-            });
-          }
+          await this.applyUiPolicy();
           await this.initializeWorkspace();
           this.ready = true;
           return;
@@ -226,6 +209,16 @@ class Runtime {
         config: { ...scope.runtime, "rag.file.max_count": scope.maxImages },
       },
     });
+  }
+  async applyUiPolicy() {
+    const preferences = await this.request("/api/v1/users/user/settings");
+    const previous = preferences?.ui;
+    const ui = { ...(previous || { showChangelog: false, showUpdateToast: false, language: "zh-CN" }), ...scope.ui };
+    if (!previous || Object.entries(scope.ui).some(([key, value]) => previous[key] !== value)) {
+      await this.request("/api/v1/users/user/settings/update", {
+        method: "POST", body: { ...preferences, ui },
+      });
+    }
   }
   async providers() {
     const config = await this.request("/openai/config");
@@ -301,7 +294,7 @@ class Runtime {
             command,
             name: String(prompt.name || id),
             content: prompt.content,
-            tags: ["Snap-Solver"],
+            tags: ["Scrylet"],
           },
         });
         existingPrompts.add(command);
@@ -365,7 +358,17 @@ class Runtime {
     if (!this.child || this.child.exitCode !== null) return;
     const child = this.child;
     const exited = new Promise((resolve) => child.once("exit", resolve));
-    child.kill("SIGTERM");
+    if (process.platform === "win32") {
+      // The Windows venv launcher owns a separate interpreter. End the whole
+      // desktop-owned tree so the interpreter cannot retain SQLite/cwd locks.
+      await new Promise((resolve) => {
+        const killer = spawn("taskkill.exe", ["/PID", String(child.pid), "/T", "/F"], {
+          windowsHide: true, stdio: "ignore",
+        });
+        killer.once("error", resolve);
+        killer.once("exit", resolve);
+      });
+    } else child.kill("SIGTERM");
     await Promise.race([exited, delay(4000)]);
     if (child.exitCode === null) {
       child.kill("SIGKILL");

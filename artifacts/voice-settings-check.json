@@ -1,0 +1,65 @@
+{
+  "at": "2026-11-06T09:37:47.874398+00:00",
+  "version": "2.0.0-dev.5",
+  "syntaxAndCatalogCheckPassed": true,
+  "offlineTestsPassed": 44,
+  "browserIntegration": {
+    "engines": [
+      "chromium",
+      "webkit"
+    ],
+    "passed": 44,
+    "failed": 0,
+    "flaky": 0,
+    "skipped": 0,
+    "durationMs": 216069.342,
+    "scope": [
+      "read-aloud.spec.cjs",
+      "completion-sound.spec.cjs",
+      "desktop-capture.spec.cjs"
+    ],
+    "speechEngine": "mock",
+    "modelProvider": "local mock",
+    "upstreamVersion": "0.12.2"
+  },
+  "coverage": [
+    "same-language natural/enhanced/premium voice heuristics using device name and URI",
+    "manual voice override and missing voice fallback",
+    "asynchronously loaded voice list restores saved voice",
+    "default 0.95 speaking rate and 0.8 to 1.2 adjustment",
+    "persistent voice/rate applied to real streamed answer completion",
+    "paragraph grouping and bounded chunks preserve text",
+    "trusted phone click required for preview while automatic reading remains off",
+    "closing sheet synchronously cancels preview and restores focus",
+    "390px and 320px actual rendered settings sheet",
+    "legacy upstream playback and desktop speech remain blocked",
+    "both legacy audio files contain digital silence"
+  ],
+  "earlyFailures": [
+    {
+      "passed": 22,
+      "failed": 2,
+      "reason": "shared test fixture reached the normal 8-device pairing limit",
+      "resolution": "revoke only isolated fixture devices before each test",
+      "traces": ".test-data/voice-pair-limit-failure/"
+    },
+    {
+      "failed": 2,
+      "reason": "asynchronous native dialog close and mobile focus restoration",
+      "resolution": "synchronous preview cancellation and explicit focus restoration on close",
+      "traces": ".test-data/voice-preview-check/"
+    }
+  ],
+  "screenshots": [
+    "artifacts/voice-settings-phone-chromium.png",
+    "artifacts/voice-settings-phone-webkit.png",
+    "artifacts/voice-settings-narrow-chromium.png",
+    "artifacts/voice-settings-narrow-webkit.png"
+  ],
+  "externalModelRequests": 0,
+  "cloudSpeechRequests": 0,
+  "physicalPhoneTested": false,
+  "actualSpeechOutputTested": false,
+  "nativeDesktopCaptureTestedThisRun": false,
+  "freshInstallationTestedThisRun": false
+}

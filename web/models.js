@@ -1,6 +1,21 @@
 const $ = (id) => document.getElementById(id);
+// Safari can shrink only the visual viewport when a key field is focused.
+// Anchor the sheet above the keyboard and keep its contents scrollable.
+const viewport = window.visualViewport;
+function fitSheet() {
+  if (viewport && Math.abs(viewport.scale - 1) > 0.01) return;
+  const height = viewport?.height || window.innerHeight;
+  document.documentElement.style.setProperty("--snap-sheet-height", height + "px");
+  document.documentElement.style.setProperty("--snap-sheet-bottom",
+    Math.max(0, window.innerHeight - height - (viewport?.offsetTop || 0)) + "px");
+}
+viewport?.addEventListener("resize", fitSheet, { passive: true });
+viewport?.addEventListener("scroll", fitSheet, { passive: true });
+window.addEventListener("resize", fitSheet, { passive: true });
+fitSheet();
 let providers = [],
   selected,
+  opener,
   saving = false;
 const initials = {
   openai: "O",
@@ -10,8 +25,9 @@ const initials = {
   doubao: "豆",
   moonshot: "K",
 };
-function choose(provider) {
+function choose(provider, trigger) {
   selected = provider;
+  opener = trigger;
   $("provider-name").textContent = provider.name;
   $("model-list").replaceChildren(
     ...provider.models.map((model) => {
@@ -33,6 +49,8 @@ function choose(provider) {
   $("save-error").textContent = "";
   $("provider-dialog").querySelector("details").open = false;
   $("provider-dialog").showModal();
+  // Let people read the sheet before opening the phone keyboard.
+  $("provider-name").focus({ preventScroll: true });
 }
 async function save(remove = false) {
   if (saving) return;
@@ -76,8 +94,16 @@ $("provider-form").onsubmit = (event) => {
   save();
 };
 $("close-provider").onclick = () => $("provider-dialog").close();
+$("provider-dialog").addEventListener("close", () => opener?.focus({ preventScroll: true }));
 $("provider-dialog").addEventListener("cancel", (event) => {
   if (saving) event.preventDefault();
+});
+$("provider-dialog").addEventListener("click", (event) => {
+  if (saving || event.target !== $("provider-dialog")) return;
+  const bounds = $("provider-dialog").getBoundingClientRect();
+  if (event.clientX < bounds.left || event.clientX > bounds.right ||
+      event.clientY < bounds.top || event.clientY > bounds.bottom)
+    $("provider-dialog").close();
 });
 $("remove").onclick = () => {
   if (confirm("移除这家服务的密钥？聊天记录会保留。")) save(true);
@@ -98,6 +124,7 @@ fetch("/snap/api/providers", { signal: AbortSignal.timeout(15000) })
       button.dataset.id = provider.id;
       const mark = document.createElement("span");
       mark.className = "provider-mark";
+      mark.setAttribute("aria-hidden", "true");
       mark.textContent = initials[provider.id];
       const title = document.createElement("span");
       title.textContent = provider.name;
@@ -106,7 +133,7 @@ fetch("/snap/api/providers", { signal: AbortSignal.timeout(15000) })
       button.setAttribute("aria-label", provider.name + " · " + note.textContent);
       button.classList.toggle("configured", provider.configured);
       button.append(mark, title, note);
-      button.onclick = () => choose(provider);
+      button.onclick = () => choose(provider, button);
       $("providers").append(button);
     }
     $("verified").textContent = "目录更新于 " + data.verifiedAt;

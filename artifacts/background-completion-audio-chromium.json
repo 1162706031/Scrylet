@@ -1,0 +1,14 @@
+{
+  "cue": "notification.mp3",
+  "status": 200,
+  "type": "audio/wav",
+  "duration": 0.1,
+  "peak": 0,
+  "measurement": "browser-decoded",
+  "playback": {
+    "webAudioAvailable": true,
+    "ended": 1,
+    "errors": []
+  },
+  "websocketCompletionReceived": true
+}

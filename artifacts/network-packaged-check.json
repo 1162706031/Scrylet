@@ -1,0 +1,19 @@
+{
+  "at": "2026-11-05T19:35:06.334Z",
+  "platform": "win32",
+  "packaged": true,
+  "version": "2.0.0-dev.1",
+  "defaultNetwork": {
+    "name": "WLAN",
+    "address": "192.168.5.13"
+  },
+  "manualSelection": {
+    "name": "vEthernet (Default Switch)",
+    "address": "172.18.176.1"
+  },
+  "restartSelectionPreserved": true,
+  "qrOriginMatchesManualAddress": true,
+  "pairingAtLanOrigin": true,
+  "physicalPhoneTested": false,
+  "externalModelRequests": 0
+}

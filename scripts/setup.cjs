@@ -50,4 +50,4 @@ run(python, [
   "-c",
   'from importlib.metadata import version; assert version("open-webui") == "0.12.2"; import open_webui, psutil',
 ]);
-console.log("准备完成。运行 npm start 打开 Snap-Solver。");
+console.log("准备完成。运行 npm start 打开 Scrylet。");

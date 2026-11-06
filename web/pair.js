@@ -1,6 +1,21 @@
 const form = document.getElementById("pair-form");
 const status = document.getElementById("pair-error");
 const button = document.getElementById("connect");
+const credentialInput = document.getElementById("credential");
+const digits = (value) => value.normalize("NFKC").replace(/[^0-9]/g, "").slice(0, 6);
+credentialInput.addEventListener("input", () => {
+  credentialInput.value = digits(credentialInput.value);
+  credentialInput.removeAttribute("aria-invalid");
+  status.textContent = "";
+});
+credentialInput.addEventListener("paste", (event) => {
+  const pasted = event.clipboardData?.getData("text/plain");
+  if (!pasted) return;
+  // Normalize a copied “123 456” before maxlength can truncate the last digit.
+  event.preventDefault();
+  credentialInput.value = digits(pasted);
+  credentialInput.dispatchEvent(new Event("input", { bubbles: true }));
+});
 let pending = false;
 async function connect(credential) {
   if (pending) return;
@@ -27,7 +42,10 @@ async function connect(credential) {
       body: JSON.stringify({ credential, name }),
     });
     const result = await response.json();
-    if (!response.ok) throw new Error(result.error);
+    if (!response.ok) {
+      if (response.status === 400) credentialInput.setAttribute("aria-invalid", "true");
+      throw new Error(result.error);
+    }
     location.replace("/");
   } catch (error) {
     status.textContent = error instanceof TypeError || error.name === "TimeoutError"
