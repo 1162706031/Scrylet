@@ -105,6 +105,8 @@ npm run dist:win           # Windows x64 本机生成 NSIS 安装 EXE
 
 浏览器测试使用真实 Open WebUI 和本地模拟模型，**不使用真实 API Key、不调用外部模型**。桌面检查使用独立数据目录，实际调用本机截屏。验证范围和限制见 [验收记录](docs/verification.md)。
 
+[Electron + 轻量 Node 服务重构方案](docs/node-service-refactor.md) 记录完整功能保留清单、无 Python 架构、数据迁移与回退、分阶段实施和验收门槛；[逐文件实施手册](docs/node-service-implementation.md) 提供新 agent 的阅读顺序、具体改动点、接口契约与任务清单，并明确新增 macOS arm64 / x64 的 DMG、ZIP 安装包。本次不全量迁移 TypeScript，目前仍是设计方案，现有运行方式不变。
+
 | 目录          | 职责                                          |
 | ------------- | --------------------------------------------- |
 | `desktop/`    | Electron 生命周期、系统截屏、局域网配对与代理 |
