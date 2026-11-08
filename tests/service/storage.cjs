@@ -1,0 +1,98 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const crypto = require("node:crypto");
+const { DatabaseSync } = require("node:sqlite");
+const { Storage } = require("../../service/storage.cjs");
+const { Files } = require("../../service/files.cjs");
+const { Chats } = require("../../service/chats.cjs");
+const { Prompts } = require("../../service/prompts.cjs");
+module.exports = async function storageChecks(directory) {
+  let storage = new Storage(directory);
+  try {
+    assert.throws(() => new Storage(directory), { code: "STORAGE_FAILED" });
+    assert.equal(storage.db.prepare("PRAGMA foreign_keys").get().foreign_keys, 1);
+    assert.equal(storage.db.prepare("PRAGMA journal_mode").get().journal_mode, "wal");
+    const files = new Files(storage), chats = new Chats(storage, files), prompts = new Prompts(storage);
+    const bytes = Buffer.from(require("../fixtures/legacy-v1/database.json").attachments[0].base64, "base64");
+    const a = files.put(bytes, { name: "../../synthetic.jpg", mime: "image/jpeg" });
+    const b = files.put(bytes, { name: "第二张.jpg", mime: "image/jpeg" });
+    assert.equal(files.read(a.id).bytes.length, bytes.length);
+    assert.throws(() => files.put(bytes, { name: "spoof.png", mime: "image/png" }));
+    assert.throws(() => files.put(Buffer.from('<svg onload="alert(1)"/>'), { name: "active.svg", mime: "image/svg+xml" }));
+    const c = chats.create({ apiVersion: 1, modelId: "alibaba.fixture", title: "分支事务" });
+    const imageParts = [{ type: "text", text: "原始问题" }, { type: "image", fileId: b.id }, { type: "image", fileId: a.id }];
+    const node = (id, parentMessageId, role, parts) => ({ id, chatId: c.id, parentMessageId, role, parts, modelId: role === "assistant" ? c.modelId : null, status: role === "assistant" ? "completed" : null, createdAt: Date.now() });
+    storage.transaction(() => {
+      chats.insertMessage(node("u1", null, "user", imageParts), { legacy: { unknown: "retain" } });
+      chats.insertMessage(node("a1", "u1", "assistant", [{ type: "text", text: "第一次" }]));
+      chats.insertMessage(node("a2", "u1", "assistant", [{ type: "text", text: "重答" }]));
+    });
+    assert.equal(chats.get(c.id).messages.length, 3);
+    assert.deepEqual(chats.ancestors(c.id, "a2").map(m => m.id), ["u1", "a2"]);
+    const selected = chats.patch(c.id, { apiVersion: 1, version: 0, currentMessageId: "a1", pinned: true });
+    assert.equal(selected.currentMessageId, "a1");
+    assert.throws(() => chats.patch(c.id, { apiVersion: 1, version: 0, title: "stale" }), { code: "VERSION_CONFLICT" });
+    assert.throws(() => chats.patch(c.id, { apiVersion: 1, version: 1, currentMessageId: "foreign" }));
+    const rows = storage.db.prepare("SELECT ordinal,file_id FROM message_files WHERE chat_id=? ORDER BY ordinal").all(c.id);
+    assert.deepEqual(rows.map(r => r.file_id), [b.id, a.id]);
+    const before = chats.get(c.id).messages.length;
+    assert.throws(() => storage.transaction(() => { chats.insertMessage(node("rollback", "missing", "user", [])); }));
+    assert.equal(chats.get(c.id).messages.length, before);
+    const missing = { ...node("no-image", null, "user", [{ type: "image", fileId: "missing" }]) };
+    assert.throws(() => storage.transaction(() => chats.insertMessage(missing)), { code: "NOT_FOUND" });
+    const imported = { ...chats.get(c.id), id: "imported", currentMessageId: "a2", messages: chats.get(c.id).messages.map(m => ({ ...m, chatId: "imported" })) };
+    const hash = crypto.createHash("sha256").update("synthetic-source").digest("hex");
+    chats.importGraph(imported, { sourceId: "legacy-chat", sourceHash: hash, raw: { retain: { future: true } } });
+    chats.importGraph(imported, { sourceId: "legacy-chat", sourceHash: hash });
+    assert.equal(storage.db.prepare("SELECT count(*) n FROM legacy_ids WHERE kind='chat'").get().n, 1);
+    assert.equal(storage.db.prepare("SELECT count(*) n FROM legacy_ids WHERE kind='file' AND source_id=target_id").get().n, 2);
+    assert.throws(() => chats.importGraph(imported, { sourceId: "legacy-chat", sourceHash: "f".repeat(64) }), { code: "VERSION_CONFLICT" });
+    const draft = { apiVersion: 1, browserClientId: "durable-browser", expectedRevision: 0, modelId: c.modelId, parts: imageParts };
+    const saved = chats.writeDraft("device-one", "new", draft);
+    assert.equal(saved.revision, 1);
+    assert.throws(() => chats.writeDraft("device-one", "new", draft), { code: "DRAFT_CONFLICT" });
+    assert.deepEqual(chats.readDraft("device-one", "durable-browser", "new"), saved);
+    assert.throws(() => chats.readDraft("other-device", "durable-browser", "new"), { code: "NOT_FOUND" });
+    const clone = chats.clone(c.id); assert.equal(clone.messages.length, 3); assert.equal(clone.pinned, true);
+    assert.equal(clone.currentMessageId, "a1");
+    const afterDelete = chats.deleteMessage(clone.id, "u1", clone.version);
+    assert.equal(afterDelete.messages.length, 0); assert.equal(afterDelete.currentMessageId, null);
+    assert.ok(chats.list({ search: "分支", pinned: true }).items.some(row => row.id === c.id));
+    assert.ok(chats.list({ search: "原始问题" }).items.some(row => row.id === c.id));
+    chats.markAllRead(); assert.equal(chats.list({ unread: true }).items.length, 0);
+    const current = chats.get(clone.id);
+    chats.patch(clone.id, { apiVersion: 1, version: current.version, archived: true });
+    assert.ok(chats.list({ archived: true }).items.some(row => row.id === clone.id));
+    chats.delete(clone.id, chats.get(clone.id).version);
+    assert.throws(() => chats.get(clone.id), { code: "NOT_FOUND" });
+    prompts.seed(); const prompt = prompts.list()[0];
+    prompts.save({ apiVersion: 1, id: prompt.id, command: prompt.command, name: prompt.name, content: "用户修改，不能被种子覆盖", expectedUpdatedAt: prompt.updatedAt });
+    prompts.seed(); assert.equal(prompts.list().find(p => p.id === prompt.id).content, "用户修改，不能被种子覆盖");
+    const deletedSeed = prompts.list()[1]; storage.db.prepare("DELETE FROM prompts WHERE id=?").run(deletedSeed.id);
+    prompts.seed(); assert.ok(!prompts.list().some(p => p.id === deletedSeed.id));
+    const snapshot = await storage.backup(path.join(storage.root, "snapshot.sqlite"));
+    const copy = new DatabaseSync(snapshot, { readOnly: true });
+    try { assert.equal(copy.prepare("PRAGMA integrity_check").get().integrity_check, "ok"); assert.equal(copy.prepare("SELECT count(*) n FROM messages").get().n, 6); }
+    finally { copy.close(); }
+    assert.equal(storage.db.prepare("PRAGMA foreign_key_check").all().length, 0);
+    const disk = path.join(files.root, a.id + ".image"); fs.renameSync(disk, disk + ".held");
+    try { assert.throws(() => files.read(a.id), { code: "NOT_FOUND" }); }
+    finally { fs.renameSync(disk + ".held", disk); }
+    storage.close(); storage = new Storage(directory);
+    const reopened = new Chats(storage, new Files(storage));
+    assert.equal(reopened.readDraft("device-one", "durable-browser", "new").revision, 1);
+    assert.equal(reopened.get(c.id).currentMessageId, "a1");
+    assert.equal(new Prompts(storage).list().find(p => p.id === prompt.id).content, "用户修改，不能被种子覆盖");
+  } finally { storage.close(); }
+  const oldDirectory = path.join(directory, "schema-upgrade"), oldRoot = path.join(oldDirectory, "chat-node/v1");
+  fs.mkdirSync(oldRoot, { recursive: true });
+  const old = new DatabaseSync(path.join(oldRoot, "chat.sqlite"));
+  const sql = fs.readFileSync(path.resolve(__dirname, "../../service/migrations/schema/001.sql"), "utf8");
+  old.exec(sql); old.prepare("INSERT INTO schema_migrations VALUES(1,?,?)").run(crypto.createHash("sha256").update(sql).digest("hex"), Date.now()); old.close();
+  const upgraded = new Storage(oldDirectory); assert.equal(upgraded.schemaVersion, 2);
+  assert.ok(upgraded.db.prepare("PRAGMA table_info(messages)").all().some(c => c.name === "ordinal"));
+  upgraded.db.prepare("UPDATE schema_migrations SET checksum='tampered' WHERE version=1").run(); upgraded.close();
+  assert.throws(() => new Storage(oldDirectory), { code: "MIGRATION_FAILED" });
+  return ["storage-wal-fk-os-lease-backup", "schema-upgrade-checksum-refusal", "graph-branches-import-idempotence-rollback", "file-bytes-mime-path-missing-references", "draft-revision-device-ownership-restart", "prompt-edit-seed-restart", "chat-menu-clone-delete-read-state"];
+};

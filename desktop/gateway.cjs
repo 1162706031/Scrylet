@@ -1,7 +1,7 @@
 const http = require("node:http");
+const fs = require("node:fs");
 const path = require("node:path");
 const express = require("express");
-const httpProxy = require("http-proxy");
 const QRCode = require("qrcode");
 const { Pairing, COOKIE, readJson, writeJson } = require("./pairing.cjs");
 const { addresses } = require("./native.cjs");
@@ -9,17 +9,18 @@ const { scope, restrict } = require("./product-scope.cjs");
 const { CaptureDelivery } = require("./capture-delivery.cjs");
 const { reasonFor } = require("./activity-log.cjs");
 const { sendSilentAudio } = require("./silent-audio.cjs");
+const { validate, ContractError } = require("../contracts/validate.cjs");
+const { publicError } = require("../service/http.cjs");
 
 const ASSETS = path.resolve(__dirname, "../web");
-const extension =
-  '<script src="/snap/assets/quiet.js"></script><link rel="stylesheet" href="/snap/assets/mobile.css"><script type="module" src="/snap/assets/extension.js"></script>';
+
 
 function unavailable(request, response, status, error) {
   const isPage = request.method === "GET" &&
     String(request.headers.accept || "").includes("text/html") &&
-    !/^\/(api|snap\/api|openai|ollama)(\/|$)/.test(request.url);
+      !/^\/(api|snap\/api|openai|ollama)(\/|$)/.test(request.url);
   if (isPage) return response.status(status).sendFile("unavailable.html", { root: ASSETS });
-  return response.status(status).json({ error });
+  return response.status(status).json({ error, ...(request.url.startsWith("/snap/api/") ? { code: ({ 401: "UNAUTHORIZED", 403: "FORBIDDEN", 423: "PAUSED", 503: "NOT_READY" })[status] || "NOT_READY" } : {}) });
 }
 
 class Gateway {
@@ -35,44 +36,7 @@ class Gateway {
     this.selectedAddress = "";
     this.sockets = new Map();
     this.delivery = new CaptureDelivery();
-    this.proxy = httpProxy.createProxyServer({
-      ws: true,
-      changeOrigin: true,
-      selfHandleResponse: true,
-    });
-    this.proxy.on("error", (_error, request, response) => {
-      if (typeof response?.writeHead === "function" && !response.headersSent) {
-        unavailable(request, response, 502, "聊天服务暂时不可用，请查看电脑 App");
-      } else response?.destroy();
-    });
-    this.proxy.on("proxyRes", (upstream, request, response) => {
-      if (request.method === "POST" && request.url.split("?")[0] === "/api/chat/completions")
-        this.activity?.record(upstream.statusCode < 400 ? "chat.requested" : "chat.failed");
-      const headers = { ...upstream.headers };
-      delete headers["access-control-allow-origin"];
-      delete headers["access-control-allow-credentials"];
-      headers["cache-control"] = "no-store";
-      headers["referrer-policy"] = "no-referrer";
-      headers["x-content-type-options"] = "nosniff";
-      if (String(headers["content-type"]).includes("text/html")) {
-        const chunks = [];
-        upstream.on("data", (chunk) => chunks.push(chunk));
-        upstream.on("end", () => {
-          if (response.destroyed) return;
-          const html = Buffer.concat(chunks)
-            .toString("utf8")
-            .replace("</head>", extension + "</head>");
-          delete headers["content-length"];
-          delete headers["content-encoding"];
-          response.writeHead(upstream.statusCode, headers);
-          response.end(html);
-        });
-      } else {
-        response.writeHead(upstream.statusCode, headers);
-        upstream.pipe(response);
-      }
-      upstream.on("error", () => response.destroy());
-    });
+    if (runtime.kind && runtime.kind !== "node") throw new Error("仅支持 Node 聊天服务");
     this.app = express();
     this.app.disable("x-powered-by");
     const validHost = (request) => {
@@ -91,10 +55,10 @@ class Gateway {
       if (!validHost(request))
         return response
           .status(403)
-          .json({ error: "请使用电脑 App 显示的局域网地址" });
+          .json({ error: "请使用电脑 App 显示的局域网地址", code: "FORBIDDEN" });
       const origin = request.headers.origin;
       if (origin && origin !== "http://" + request.headers.host) {
-        return response.status(403).json({ error: "不接受来自其他网站的请求" });
+        return response.status(403).json({ error: "不接受来自其他网站的请求", code: "FORBIDDEN" });
       }
       response.set({
         "Referrer-Policy": "no-referrer",
@@ -159,21 +123,23 @@ class Gateway {
         if (
           request.method === "GET" &&
           request.accepts("html") &&
-          !request.path.startsWith("/api")
+          !/^\/(?:snap\/)?api(?:\/|$)/.test(request.path)
         ) {
-          return response.redirect("/snap/pair");
+          return response.redirect("/snap/pair" + (/^\/c\/[A-Za-z0-9_-]+$/.test(request.path) ? "?returnTo=" + encodeURIComponent(request.path) : ""));
         }
         return response
           .status(401)
-          .json({ error: "请重新扫描电脑 App 上的二维码" });
+          .json({ error: "请重新扫描电脑 App 上的二维码", code: "UNAUTHORIZED" });
       }
       this.sockets.set(request.socket, device.id);
       request.device = device;
+      if (this.closing) return unavailable(request, response, 503, "电脑正在退出");
       if (this.paused && request.path !== "/snap/api/status") {
         return unavailable(request, response, 423, "电脑已暂停手机访问");
       }
       next();
     });
+    this.app.use(restrict);
     this.app.get("/snap/models", (_request, response) =>
       response.sendFile("models.html", { root: ASSETS }),
     );
@@ -185,6 +151,8 @@ class Gateway {
         displays: this.native.displays(),
         error: this.runtime.error || "",
         maxImages: scope.maxImages,
+        apiVersion: 1, frontendBuild: "phone-v1-" + require("../package.json").version,
+        runtimeKind: "node", migration: this.runtime.migration || "not-started", showCaptureHints: false,
       }),
     );
     for (const [route, action] of [
@@ -202,9 +170,11 @@ class Gateway {
       this.app.post("/snap/api/desktop/" + route, express.json({ limit: "2kb" }), (request, response) => {
         if (request.headers["x-snap-client"] !== "mobile") return response.sendStatus(403);
         try {
-          response.json(action(request.device, request.body));
+          validate(route === "poll" ? "desktopPoll" : route === "validate" ? "command" : "desktopAck", request.body);
+          const result = action(request.device, request.body);
+          response.json(route === "poll" ? validate("desktopPollResult", result) : result);
         } catch (error) {
-          response.status(400).json({ error: error.message });
+          response.status(error instanceof ContractError ? error.status : 409).json(publicError(error instanceof ContractError ? error : new ContractError("VERSION_CONFLICT", 409)));
         }
       });
     }
@@ -215,12 +185,14 @@ class Gateway {
         if (request.headers["x-snap-client"] !== "mobile")
           return response.sendStatus(403);
         try {
+          validate("captureRequest", request.body);
           const capture = await this.native.capture(request.body?.displayId);
           this.activity?.record("capture.completed", { origin: "phone", width: capture.width, height: capture.height });
-          response.json(capture);
+          response.json(validate("capture", capture));
         } catch (error) {
           this.activity?.record("capture.failed", { origin: "phone", reason: reasonFor(error) });
-          response.status(400).json({ error: error.message });
+          const failure = error instanceof ContractError ? error : new ContractError(this.native.permission() === "granted" ? "STORAGE_FAILED" : "FORBIDDEN", this.native.permission() === "granted" ? 503 : 403);
+          response.status(failure.status).json(publicError(failure));
         }
       },
     );
@@ -233,8 +205,8 @@ class Gateway {
     });
     this.app.get("/snap/api/available-models", async (_request, response) => {
       try {
-        const models = await this.runtime.request("/api/models");
-        response.json({ available: models.data.length > 0 });
+        const available = await this.runtime.availableModels();
+        response.json({ available });
       } catch {
         response.status(503).json({ error: "暂时无法读取模型列表" });
       }
@@ -251,64 +223,46 @@ class Gateway {
           );
           this.activity?.record("provider.saved");
         } catch (error) {
-          response.status(400).json({ error: error.message });
+          response.status(error.status || 400).json(publicError(error));
         }
       },
     );
-    this.app.use(restrict);
+    require("./node-gateway.cjs").mountNodeGateway(this.app, this);
+    {
+      const root = path.resolve(__dirname, ".."), phone = fs.existsSync(path.join(root, "phone-dist/index.html")) ? path.join(root, "phone-dist") : path.join(root, "build/phone");
+      this.app.use("/snap/phone", express.static(phone, { index: false }));
+      this.app.get(/^\/(?:c\/[A-Za-z0-9_-]+)?$/, (_request, response) => {
+        if (!this.runtime.ready) return unavailable(_request, response, 503, "聊天服务尚未就绪");
+        if (!fs.existsSync(path.join(phone, "index.html"))) return response.status(503).send("手机页面尚未构建，请在电脑运行 build:phone。");
+        response.sendFile("index.html", { root: phone });
+      });
+    }
     this.app.use((request, response) => {
-      if (!this.runtime.ready)
-        return unavailable(request, response, 503,
-          this.runtime.error || "聊天服务正在启动，请稍后重试");
-      // The single-user backend only listens on loopback. Never accept injected
-      // trusted-user headers from a remote client.
-      for (const header of Object.keys(request.headers)) {
-        if (
-          header.startsWith("x-forwarded-") ||
-          header.startsWith("x-openwebui-")
-        )
-          delete request.headers[header];
-      }
-      request.headers["accept-encoding"] = "identity";
-      // The gateway already checked the browser's same origin. The private
-      // backend sees one stable origin, even after the computer changes Wi-Fi.
-      if (request.headers.origin) request.headers.origin = this.runtime.url;
-      this.proxy.web(request, response, { target: this.runtime.url });
+      if (["/api/chat/completions", "/api/v1/chats/new"].includes(request.path))
+        return response.status(410).json(validate("publicError", { error: "页面已升级，请刷新后重试", code: "PROTOCOL_MISMATCH" }));
+      return response.status(404).json({ error: "接口不存在", code: "NOT_FOUND" });
     });
+
     this.app.use((error, _request, response, _next) => {
       response.status(error.status || 500).json({
         error: error.status === 413 ? "请求内容过大" : "请求格式不正确",
+        code: error.status === 413 ? "TOO_LARGE" : "INVALID_CONTRACT",
       });
     });
     this.server = http.createServer(this.app);
     this.server.on("connection", (socket) =>
       socket.once("close", () => this.sockets.delete(socket)),
     );
-    this.server.on("upgrade", (request, socket, head) => {
-      const device = this.pairing.authenticate(request.headers.cookie);
-      const origin = request.headers.origin;
-      if (
-        !device ||
-        !validHost(request) ||
-        this.paused ||
-        !this.runtime.ready ||
-        (origin && origin !== "http://" + request.headers.host)
-      ) {
-        return socket.destroy();
-      }
-      if (request.headers.origin) request.headers.origin = this.runtime.url;
-      this.sockets.set(socket, device.id);
-      this.proxy.ws(request, socket, head, {
-        target: this.runtime.url,
-        selfHandleResponse: false,
-      });
-    });
+    // The authenticated Node transport uses HTTP/SSE, never legacy WebSockets.
+    this.server.on("upgrade", (_request, socket) => socket.destroy());
   }
   async start(port = 0) {
+    const { browserPortAllowed } = require("./browser-ports.cjs");
+    if (port && !browserPortAllowed(port)) throw Object.assign(new Error("此端口被浏览器禁止，请选择其他局域网端口"), { code: "INVALID_PORT" });
     const saved = this.networkSettings.port;
     const preferred =
       port ||
-      (Number.isInteger(saved) && saved > 1023 && saved <= 65535 ? saved : 0);
+      (Number.isInteger(saved) && saved > 1023 && browserPortAllowed(saved) ? saved : 0);
     const listen = (value) =>
       new Promise((resolve, reject) => {
         const failed = (error) => {
@@ -327,7 +281,12 @@ class Gateway {
     try {
       await listen(preferred);
     } catch (error) {
-      if (port || error.code !== "EADDRINUSE") throw error;
+      if (port || (error.code !== "EADDRINUSE" && !(process.platform === "win32" && error.code === "EACCES"))) throw error;
+      await listen(0);
+    }
+    for (let attempt = 0; !browserPortAllowed(this.server.address().port); attempt++) {
+      await new Promise((resolve, reject) => this.server.close(error => error ? reject(error) : resolve()));
+      if (attempt >= 15) throw Object.assign(new Error("未找到浏览器可用的局域网端口"), { code: "INVALID_PORT" });
       await listen(0);
     }
     this.port = this.server.address().port;
@@ -386,7 +345,8 @@ class Gateway {
       devices: this.pairing.list(),
       permission: this.native.permission(),
       platform: process.platform,
-      harness: "Open WebUI 0.12.2",
+      harness: "Node Chat Service",
+      runtimeKind: "node",
     };
   }
   revoke(id) {
@@ -403,9 +363,9 @@ class Gateway {
     if (this.paused) for (const socket of this.sockets.keys()) socket.destroy();
   }
   async close() {
+    this.closing = true;
     this.delivery.close();
     for (const socket of this.sockets.keys()) socket.destroy();
-    this.proxy.close();
     this.server.closeAllConnections();
     await new Promise((resolve) => this.server.close(resolve));
   }

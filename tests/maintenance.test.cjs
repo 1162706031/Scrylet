@@ -91,15 +91,14 @@ test("缓存清理失败可重试，错误不会回显私密诊断内容", async
   assert.equal((await maintenance.clearCache()).success, true);
 });
 
-test("安装版的 Python 和脚本位于资源目录，不依赖开发虚拟环境或 ASAR 内的可执行文件", () => {
-  const resources = path.join(os.tmpdir(), "Snap Solver installed", "resources");
-  const bundled = runtimePaths({ root: path.join(resources, "app.asar"), resourcesPath: resources, platform: "win32", pythonOverride: "" });
+test("安装版服务在 ASAR 内，observer 位于资源目录且不依赖开发环境", () => {
+  const resources = path.join(os.tmpdir(), "Scrylet installed", "resources");
+  const bundled = runtimePaths({ root: path.join(resources, "app.asar"), resourcesPath: resources, platform: "win32", arch: "x64" });
   assert.equal(bundled.packaged, true);
-  assert.equal(bundled.python, path.join(resources, "python/python.exe"));
-  assert.equal(bundled.launcher, path.join(resources, "runtime/launch.py"));
-  assert.equal(bundled.mouse, path.join(resources, "runtime/mouse-input.py"));
-  assert.equal(bundled.launcher.includes("app.asar"), false);
-  const source = runtimePaths({ root: path.join(os.tmpdir(), "source"), resourcesPath: resources, platform: "win32", pythonOverride: "" });
-  assert.equal(source.python, path.join(os.tmpdir(), "source/.runtime/Scripts/python.exe"));
+  assert.equal(bundled.service, path.join(resources, "app.asar/service/main.cjs"));
+  assert.equal(bundled.observer, path.join(resources, "native/win32-x64/input-observer.exe"));
+  for (const key of ["python", "launcher", "mouse"]) assert.equal(Object.hasOwn(bundled, key), false);
+  const source = runtimePaths({ root: path.join(os.tmpdir(), "source"), resourcesPath: resources, platform: "win32", arch: "x64" });
+  assert.equal(source.observer, path.join(os.tmpdir(), "source/build/native/win32-x64/input-observer.exe"));
   assert.equal(source.packaged, false);
 });

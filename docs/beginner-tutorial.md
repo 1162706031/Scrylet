@@ -1,14 +1,16 @@
+2026-11-09 更新：源码和新版安装包仅使用 Node 服务，Python / Open WebUI 已退役。当前交付和未测边界见 [M5 收尾](node-service-finalization.md)。
+
 # 使用指南
 
 ## 第一次启动
 
-应用现名 Scrylet，原名 Snap-Solver。升级时沿用旧数据目录和应用 ID，已有密钥、配对、聊天与朗读选择继续使用。
+应用现名 Scrylet，原名 Snap-Solver。Node 首次启动会将旧 `Snap-Solver` 数据只读迁移到 `Scrylet` 目录，旧数据保留，应用 ID 不变。
 
-Windows x64 用户可直接运行 `dist/` 中的 `Scrylet-…-Setup.exe`，按向导选择安装位置；完成后从桌面或开始菜单启动。安装版已包含 Python 与聊天框架，无需安装开发工具。当前安装包未签名。
+Windows x64 用户可直接运行 `dist/releases/2.0.0-dev.7/` 中的 `Scrylet-…-Setup.exe`，按向导选择安装位置；完成后从桌面或开始菜单启动。安装版已包含 Electron、Node 服务和手机页面，无需安装开发工具。当前安装包未签名。
 
 从源码开发时使用以下步骤：
 
-安装 Node.js 22+ 和 uv 后，在项目目录运行：
+安装 Node.js 22.12+ 后，在项目目录运行：
 
 ```sh
 npm ci
@@ -16,7 +18,7 @@ npm run setup
 npm start
 ```
 
-第一次安装会下载运行环境，之后只需 `npm start`。Windows 可在 PowerShell 运行相同命令。如果没有 uv，需要先安装 Python 3.12。
+`npm run setup` 只准备 Node 服务 / 手机页面和预编译输入资源；`npm start` 默认进入新版。若存在旧库，先退出旧版，首次启动会自动显示迁移进度并导入到新 `Scrylet` 目录，不删除原数据。完全隔离的开发目录使用 `npm run start:node -- --data <绝对路径>`。旧版源码与断言保存于归档，旧数据导入及回退导出保留；详见 [M5 收尾](node-service-finalization.md)。
 
 ## 配对手机
 

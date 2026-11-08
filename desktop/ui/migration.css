@@ -1,0 +1,38 @@
+@import url('../../web/tokens.css');
+:root {
+  font:
+    15px system-ui,
+    sans-serif;
+  color: var(--snap-ink);
+  background: var(--snap-bg);
+}
+body {
+  margin: 0;
+}
+main {
+  margin: 16px;
+  padding: 16px 24px;
+  background: white;
+  border: 1px solid var(--snap-line);
+  border-radius: 14px;
+}
+h1 {
+  font-size: 21px;
+  line-height: 1.3;
+  margin: 10px 0 6px;
+}
+img { width: 32px; height: 32px; }
+p {
+  color: var(--snap-muted);
+  line-height: 1.5;
+  margin: 6px 0;
+}
+progress {
+  width: 100%;
+  height: 12px;
+  margin: 12px 0 4px;
+  accent-color: var(--snap-blue);
+}
+#phase {
+  font-size: 14px;
+}

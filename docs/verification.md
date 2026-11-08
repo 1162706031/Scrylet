@@ -1,6 +1,147 @@
 # 验收记录
 
-更新日期：2026-11-06。已在 Windows 本机生成并验收 x64 NSIS 安装包；当前未签名、未发布到外部渠道。
+> 2026-11-09 本轮收尾：用户确认 M0 保留矩阵已测，明确授权移除旧依赖，并暂缓 Mac 实机测试、缩减重复测试。当前源码仅支持 Node，旧源码和原断言归档，正常 Windows 安装入口与 Mac 两架构 ZIP 构建已接通。实际产物、检查结果和边界以 [M5 收尾记录](node-service-finalization.md) 为准；下文保留此前分轮证据，不将未测门槛改为通过。
+
+更新日期：2026-11-09。M4.1～M4.3 的 Windows 迁移、两引擎浏览器升级及新增数据后旧版实际读回已通过；M4.4 隔离 NSIS 安装闭环通过，但正式 GUID 升级仍未验收，M4.5 无真实 Mac。源码 `npm start` 和 Node-only 候选已默认 Node，普通旧库自动迁移接线；本轮修改的回归尚待实际执行。Python / Open WebUI 对照资源保留；发布仍需正式 Windows 身份、Mac 两架构实机、实体手机及 M0.2 重启首启 0/5。
+
+## 2026-11-09 M5 轻量候选与发布阻断
+
+M5 已开始但未完成。Windows Node-only 候选和源码普通启动默认选择 Node，候选资源无 Python / Open WebUI。已有旧库只读导入独立 `Scrylet` 目录，原目录保留，隔离候选仍要求绝对数据目录。此前候选 Windows 常规十次启动的实测中位业务可用约 1.70 秒，安装器约 120 MiB；这些数字属于此前构建，不能代替本轮默认启动回归，也不能推导 Mac、冷启动或真实手机通过。
+
+完整 Windows 候选验收、隔离 NSIS 安装与回退、包体 / 启动证据使用 `npm run collect:m5` 绑定同一安装器和 ASAR；汇总仍保持发布受阻。正式生产 GUID、Mac 两架构、实体手机 / 扬声器、五次真实系统重启首启、多屏负坐标 / 混合 DPI / 锁屏尚未验收，不删除旧运行层。逐卡范围见 [M5](node-service-m5.md)。
+
+## 2026-11-08 M4.1～M4.5 迁移、浏览器升级与安装回退
+
+完成 CJS 分阶段一致迁移 / 本地版本契约、原生静音进度、已保存浏览器草稿升级，以及独立完整旧版导出和 Node 可读快照。未知 schema / 缺图 / 配置 / 空间失败保留源与门槛；normalized 与 embedded 冲突保留整条备用图。用户模型别名 / 能力 / 参数实际走现有 SDK，删除密钥不由旧 seed 复活。配对 / 网卡 / 截图设置与日志保留，没有新增手机迁移管理 API，默认运行层和旧资源未删除。
+
+Windows 最终迁移 **33 组通过**，包含真实 WAL 已提交帧、六阶段异常 / 重入、六阶段真实进程 exit / 新进程恢复与 OS 密钥解密、两个 Node 快照独立重开，以及新增图文 / 兄弟分支 / 空会话 / 提示词 / 再删除密钥后实际 Open WebUI 0.12.2 读回；源 DB / 图片保持未变。Chromium / WebKit 真实旧 UI → 同 origin Node → 新草稿 → 旧 UI 回退及端口冲突 **4/4** 通过，零 skip / flaky；原声音 / 裁剪 / 显示器偏好保持，无自动朗读 / 补播。进度窗口在真实缩放下的溢出已修正，并做原生内容区检查。
+
+实际 Windows NSIS **8 组通过**：中文 / 空格 / 点安装目录、旧安装覆盖升级、同 origin / 配对 / 网卡 / 快捷键 / 草稿保留、缓存清理、应用退出重启、卸载保留数据与 OS profile、重装后继续 mock、安装版本地导出、再安装旧版实际读回新增历史和新草稿，共 5 次本地模型请求。既有用户安装被预检保护；本次用独立 NSIS GUID / 快捷方式 / 安装缓存命名空间，保持 appId / exe / payload。每步检查原有注册、快捷方式和正式缓存不变，最后仅卸载测试副本。**不计生产 GUID 覆盖升级通过；最终新候选安装全验收仍是 M5 门槛。** 已安装快照与后续参数 / 进度样式修正的当前资源候选分别记录归档哈希，不能混算。
+
+同轮 syntax / phone / contracts strict、离线 **141/141**、后端源码 **34** / 仓库外独立测试 ASAR **33** 组、手机源码两引擎 **50/50**、手机独立测试 ASAR **12/12** 通过；M0/M2 原截图恢复原字节。当前解包候选资源审计 **3,475 ASAR 条目 / 159 项项目文件**通过，无私有 / 开发资源，observer 与生产许可证齐全，旧 Python 3.12.16 / Open WebUI 0.12.2 保留。它与已安装的较早快照分开标注，未声称当前最终安装包全验收或包体 / 启动目标达成。
+
+M4.5 新增真实目标 Mac 的合成旧库迁移、先前 app 独立 Keychain 探针、新增数据导出和可选兼容旧 app 实际读回脚本接线；**新接线仅 syntax / 结构检查，没有 Mac 实机执行，四份 DMG / ZIP 仍 0/4，Keychain / 安装 / 旧版读回 0/2 架构。** 非 Mac 调用明确失败，Finder 拖拽 / 权限拒绝后授权等人工门槛仍未通过。
+
+保留失败：正式身份安装前发现真实客户端而拒绝；首次隔离安装的 PowerShell stdout 编码导致中文路径归属误判，修正 UTF-8 后只经 GUID / 路径 / ASAR 确认卸载拥有的测试副本，完整重跑通过；合成夹具在旧进程退出后遇到 WAL 收尾竞态，增加夹具等待而不删 WAL；新增 file self-ID 映射后，旧存储断言错误地把全部映射计作会话，已分开验证 chat=1 / file=2 后完整源码 / ASAR 通过。原始失败没有删除或计作成功。
+
+证据：[M4 逐卡记录与命令](node-service-m4.md)、[脱敏机器汇总](../artifacts/node-service-m4-check.json)、[原生迁移进度](../artifacts/node-service-m4-migration-webkit.png)、[安装手机页](../artifacts/node-service-m4-installed-phone.png)、[安装旧版读回](../artifacts/node-service-m4-installed-rollback.png)。原始报告 `.test-data/node-service-m4/run-4JeirL/`、`browser-current.json`、`install-s2Ee68/`、`phone-final.json`、`windows-audit-current.json`；服务 `node-service-m1/run-lWGET9/`，手机 ASAR `node-service-m2/archive-Uf3URs/`。未使用真实模型账户或改写真实用户库。
+
+下一项 **M4.4 在独立 Windows 环境验证正式 GUID、M4.5 真实 arm64 / x64 Mac 安装与 Keychain**。物理手机 / 扬声器、M3 多屏 / 锁屏 / Mac、M0.2 重启首启 0/5 和 M5 最终包 / 默认切换门槛保留，整个重构未完成。
+
+## 2026-11-08 M3.1～M3.4 Rust 原生输入与平台打包
+
+Windows 输入已替换为锁定 Rust 1.91.0 的预编译 observer，v1 JSON Lines / 物理坐标 / 握手与长度校验、EOF / 超时 / kill、父进程句柄与输入桌面失效取消已接线。observer 不注入输入；独立 Rust test-input-driver 承担合成事件，并有强杀释放 guardian。`test:desktop-input` 改用 Node mock 夹具，不再调用 Python 驱动。旧 Python / Open WebUI 文件和 Windows 默认继续保留，没有读取真实用户数据或真实模型账户。
+
+本轮 **134/134 离线检查**、**3/3 Rust 状态测试**、**5 组真实 Windows 合成输入**及 syntax / phone / contracts strict 通过。源码与仓库外含中文 / 空格 / 点路径的解包副本，各完整通过 **8 次 mock** 的原生全屏 / 区域热键、应用菜单截图、两角长按的 left / right / middle / x1 / x2、短按 / 拖动拒绝、双击关闭 / 开启、5 秒超时、Esc 和已有草稿拒绝。实际屏幕缩放 150%，区域 PNG **720×480**。截图反馈 shows / notifications / captureTooltips / overlays 均为 **0**，旧 hints=true 仍为 false，桌面音频静音。最终报告在光标恢复和进程清理完成后输出，控制进程均退出 0。
+
+源码与独立解包应用各 **4 组生命周期**通过：关闭隐藏 / 菜单恢复、正常退出回收 observer / 服务、只杀实际主进程后子进程自行结束、重启 SQLite 无孤儿锁。没有用 taskkill /T 伪造父进程清理。解包应用 cwd / 数据独立，PATH 仅 Windows / System32，不依赖系统 Node / Python / Rust。两处资源审计 **3,462 ASAR 条目 / 146 项项目文件**与当前源码 / 现有前端构建逐字节一致，observer 哈希 / 架构 / 许可证通过，测试 driver / manifest / Rust 源码 / 私有目录不在资源中。它是 `--dir` 候选，未生成或验收新的 NSIS。后端源码 **34 组** / 独立测试 ASAR **33 组**同轮回归通过；M2 浏览器全套历史证据未混算成本轮重跑。
+
+Mac 已实现分平台 / 架构配置、从 SVG 16～1024px / Retina 生成的 ICNS、DMG Applications 链接、`dist:mac[:arm64|:x64]`、`test:mac-package` 和实际 plist / Mach-O / 权限 / 链接 / 资源审计。**7 项结构检查通过，真实 Mac arm64 / x64 DMG / ZIP 为 0/4、运行 / 安装 / Keychain / Finder 拖拽 / 签名 / 公证均未测**；非 Mac 实际调用拒绝且不生成通过报告。当前 Mac 仅显式隔离 Node 数据的 development 候选，distribution 在 M4/M5 前拒绝，mouseSupported=false，无 Windows / Python / 假 helper。
+
+保留首次失败证据：已有测试 Electron 时拒绝注入，修正测试上下文 / 等待与启动器 PID 假设；长按合成测试增加 300ms 调度余量而不改 1200ms 默认；Electron 下载 HTTP 504 后使用本地同版 44.8.0；许可位置与旧解包不一致审计正确失败后重新打包。一次 WSL interop 启动失败、一次业务断言后控制进程退出 143 没有计整轮成功；最终完整重跑通过。实际锁屏 / UAC、多屏负原点 / 混合 DPI、人工物理输入、物理手机 / 扬声器、Mac 及权限拒绝后授权、完整迁移 / 新增数据后回退与最终包性能仍未通过。
+
+证据：[逐卡记录](node-service-m3.md)、[机器汇总](../artifacts/node-service-m3-check.json)、源码 [桌面](../artifacts/node-service-m3-desktop-input.png) / [设置](../artifacts/node-service-m3-desktop-input-settings.png) / [回答](../artifacts/node-service-m3-desktop-input-answer.png)，解包 [桌面](../artifacts/node-service-m3-desktop-input-packaged.png) / [设置](../artifacts/node-service-m3-desktop-input-packaged-settings.png) / [回答](../artifacts/node-service-m3-desktop-input-packaged-answer.png)。二维码 / 配对码 / 地址均遮盖，原 M0/M2 截图保留。原始记录 `.test-data/node-service-m3/`；后端 `run-AZOkkt`。下一项 **M4.1 只读旧格式导入及中断恢复**，Mac M3 和最终门槛继续保留。
+
+
+## 2026-11-08 M2.1～M2.5 React 手机页与完整业务对照
+
+新增 strict TypeScript + React 产品页，显式隔离 Node 运行层从同源 `/` / `/c/:id` 提供，默认旧运行层不变。SDK `Chat` 持有消息 / 流状态，唯一 composer 持有输入 / 附件 / 草稿、epoch / revision 和不确定发送身份；没有第二套聊天状态或提供商 SDK。保留兼容实验独立入口。
+
+已接上传 / 多屏静默截图 / Cropper 框选、12 张整批上限 / 顺序预览缩放 / 追加撤销、处理中 Enter / 换页保护、草稿竞争和旧格式适配。旧 sessionStorage 与未知字段不删除；未映射图片保留并阻止发送，全部确认保存才标记完成。M4 旧库 / 文件映射、跨 origin 迁移与新增数据后回退仍未完成。Markdown、公式、表格、代码复制 / 保存 / 折叠，以及 M0 全部可达历史 / 消息菜单均有新入口；实际下载 JSON / TXT / PDF，PDF 再解析通过。分享仅为已配对 LAN 地址，没有公开发布能力。
+
+电脑 receiver 使用随机页面身份、最近激活页、context / revision 与单次 202 回执；已有草稿、生成、模态、后台、处理 / 导航变化均不误发。丢 ack 不重放，不确定 POST 只查 receipt，刷新仍保留不确定状态。暂停 / 断订阅保持上游生成；重连 / 导航读持久快照，显式 stop 才取消。
+
+quiet.js 先于 React 加载，Node 页不安装旧 EventTarget 劫持。React 朗读 / 声音只复用旧纯函数，用户主动开启，仅本页本次实际完成回答朗读；旧历史 / 重连不补播。默认静默、关 / 停读、后台 / 导航 / 新生成取消、声音与 0.8～1.2 语速 / 主动试听 / 缺失音色保留、电脑拒绝通过。两旧音频 URL 实际 PCM 全零：Chromium 用 WebAudio 解码，Windows WebKit 缺 WebAudio / Notification，以实际 PCM WAV 解析和不可用状态验证，未称作 WebKit 播放或物理扬声器验收。
+
+最终同次 Chromium / WebKit **50/50**，无跳过、重试或 flaky；源码真实服务覆盖双协议、多轮、停止 / 部分恢复、分支 / 消息编辑 / 完整菜单、剪贴板拒绝、草稿 / 迁移 / receiver / 语音，以及 320×720、390×460、390×844、长输入多图、VisualViewport 缩小 / 缩放、焦点和模型 / 等待恢复。视口 / 键盘与语音引擎为模拟；截图源为合成图片，不把此测试计作原生屏幕权限或物理手机通过。
+
+独立测试 ASAR 的手机 **12/12**；后端源码 **34 组** / ASAR **33 组**通过。测试档案在仓库外含中文 / 空格路径运行，独立 cwd，清除 NODE_PATH / NODE_OPTIONS；151 份归档项目文件与 staging、151 份 staging 输入与当前源码 / 最新构建逐字节匹配，静态资源和完整浏览器许可存在。测试 ASAR 不是 NSIS / DMG / ZIP，其 33,803,978 字节不作为产品包体或启动目标结果。
+
+同轮 **119/119 离线检查**（含 43 契约）、strict / build / syntax 通过；兼容探针源码 / ASAR 的两引擎复测通过。旧 UI **70/70** 全套通过，14 份历史 artifacts 恢复原字节；另用独立 legacy 目录补做用户 / 助手保存编辑 **2/2**，确认保存保持 ID / children 且无额外模型请求。全程只用 mock，无真实模型账户，未动用户目录或删除 Python / Open WebUI。
+
+失败保留并修正：WebKit 刷新取消轮询、SSE 断开后丢停止入口、SDK 7 system 消息显式信任、Windows ASAR 路径、损坏合成 PNG 与测试误认任意 receiver ready。最终完整复测通过，未删断言或改为 skip。证据：[逐卡与功能记录](node-service-m2.md)、[机器汇总](../artifacts/node-service-m2-check.json)、[真实手机渲染](../artifacts/node-service-m2-phone-webkit.png)、[短屏](../artifacts/node-service-m2-short-webkit.png)、[声音](../artifacts/node-service-m2-voice-webkit.png)。原始记录 `.test-data/node-service-m2/verified-browser.json` / `verified-results/`、`archive-pz1XBG/`；后端 `.test-data/node-service-m1/run-SRtCfU/`，兼容 `.test-data/node-service-m03/run-bFHimq/`。
+
+下一项 **M3.1**（Rust observer），随后替换独立输入测试 driver。物理手机 / 扬声器、Mac 两架构 / Keychain、完整迁移与新增数据后回退、最终安装包 / 安装卸载仍未验收，真实 Windows 重启首启仍为 0/5。
+
+## 2026-11-08 M1.1～M1.5 正式 Node 后端与网关
+
+保留已有工作区改动、根 CommonJS、Electron 44.8.0 和旧默认。原 Runtime 提取为 legacy-runtime，门面仅在显式独立目录选择 node；新增正式 utilityProcess、init / ready / shutdown、nonce 心跳、主进程 OS 加密秘密能力和版本化 SQLite。没有读取真实旧库或使用真实模型账户，未删除 Python / Open WebUI。
+
+事务存储覆盖分支与当前指针、图片顺序 / 哈希 / 受控路径、草稿归属 / revision、提示词一次性种子和 schema 校验和；数据库 EXCLUSIVE 租约拒绝第二个真实服务进程，崩溃后由 OS 释放。domain 重复导入有 source ID / hash 约束，不冒充 M4 旧库迁移或新增数据后回退。密钥版本化引用避免覆盖旧值，删除 tombstone 先落盘；可控删除失败保留待重试队列，不恢复成 configured。Windows 实际 safeStorage 加密 / 重新读取 / 删除通过，Mac Keychain 未测。
+
+锁定 SDK 的 Chat / Responses 工厂实际调用 loopback mock，覆盖多图 / 多轮、自定义地址、原样上游 ID、错误 / 不确定断链 / 取消，maxRetries=0。测试发现 Responses 默认远端 item_reference 会替代本机完整历史，已显式 store=false，同时保留协议输出作本机后续上下文。
+
+生成接受、节点、版本、收据和 begin 同事务，随后才调 SDK；并发同请求只有一次调用，正文冲突 409。编辑与重答保持五节点图，断订阅 / 暂停 / 撤销不停止任务，显式 stop 关闭上游。真实杀掉 utilityProcess 后重启，部分回答与图片仍可读，状态 interrupted，原 requestId 查询和重复接受不重放。普通 seq 连续，缓存缺口返回同生成 snapshot，恢复不把终态改回进行中。
+
+网关严格按方法 / 路径白名单、Host / Origin / Cookie / 写标识鉴权，重新构造内部 Authorization 与设备身份；伪造内部头不能改收据归属。文件与 SSE 流转发、单接收页 / context / draft / 本命令 busy、ack 丢失不重放和 availableModels 迁移检查通过。Node 手机产品页尚未实现，仍为 M2；这些 HTTP 检查不计实体手机或 React composer / 朗读验收。
+
+最终同轮 `check`、**115 项离线检查**（含 39 契约、6 生命周期）通过，无跳过。源码 **31 组**与仓库外实际测试 ASAR **30 组**集成检查通过；ASAR 不含 Python / 真实用户数据，含生产依赖和 SQL 资源，cwd 独立、NODE_PATH / NODE_OPTIONS 清除，SDK 确从归档加载。源模式另实测只杀父进程后子进程退出；PID 权限错误不当作退出成功。归档是带合成夹具的测试应用，不是最终安装包。
+
+旧默认 Chromium / WebKit **70 项全套同轮通过**，无失败 / flaky / 跳过，361,717.063ms。14 份旧 artifacts 截图恢复原字节，本轮渲染只留在忽略目录。失败记录保留：并发测试最初误认 HTTP 返回顺序、Responses 远端引用、fetch 未按意图覆盖 Host；均修正后完整重跑，未增加模型重试或删断言。
+
+证据：[逐卡记录](node-service-m1.md)、[机器汇总](../artifacts/node-service-m1-check.json)；最终原始服务证据 `.test-data/node-service-m1/run-CPPioi/`，旧 UI `.test-data/node-service-m1/legacy-ui-4Di99u/`。下一项 **M2.1**。Mac 两架构 / Keychain、物理手机、新旧完整迁移与新增数据后回退、Rust 与最终包仍未通过；真实重启首启仍 0/5。没有以测试 ASAR 数字宣称 Windows / Mac 包体或启动目标达成。
+
+## 2026-11-08 M0.4 旧格式与 M0.5 契约初稿
+
+按用户要求完成两张任务卡，保留此前全部工作区改动。真实旧版在独立合成数据目录运行，未读取实际用户库、连接真实模型账户、重启系统或删除旧资源。Windows x64 的 Chromium / WebKit 两项格式采集同轮通过：编辑 / 重答保留五节点分支，顶层与内嵌指针不同的导入副本实际刷新符合顶层优先；已保存新 / 历史草稿的文字和图片、声音 / 语速 / 主动朗读偏好及框选坐标刷新保持。设备语音引擎为模拟，无实体手机或扬声器通过声明。
+
+关闭旧写入后，用固定 Electron SQLite 只读冻结 PRAGMA / CREATE TABLE 和精选记录：chat 17 列、chat_message 19 列、chat_file 7 列、file 9 列、config 3 列、model 10 列、prompt 12 列。两份消息存储、文件关联、字节和哈希均保留，不能只拍平 chat JSON。删除合成 key 后，即使旧 seed 存在冲突值，重新创建 Runtime 启动仍未复活；用户修改提示词、自定义地址和未知 chat 元数据保持。模拟网卡选择和配对公开列表重新读取保持。源码与实际夹具区分秒 / 毫秒，纳秒、外链、失效 blob 和图冲突仅作为明确标注的合成边界，不冒充已迁移。
+
+两条锁定 SDK 协议的 14 项检查通过：Chat / Responses 的 JSON 与 SSE、自定义路径 / 末尾斜杠、两图字节顺序与历史角色、429、已接收后断链、显式取消。maxRetries=0，每项只收到一次请求。3 项固定夹具检查通过，含无 Python 的 SQLite 重建、逐字段对比与 integrity_check；精选库省略用户鉴权表，关闭外键，不计 M4 完整迁移 / 回退通过。
+
+新增 contracts 共享类型、24 类运行时 schema、22 条 HTTP 草稿清单、窄 IPC / 原生 JSON Lines 校验。32 项契约检查和 strict 声明 / 反例通过；全体正向样本同时受声明和实际校验约束，覆盖身份伪造拒绝、版本与长度、图归属 / 环、图片次序、修订冲突、指纹冲突、终态不可恢复、连续序号、静默字段和窄密钥操作。`check` 与同轮 **102 项离线回归全部通过，无跳过**。没有把此前旧 UI 70 项全套算成本轮重跑。API 尚未接入生产，幂等、事务、stop 与暂停、恢复和进程生命周期仍须在 M1 实施。
+
+失败保持可见：普通更新接口重新计算分支指针、已停止 Runtime 原对象不可重启、桌面 UA 隐藏手机声音入口、自动网卡配置仅有 port 等夹具假设均已按实际行为修正。最终离线复测还捕获随机监听端口触发 fetch `bad port`，模型请求为 0；失败 TAP 单独保留，协议 mock 改用可绑定高位端口后完整重跑通过，未添加模型重试。既有 http-proxy 的 util._extend 弃用警告保留。
+
+证据：[旧格式与协议报告](node-service-formats.md)、[格式机器报告](../artifacts/node-service-formats-check.json)、[契约说明](node-service-contracts.md)、[契约机器报告](../artifacts/node-service-contracts-check.json)。M0.4 完成后已更新进度到 M0.5；M0.5 完成后更新至 **M1.1**。AGENTS / spec / architecture 的固定复用规则只约束 legacy，新增层按 CJS / strict TS + React / 预编译 Rust 边界实施，无相互冲突的全局条款。
+
+M0.2 真实重启首启仍为 0/5；生产 Node 服务、迁移与新增数据后的回退、Rust 输入、物理手机、Mac arm64 / x64 DMG / ZIP 和最终安装验收仍未完成。旧默认、Python / Open WebUI 资源和用户数据继续保留。
+
+## 2026-11-08 M0.3 固定运行时、SDK、strict 前端与独立 ASAR
+
+用户明确选择将真实重启首启暂保留未测，先继续 M0.3；未重启 Windows、修改登录任务或改变 M0.2 的 0 / 5 记录。所有旧用户数据、旧默认运行层和既有工作区改动继续保留。
+
+实际 utilityProcess 报告固定 Electron **44.8.0**、内置 Node **24.22.0**、SQLite **3.53.4**，与控制器 Node 22.14.0 分开记录。SDK / 适配器、React、TypeScript、Vite 和类型声明已用精确版本与锁文件固定；已有依赖版本未变，Electron 未升级，根仍为 CommonJS。开发最低 Node 收窄为 22.12.0，以匹配固定 Electron / Vite 的要求；没有安装或分发另一份运行时 Node。
+
+最终隔离实验在同一轮验证了源码和真实 ASAR：两处均实际执行 WAL、外键拒绝、事务 rollback、第二连接写锁冲突和一致备份读回；CJS 通过受控文件 URL 动态 import ESM SDK，分别走本地 Chat SSE 与 Responses 非流式 JSON，各场景两次 mock 请求，maxRetries=0。ASAR 含 13 个生产包及许可、编译后静态前端和 bundled 前端许可，无旧 Python / runtime。归档实际复制到仓库外的中文 / 空格 / 点目录路径，NODE_PATH / NODE_OPTIONS 清除，解析路径强制在 ASAR 内，避免误回退到工作区依赖；数据写在包外，cwd 也独立。
+
+源码和 ASAR 各在 Chromium / WebKit 完成实际 SDK transport / 消息状态验证，共 **4 份浏览器检查通过**，pageerror 与外部浏览器请求均为 0。另有两份“只杀父进程”检查通过，未用进程树 kill 冒充孤儿收尾；worker 在 5 秒内退出，显式父 PID 轮询为 250ms。正常退出均收到 stopped 确认及 exit=0。53 项离线检查、语法 / 目录 / phone strict 类型检查通过；本卡没有把此前 M0.2 的旧版 70 项全套计为本轮重跑。
+
+首次 strict 检查因 SDK 所需 Node / json-schema 声明缺失而失败，已补齐精确依赖，保持 strict 和 skipLibCheck=false。浏览器首次断言混淆 p/status 与 output 的原生 status 角色，改为明确命名 SDK 状态，失败报告 / 截图与最终整套复验分别保留。Vite 的 SWR `use client` 打包警告保留于 build.log；静态 CSR 页面实际通过，不宣称 SSR 指令已验证。
+
+限制：phone 仅是明确标注的兼容实验页，未接默认网关，不是产品聊天页；正式 HTTP/SSE transport、应用级单写者锁 / 迁移 / 崩溃恢复、PID 复用与完整生命周期合同、Responses SSE / 多图 / 多轮 / 取消均进入后续任务。SQLite 是 Windows 候选，Mac arm64 / x64、实际安装版和 Keychain 未测；真实提供商账户、实体手机、系统键鼠与安装升级没有新增验收。实验 ASAR 不是最终 Node 安装包，不能用其大小宣称 Windows / Mac 包体目标达成。
+
+证据：[兼容决策与复现](node-service-compatibility.md)、[脱敏报告](../artifacts/node-service-compatibility-check.json)、[真实实验页](../artifacts/node-service-compatibility-phone.png)。最终原始证据 `.test-data/node-service-m03/run-ma75f2/`，前次失败在 `run-UICkdM`、`run-kbfltc` 与 `typecheck.log`。下一项 M0.4，继续固定旧格式和两条完整 mock 协议；M1～M5 尚未实施，默认仍为 legacy。
+
+## 2026-11-07 M0.2 启动分段与常规 10 次实测
+
+保留 M0.1 全部已有改动，新增 `desktop/startup-metrics.cjs`、本地窗口计时窄 IPC、Runtime 阶段回调、`test:startup` 和 Windows 采样 / 汇总脚本。只有显式隔离 userData + 计时开关才启用；默认路径无计时文件或界面变化。所有阶段使用 Electron 主进程单调时钟，固定枚举 / 耗时，不记录 URL、token、密钥、正文或任意错误体。mock provider 从旧 fixture 提取，不再为计时另启动多余的 Open WebUI。
+
+Windows 11 x64 / Ryzen 7 7800X3D，实际 Electron 44.8.0 源码应用、固定 Python 3.12.16 / Open WebUI 0.12.2、本地 mock。正式一次初始化后，**10 次完整退出 / 重启同次全部通过**：会话读取、等到真实 sessionStorage 草稿保存、一条实际 mock 请求、回答落盘均验证。每次观察到的 8 个所属进程退出、网关端口释放。首次初始化单列；小样本没有混入正式分布。
+
+从 main.cjs 入口起，服务 ready 中位数 **5,651.211ms** / 最大 **6,199.880ms**；手机可交互 **7,286.320ms** / **7,870.027ms**；业务可用核对完成 **8,007.293ms** / **8,595.383ms**。窗口显示中位数 244.177ms，不能当作可聊天时间。spawn → 健康接口观察中位数 5,124.408ms，包含 Python / 上游 / 存储与 HTTP 初始化及轮询，不能全归因于 Python 导入。`storage-ready` 是成功账户操作后的 DB 可用观察界限，不是上游内部开库时间；mock 可见正文时间也不是云模型首 token 延迟。
+
+52 项离线检查和语法 / 目录检查通过；提取 mock 后 Chromium / WebKit **70 / 70 全套同次通过**，无跳过、重试或 flaky，347,861.781ms。默认关闭计时的 Windows 原生桌面仍通过：权限 granted、真实 2560×1440 截图、暂停 / 恢复及关窗驻留。旧 artifacts 截图已恢复原字节，新原始证据在 `.test-data/node-service-m02/`。本轮未重跑系统鼠标 / 热键、安装 / LAN 网卡、Mac 或实体手机。
+
+旧 NSIS 重新统计仍为 308,753,932 字节，原 SHA-256 一致；解包 946,046,039 字节 / 23,606 文件。源码计时不等于该安装包计时，没有新 Node / Mac 包或性能改善验收。
+
+**5 次真实 Windows 重启后首次启动仍为 0 / 5**，因此 M0.2 未标整卡通过。同启动周期调用 `--post-reboot` 已实际被 `BOOT_ALREADY_SAMPLED` 拒绝，账本不变，未将进程重启冒充系统冷启动。重启会中断用户 Windows / IDE，本轮没有自动重启或改登录任务；已提供在前一启动周期准备数据、随后每次真实重启后采一次的命令。需要操作者在打开 Scrylet 前执行。当轮下一项原为补齐这 5 个启动周期，随后用户选择暂保留未测并继续 M0.3，最新结果见上节。
+
+证据：[完整口径与复现](node-service-startup.md)、[脱敏逐次样本 / 汇总](../artifacts/node-service-startup-check.json)。原始样本在 `.test-data/node-service-m02/measurement/samples.json`，全套浏览器报告在 `.test-data/node-service-m02/ui.json`。默认旧运行层、用户实际数据、Python 资源和已有功能保持。
+
+## 2026-11-07 开始 Node 重构，核对 M0.1 实际基线
+
+入口提交 `d00f40fe17434576127dd7343ba11aed8f3bab73`（`2.0.0-dev.6`），开始时工作区干净。同步 AGENTS、产品规格和架构中的过渡期规则，纠正过时的“截图提示可开启”条款；截图始终静默，保留手机主动朗读和声音设置。默认运行层继续是 Open WebUI 0.12.2 / Python，没有切换默认、删除旧资源或打开真实模型账户。
+
+WSL2 编排下调用本机 Windows Node 22.14.0，实际测试平台为 Windows 11 x64。语法 / 目录检查、47 项离线测试和 Chromium / WebKit 70 项完整浏览器集成在同一次运行通过，无跳过、无 flaky / 重试。浏览器使用真实固定上游、隔离临时数据与本地 mock；结果见 `.test-data/node-service-m0/ui.json`，运行 349,415.031ms。没有外部模型请求；浏览器语音引擎使用模拟实现，不代表实体手机扬声器验收。
+
+现有桌面脚本首次受 IDE 的 `ELECTRON_RUN_AS_NODE` 影响启动失败；仅移除验收进程该变量后，Windows 实际 Electron 启动、暂停 / 恢复、屏幕权限 granted、真实 2560×1440 截图与关闭到托盘通过。失败和复验日志分别保留，没有用 denied capture 充当成功。本轮未重做系统鼠标 / 快捷键、多屏、真实 LAN、安装升级、macOS 或实体手机验收。
+
+新增 [实际基线矩阵](node-service-baseline.md)、`test:baseline` 与独立 Playwright 配置。补充套件最终 Chromium / WebKit 同次 **8 / 8 通过**，无跳过、重试；73,568.571ms，原始结果在 `.test-data/node-service-m0/baseline-verified.json`，与上述 70 项独立记账。核对重命名、置顶 / 取消、搜索、JSON 下载、删除确认、克隆不调用模型、归档、分组折叠、编辑 / 重答新增分支及历史草稿切换；未执行的消息删除、TXT / PDF 输出、分享链接等明确只登记入口，未计业务验收成功。
+
+侧栏弹层使用普通 button，分享 / 克隆未被按 menuitem 的裁剪规则隐藏；草稿使用 sessionStorage 的 `chat-input` / `chat-input-<id>`，含已上传文件 ID 与元数据。仅浏览兄弟分支不会立即保存选择，刷新恢复已保存分支；固定 loader 优先采用有效顶层 `current_message_id`，不能仅按线性消息最后一条推断。用户编辑依赖 hover / focus reveal，本次走聚焦后操作，纯触摸路径仍未验收。调试中的定位器、弹层时序和“展示选择已落盘”错误假设导致的失败 / 中断均保留，没有修改旧业务实现或删除原测试来获取通过。
+
+M0.1 已完成 36 项功能与 14 项扩充入口的证据登记；M0.2 已只读核对旧安装包 308,753,932 字节及原 SHA-256，解包 946,046,039 字节 / 23,606 文件，尚未做分段 / 重复启动计时。下一项继续 M0.2。M1～M5 尚未开始，Mac 四份安装包、Node 迁移及新增数据后回退保持未通过。脱敏汇总见 [基线报告](../artifacts/node-service-baseline-check.json)，真实隔离渲染见 [会话菜单](../artifacts/node-service-baseline-menu.png) 与 [消息分支](../artifacts/node-service-baseline-branches.png)。
 
 ## 2026-11-06 更名为 Scrylet 并更新图标（2.0.0-dev.6）
 

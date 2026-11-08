@@ -1,0 +1,48 @@
+{
+  "schemaVersion": 1,
+  "status": "measured",
+  "platform": "win32",
+  "arch": "x64",
+  "kind": "complete-node-package",
+  "installer": {
+    "file": "build\\node-win-x64-release\\output\\Scrylet-2.0.0-dev.7-win-x64-Setup.exe",
+    "bytes": 125867931,
+    "sha256": "7a0f3ade51530546125fe0b16506330158f0fc7b8f41635ce9f6f1783a681875",
+    "MiB": 120.037
+  },
+  "application": {
+    "bytes": 429143076,
+    "files": 83,
+    "MiB": 409.263,
+    "archiveBytes": 29173255,
+    "archiveSha256": "f47a0899928e9d927a2c1a2170647210f46437fa3f3428debac8323e89aaaf48",
+    "pythonBytes": 0
+  },
+  "audit": {
+    "status": "passed",
+    "platform": "win32",
+    "arch": "x64",
+    "runtime": {
+      "engine": "node",
+      "python": false
+    },
+    "appId": "com.snapsolver.desktop",
+    "minimumSystemVersion": null,
+    "files": 3434,
+    "matchedProjectFiles": 155,
+    "noPrivateData": true,
+    "noDevelopmentDependencies": true,
+    "binaries": [
+      {
+        "file": "native/input-observer.exe",
+        "arch": "x64",
+        "bytes": 287744,
+        "sha256": "912b94de23b5d186724b4028950592ad9883c565d8d1a41f744de39200f926d7"
+      }
+    ],
+    "archiveSha256": "f47a0899928e9d927a2c1a2170647210f46437fa3f3428debac8323e89aaaf48",
+    "verification": "package-resources"
+  },
+  "finalInstallation": "separate acceptance evidence required",
+  "mac": "unverified; no Mac sizes substituted"
+}

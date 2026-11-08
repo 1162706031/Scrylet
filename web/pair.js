@@ -46,7 +46,8 @@ async function connect(credential) {
       if (response.status === 400) credentialInput.setAttribute("aria-invalid", "true");
       throw new Error(result.error);
     }
-    location.replace("/");
+    const returnTo = new URLSearchParams(location.search).get("returnTo") || "/";
+    location.replace(/^\/(?:c\/[A-Za-z0-9_-]+)?$/.test(returnTo) ? returnTo : "/");
   } catch (error) {
     status.textContent = error instanceof TypeError || error.name === "TimeoutError"
       ? "连接中断，请确认电脑 App 正在运行"
@@ -64,7 +65,7 @@ form.addEventListener("submit", (event) => {
 function connectFromLink() {
   const token = new URLSearchParams(location.hash.slice(1)).get("token");
   if (token) {
-    history.replaceState(null, "", location.pathname);
+    history.replaceState(null, "", location.pathname + location.search);
     connect(token);
   }
 }

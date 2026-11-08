@@ -8,7 +8,7 @@ function defaults(legacyDirectory) {
     fullShortcut: "Ctrl+Alt+S",
     regionShortcut: "Ctrl+Alt+A",
     cancelShortcut: "Escape",
-    mouseEnabled: process.platform === "win32",
+    mouseEnabled: process.platform === "win32" && process.arch === "x64",
     mouseButton: "left",
     doubleClickEnabled: false,
     doubleClickMs: 500,

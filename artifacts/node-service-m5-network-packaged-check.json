@@ -1,0 +1,19 @@
+{
+  "at": "2026-11-08T15:32:06.389Z",
+  "platform": "win32",
+  "packaged": true,
+  "version": "2.0.0-dev.6",
+  "defaultNetwork": {
+    "name": "以太网",
+    "address": "192.168.5.26"
+  },
+  "manualSelection": {
+    "name": "vEthernet (Default Switch)",
+    "address": "172.19.32.1"
+  },
+  "restartSelectionPreserved": true,
+  "qrOriginMatchesManualAddress": true,
+  "pairingAtLanOrigin": true,
+  "physicalPhoneTested": false,
+  "externalModelRequests": 0
+}

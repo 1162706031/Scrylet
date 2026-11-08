@@ -1,0 +1,795 @@
+{
+  "tasks": [
+    "M1.1",
+    "M1.2",
+    "M1.3",
+    "M1.4",
+    "M1.5"
+  ],
+  "scope": "Windows x64 backend, isolated source and test ASAR; production default stays legacy",
+  "testedAt": "2026-11-08T07:26:28.666Z",
+  "platform": "win32",
+  "arch": "x64",
+  "electron": "44.8.0",
+  "controllerNode": "22.14.0",
+  "run": ".test-data\\node-service-m1\\run-CPPioi",
+  "defaultRuntime": "legacy",
+  "checks": {
+    "syntaxCatalogAndStrictTypes": true,
+    "offline": {
+      "tests": 115,
+      "passed": 115,
+      "failed": 0,
+      "skipped": 0,
+      "contractTests": 39,
+      "lifecycleTests": 6
+    },
+    "sourceIntegrationGroups": [
+      "storage-wal-fk-os-lease-backup",
+      "schema-upgrade-checksum-refusal",
+      "graph-branches-import-idempotence-rollback",
+      "file-bytes-mime-path-missing-references",
+      "draft-revision-device-ownership-restart",
+      "prompt-edit-seed-restart",
+      "chat-menu-clone-delete-read-state",
+      "provider-chat-responses-json-sse-real-sdk",
+      "provider-images-history-model-custom-url",
+      "provider-error-uncertain-cancel-no-retry",
+      "provider-keep-delete-no-reseed-no-plaintext",
+      "provider-delete-failure-tombstone-retry-literal-model-id",
+      "generation-durable-acceptance-http-concurrent-dedup",
+      "generation-edit-regenerate-preserves-five-node-graph",
+      "generation-branch-context-protocol-output-replay",
+      "generation-disconnect-continues-stop-aborts",
+      "generation-errors-uncertain-no-replay-command-unique",
+      "generation-cache-gap-snapshot-delete-receipt",
+      "utility-competing-writer-rejected",
+      "utility-crash-restart-partial-interrupted-no-replay",
+      "utility-durable-files-requests-real-sdk-responses",
+      "utility-shutdown-aborts-interrupted-not-stopped",
+      "gateway-unpaired-cross-site-host-write-whitelist",
+      "gateway-overwrites-internal-auth-and-device-headers",
+      "gateway-files-drafts-model-setup-available-models",
+      "gateway-sse-pause-revoke-disconnect-without-stop",
+      "gateway-single-receiver-context-draft-busy-command-ack-loss",
+      "utility-secret-rpc-provider-save-delete",
+      "lifecycle-ready-auth-shutdown",
+      "os-backed-secret-roundtrip-delete",
+      "parent-only-kill-child-exits"
+    ],
+    "archiveIntegrationGroups": [
+      "storage-wal-fk-os-lease-backup",
+      "schema-upgrade-checksum-refusal",
+      "graph-branches-import-idempotence-rollback",
+      "file-bytes-mime-path-missing-references",
+      "draft-revision-device-ownership-restart",
+      "prompt-edit-seed-restart",
+      "chat-menu-clone-delete-read-state",
+      "provider-chat-responses-json-sse-real-sdk",
+      "provider-images-history-model-custom-url",
+      "provider-error-uncertain-cancel-no-retry",
+      "provider-keep-delete-no-reseed-no-plaintext",
+      "provider-delete-failure-tombstone-retry-literal-model-id",
+      "generation-durable-acceptance-http-concurrent-dedup",
+      "generation-edit-regenerate-preserves-five-node-graph",
+      "generation-branch-context-protocol-output-replay",
+      "generation-disconnect-continues-stop-aborts",
+      "generation-errors-uncertain-no-replay-command-unique",
+      "generation-cache-gap-snapshot-delete-receipt",
+      "utility-competing-writer-rejected",
+      "utility-crash-restart-partial-interrupted-no-replay",
+      "utility-durable-files-requests-real-sdk-responses",
+      "utility-shutdown-aborts-interrupted-not-stopped",
+      "gateway-unpaired-cross-site-host-write-whitelist",
+      "gateway-overwrites-internal-auth-and-device-headers",
+      "gateway-files-drafts-model-setup-available-models",
+      "gateway-sse-pause-revoke-disconnect-without-stop",
+      "gateway-single-receiver-context-draft-busy-command-ack-loss",
+      "utility-secret-rpc-provider-save-delete",
+      "lifecycle-ready-auth-shutdown",
+      "os-backed-secret-roundtrip-delete"
+    ],
+    "sourceFilesMatchArchive": 77,
+    "legacyUI": {
+      "startTime": "2026-11-08T07:11:06.447Z",
+      "duration": 361717.063,
+      "expected": 70,
+      "skipped": 0,
+      "unexpected": 0,
+      "flaky": 0,
+      "report": ".test-data\\node-service-m1\\legacy-ui-4Di99u\\report.json",
+      "originalScreenshotsRestored": 14
+    },
+    "gitWhitespace": "passed with cr-at-eol"
+  },
+  "archive": {
+    "file": ".test-data\\node-service-m1\\run-CPPioi\\归档 资源.实验\\app.asar",
+    "entries": 3989,
+    "productionPackages": [
+      {
+        "name": "@ai-sdk/openai",
+        "version": "4.0.110",
+        "license": "Apache-2.0"
+      },
+      {
+        "name": "@ai-sdk/provider",
+        "version": "4.0.36",
+        "license": "Apache-2.0"
+      },
+      {
+        "name": "json-schema",
+        "version": "0.4.0",
+        "license": "(AFL-2.1 OR BSD-3-Clause)"
+      },
+      {
+        "name": "@ai-sdk/provider-utils",
+        "version": "5.0.75",
+        "license": "Apache-2.0"
+      },
+      {
+        "name": "@standard-schema/spec",
+        "version": "1.1.0",
+        "license": "MIT"
+      },
+      {
+        "name": "@workflow/serde",
+        "version": "4.1.0",
+        "license": "Apache-2.0"
+      },
+      {
+        "name": "eventsource-parser",
+        "version": "3.1.1",
+        "license": "MIT"
+      },
+      {
+        "name": "undici",
+        "version": "7.30.1",
+        "license": "MIT"
+      },
+      {
+        "name": "@ai-sdk/openai-compatible",
+        "version": "3.0.86",
+        "license": "Apache-2.0"
+      },
+      {
+        "name": "ai",
+        "version": "7.0.164",
+        "license": "Apache-2.0"
+      },
+      {
+        "name": "@ai-sdk/gateway",
+        "version": "4.0.137",
+        "license": "Apache-2.0"
+      },
+      {
+        "name": "@vercel/oidc",
+        "version": "3.2.0",
+        "license": "Apache-2.0"
+      },
+      {
+        "name": "cropperjs",
+        "version": "1.6.2",
+        "license": "MIT"
+      },
+      {
+        "name": "express",
+        "version": "5.3.0",
+        "license": "MIT"
+      },
+      {
+        "name": "accepts",
+        "version": "2.0.0",
+        "license": "MIT"
+      },
+      {
+        "name": "mime-types",
+        "version": "3.0.2",
+        "license": "MIT"
+      },
+      {
+        "name": "mime-db",
+        "version": "1.54.0",
+        "license": "MIT"
+      },
+      {
+        "name": "negotiator",
+        "version": "1.1.0",
+        "license": "MIT"
+      },
+      {
+        "name": "content-type",
+        "version": "2.1.0",
+        "license": "MIT"
+      },
+      {
+        "name": "body-parser",
+        "version": "2.3.0",
+        "license": "MIT"
+      },
+      {
+        "name": "bytes",
+        "version": "3.1.2",
+        "license": "MIT"
+      },
+      {
+        "name": "debug",
+        "version": "4.4.3",
+        "license": "MIT"
+      },
+      {
+        "name": "ms",
+        "version": "2.1.3",
+        "license": "MIT"
+      },
+      {
+        "name": "http-errors",
+        "version": "2.0.1",
+        "license": "MIT"
+      },
+      {
+        "name": "depd",
+        "version": "2.0.0",
+        "license": "MIT"
+      },
+      {
+        "name": "inherits",
+        "version": "2.0.4",
+        "license": "ISC"
+      },
+      {
+        "name": "setprototypeof",
+        "version": "1.2.0",
+        "license": "ISC"
+      },
+      {
+        "name": "statuses",
+        "version": "2.0.2",
+        "license": "MIT"
+      },
+      {
+        "name": "toidentifier",
+        "version": "1.0.1",
+        "license": "MIT"
+      },
+      {
+        "name": "iconv-lite",
+        "version": "0.7.3",
+        "license": "MIT"
+      },
+      {
+        "name": "safer-buffer",
+        "version": "2.1.2",
+        "license": "MIT"
+      },
+      {
+        "name": "on-finished",
+        "version": "2.4.1",
+        "license": "MIT"
+      },
+      {
+        "name": "ee-first",
+        "version": "1.1.1",
+        "license": "MIT"
+      },
+      {
+        "name": "qs",
+        "version": "6.16.1",
+        "license": "BSD-3-Clause"
+      },
+      {
+        "name": "es-define-property",
+        "version": "1.0.1",
+        "license": "MIT"
+      },
+      {
+        "name": "side-channel",
+        "version": "1.1.1",
+        "license": "MIT"
+      },
+      {
+        "name": "es-errors",
+        "version": "1.3.0",
+        "license": "MIT"
+      },
+      {
+        "name": "object-inspect",
+        "version": "1.13.4",
+        "license": "MIT"
+      },
+      {
+        "name": "side-channel-list",
+        "version": "1.0.1",
+        "license": "MIT"
+      },
+      {
+        "name": "side-channel-map",
+        "version": "1.0.1",
+        "license": "MIT"
+      },
+      {
+        "name": "call-bound",
+        "version": "1.0.4",
+        "license": "MIT"
+      },
+      {
+        "name": "call-bind-apply-helpers",
+        "version": "1.0.2",
+        "license": "MIT"
+      },
+      {
+        "name": "function-bind",
+        "version": "1.1.2",
+        "license": "MIT"
+      },
+      {
+        "name": "get-intrinsic",
+        "version": "1.3.0",
+        "license": "MIT"
+      },
+      {
+        "name": "es-object-atoms",
+        "version": "1.1.2",
+        "license": "MIT"
+      },
+      {
+        "name": "get-proto",
+        "version": "1.0.1",
+        "license": "MIT"
+      },
+      {
+        "name": "dunder-proto",
+        "version": "1.0.1",
+        "license": "MIT"
+      },
+      {
+        "name": "gopd",
+        "version": "1.2.0",
+        "license": "MIT"
+      },
+      {
+        "name": "has-symbols",
+        "version": "1.1.0",
+        "license": "MIT"
+      },
+      {
+        "name": "hasown",
+        "version": "2.0.4",
+        "license": "MIT"
+      },
+      {
+        "name": "math-intrinsics",
+        "version": "1.1.0",
+        "license": "MIT"
+      },
+      {
+        "name": "side-channel-weakmap",
+        "version": "1.0.2",
+        "license": "MIT"
+      },
+      {
+        "name": "raw-body",
+        "version": "3.0.2",
+        "license": "MIT"
+      },
+      {
+        "name": "unpipe",
+        "version": "1.0.0",
+        "license": "MIT"
+      },
+      {
+        "name": "type-is",
+        "version": "2.1.0",
+        "license": "MIT"
+      },
+      {
+        "name": "media-typer",
+        "version": "1.1.1",
+        "license": "MIT"
+      },
+      {
+        "name": "content-disposition",
+        "version": "2.0.1",
+        "license": "MIT"
+      },
+      {
+        "name": "cookie",
+        "version": "0.7.2",
+        "license": "MIT"
+      },
+      {
+        "name": "cookie-signature",
+        "version": "1.2.2",
+        "license": "MIT"
+      },
+      {
+        "name": "encodeurl",
+        "version": "2.0.0",
+        "license": "MIT"
+      },
+      {
+        "name": "escape-html",
+        "version": "1.0.3",
+        "license": "MIT"
+      },
+      {
+        "name": "etag",
+        "version": "1.8.1",
+        "license": "MIT"
+      },
+      {
+        "name": "finalhandler",
+        "version": "2.1.1",
+        "license": "MIT"
+      },
+      {
+        "name": "parseurl",
+        "version": "1.3.3",
+        "license": "MIT"
+      },
+      {
+        "name": "fresh",
+        "version": "2.0.0",
+        "license": "MIT"
+      },
+      {
+        "name": "merge-descriptors",
+        "version": "2.0.0",
+        "license": "MIT"
+      },
+      {
+        "name": "once",
+        "version": "1.4.0",
+        "license": "ISC"
+      },
+      {
+        "name": "wrappy",
+        "version": "1.0.2",
+        "license": "ISC"
+      },
+      {
+        "name": "proxy-addr",
+        "version": "2.0.8",
+        "license": "MIT"
+      },
+      {
+        "name": "forwarded",
+        "version": "0.2.0",
+        "license": "MIT"
+      },
+      {
+        "name": "ipaddr.js",
+        "version": "1.9.1",
+        "license": "MIT"
+      },
+      {
+        "name": "range-parser",
+        "version": "1.3.0",
+        "license": "MIT"
+      },
+      {
+        "name": "router",
+        "version": "2.2.0",
+        "license": "MIT"
+      },
+      {
+        "name": "is-promise",
+        "version": "4.0.0",
+        "license": "MIT"
+      },
+      {
+        "name": "path-to-regexp",
+        "version": "8.4.2",
+        "license": "MIT"
+      },
+      {
+        "name": "send",
+        "version": "1.2.1",
+        "license": "MIT"
+      },
+      {
+        "name": "serve-static",
+        "version": "2.2.1",
+        "license": "MIT"
+      },
+      {
+        "name": "vary",
+        "version": "1.1.2",
+        "license": "MIT"
+      },
+      {
+        "name": "http-proxy",
+        "version": "1.18.1",
+        "license": "MIT"
+      },
+      {
+        "name": "eventemitter3",
+        "version": "4.0.7",
+        "license": "MIT"
+      },
+      {
+        "name": "requires-port",
+        "version": "1.0.0",
+        "license": "MIT"
+      },
+      {
+        "name": "follow-redirects",
+        "version": "1.16.1",
+        "license": "MIT"
+      },
+      {
+        "name": "qrcode",
+        "version": "1.5.4",
+        "license": "MIT"
+      },
+      {
+        "name": "dijkstrajs",
+        "version": "1.0.3",
+        "license": "MIT"
+      },
+      {
+        "name": "pngjs",
+        "version": "5.0.0",
+        "license": "MIT"
+      },
+      {
+        "name": "yargs",
+        "version": "15.4.1",
+        "license": "MIT"
+      },
+      {
+        "name": "cliui",
+        "version": "6.0.0",
+        "license": "ISC"
+      },
+      {
+        "name": "string-width",
+        "version": "4.2.3",
+        "license": "MIT"
+      },
+      {
+        "name": "emoji-regex",
+        "version": "8.0.0",
+        "license": "MIT"
+      },
+      {
+        "name": "is-fullwidth-code-point",
+        "version": "3.0.0",
+        "license": "MIT"
+      },
+      {
+        "name": "strip-ansi",
+        "version": "6.0.1",
+        "license": "MIT"
+      },
+      {
+        "name": "ansi-regex",
+        "version": "5.0.1",
+        "license": "MIT"
+      },
+      {
+        "name": "wrap-ansi",
+        "version": "6.2.0",
+        "license": "MIT"
+      },
+      {
+        "name": "ansi-styles",
+        "version": "4.3.0",
+        "license": "MIT"
+      },
+      {
+        "name": "color-convert",
+        "version": "2.0.1",
+        "license": "MIT"
+      },
+      {
+        "name": "color-name",
+        "version": "1.1.4",
+        "license": "MIT"
+      },
+      {
+        "name": "decamelize",
+        "version": "1.2.0",
+        "license": "MIT"
+      },
+      {
+        "name": "find-up",
+        "version": "4.1.0",
+        "license": "MIT"
+      },
+      {
+        "name": "locate-path",
+        "version": "5.0.0",
+        "license": "MIT"
+      },
+      {
+        "name": "p-locate",
+        "version": "4.1.0",
+        "license": "MIT"
+      },
+      {
+        "name": "p-limit",
+        "version": "2.3.0",
+        "license": "MIT"
+      },
+      {
+        "name": "p-try",
+        "version": "2.2.0",
+        "license": "MIT"
+      },
+      {
+        "name": "path-exists",
+        "version": "4.0.0",
+        "license": "MIT"
+      },
+      {
+        "name": "get-caller-file",
+        "version": "2.0.5",
+        "license": "ISC"
+      },
+      {
+        "name": "require-directory",
+        "version": "2.1.1",
+        "license": "MIT"
+      },
+      {
+        "name": "require-main-filename",
+        "version": "2.0.0",
+        "license": "ISC"
+      },
+      {
+        "name": "set-blocking",
+        "version": "2.0.0",
+        "license": "ISC"
+      },
+      {
+        "name": "which-module",
+        "version": "2.0.1",
+        "license": "ISC"
+      },
+      {
+        "name": "y18n",
+        "version": "4.0.3",
+        "license": "ISC"
+      },
+      {
+        "name": "yargs-parser",
+        "version": "18.1.3",
+        "license": "ISC"
+      },
+      {
+        "name": "camelcase",
+        "version": "5.3.1",
+        "license": "MIT"
+      },
+      {
+        "name": "zod",
+        "version": "4.6.7",
+        "license": "MIT"
+      }
+    ],
+    "bytes": 30426847,
+    "sha256": "441f9b231f4c83af206443b0135f57765f67d3e64e60f1155ccd5b1e0850c193",
+    "checks": [
+      "storage-wal-fk-os-lease-backup",
+      "schema-upgrade-checksum-refusal",
+      "graph-branches-import-idempotence-rollback",
+      "file-bytes-mime-path-missing-references",
+      "draft-revision-device-ownership-restart",
+      "prompt-edit-seed-restart",
+      "chat-menu-clone-delete-read-state",
+      "provider-chat-responses-json-sse-real-sdk",
+      "provider-images-history-model-custom-url",
+      "provider-error-uncertain-cancel-no-retry",
+      "provider-keep-delete-no-reseed-no-plaintext",
+      "provider-delete-failure-tombstone-retry-literal-model-id",
+      "generation-durable-acceptance-http-concurrent-dedup",
+      "generation-edit-regenerate-preserves-five-node-graph",
+      "generation-branch-context-protocol-output-replay",
+      "generation-disconnect-continues-stop-aborts",
+      "generation-errors-uncertain-no-replay-command-unique",
+      "generation-cache-gap-snapshot-delete-receipt",
+      "utility-competing-writer-rejected",
+      "utility-crash-restart-partial-interrupted-no-replay",
+      "utility-durable-files-requests-real-sdk-responses",
+      "utility-shutdown-aborts-interrupted-not-stopped",
+      "gateway-unpaired-cross-site-host-write-whitelist",
+      "gateway-overwrites-internal-auth-and-device-headers",
+      "gateway-files-drafts-model-setup-available-models",
+      "gateway-sse-pause-revoke-disconnect-without-stop",
+      "gateway-single-receiver-context-draft-busy-command-ack-loss",
+      "utility-secret-rpc-provider-save-delete",
+      "lifecycle-ready-auth-shutdown",
+      "os-backed-secret-roundtrip-delete"
+    ],
+    "outsideRepository": true,
+    "differentCwd": true,
+    "nodePathCleared": true,
+    "classification": "synthetic acceptance archive, not final application or installer",
+    "noPythonFiles": true,
+    "noRealUserData": true
+  },
+  "sourceHashes": {
+    "desktop/activity-log.cjs": "c5a3e0791f1aea71bc3d6cfa1a2a73de61a09803f7a2973f91a2e626b472f56b",
+    "desktop/brand.cjs": "207089b133eb845585f5b4a2e097bf071291ffa1a655fe578f3bea9ba94c895e",
+    "desktop/capture-controls.cjs": "7a0a52bb9b03ecaca811e9d9c42f315f90b8a1238597803bee1697fb13d7810b",
+    "desktop/capture-delivery.cjs": "3d9e152811a19622ff206e0ab283d34db9a40a7ebbca9fd69d8c23d717dc6f9a",
+    "desktop/capture-settings.cjs": "cac304deda927da363378ac60f04cf6e906e287ec16832e9c0995f52ce2213c1",
+    "desktop/gateway.cjs": "b0b0ed85fb7b2dc62b64b4bb796d3cb9db5bb0d19cd6604f966d700ae97a274c",
+    "desktop/legacy-runtime.cjs": "9c7ce19087ee1328c624083f3b4eec9602f41033552c95f87e4b8db5bf2f269d",
+    "desktop/main.cjs": "79e8377fb11f447b5f87c8d874cfbadba0cb14445b7d14f5379381a4e5d4aa40",
+    "desktop/maintenance.cjs": "dec08080dbbd8c61a0b87cdaa6e188aa8b922f6f53d50241430a239cc28f7594",
+    "desktop/mouse-input.cjs": "0514dbf4feea0dad34899f6c4b72a9b9b3eea7ea75334c5fe2c1fa85f757af93",
+    "desktop/native.cjs": "8014419dcd9ef7d00dac8d9c9d92a92cd0e8d7d2fab619fe1ed041c02df05886",
+    "desktop/node-gateway.cjs": "6436490adce30e267ce1dc432654b2ea2cd43af3d44221b2b71a542aff61db16",
+    "desktop/node-runtime.cjs": "0869d1271d54891dc5cd8b3b5be65f04d623a13cee8062c1d1e7b45cf8fadb28",
+    "desktop/pairing.cjs": "eeba7c19cd6e17e45a01e392c7de86e22ab4884a1644e5d9e8ea8f269a2dde29",
+    "desktop/preload.cjs": "40ffc106d08470a77978c6d98d39c3812e3bd7dfadc0f770287069bfba261aa5",
+    "desktop/product-scope.cjs": "88009147f716a7d8b35f7efcf3d06bf57b3bb3dcf9893200d65e0e6e95733399",
+    "desktop/region-gesture.cjs": "7f3d5b8fee5df45c5bbcbfe217e26fdf3e51a731cdf8bf67af08c88ea931d74e",
+    "desktop/runtime-paths.cjs": "e2ffa273045e0a24ae890db0752519911761a50caf786ec01cdbd42fe474b2e5",
+    "desktop/runtime.cjs": "2d72710c136566ba4332b250eb953f55652db8a4b99e3b46da8ad0102131bb72",
+    "desktop/secrets.cjs": "d9d182e3628ff0fca06adf53b688fff44cc76cdf5efa258773aa672203a2cc17",
+    "desktop/selection-overlay.cjs": "ea1818bc645d63429a06fb24bf290cef250f0032462baf605aaf8ba0705bbb9f",
+    "desktop/selection-preload.cjs": "b1740bc68f049f3f3d34f1208902ac1b34be54227678b05904bafc7fad23e5a6",
+    "desktop/silent-audio.cjs": "93afc9f396cb0504ba245d4f6f71ceaa94dfd9bc2e3d9d27783ba064f5263cbd",
+    "desktop/startup-metrics.cjs": "ea0076b83ae6e144821de8fbbb0cf02564c69605ba199ccf0b1b6e78a2e8e9d1",
+    "desktop/ui/app.js": "1b12505c1d6281f0635d4ac2fa24824d796a819dfbad8f9984c3a7097122177d",
+    "desktop/ui/selection.js": "5cf98fa4e477d7758c84d8dcc99415b0c9606f8bfc6ac28686144a584d20e5b2",
+    "service/chats.cjs": "b655f29a6c7cc215f338e7edadcedc044dc39caba663ac5d3962958f5e693517",
+    "service/files.cjs": "ead8af7b1ff005649ac1fce85e7c78348ad2695a7e97e1be23e4c7f818d402b2",
+    "service/generations.cjs": "7f1936fc0db283445c464894f1e1d06f38371dc94a0fdc5bb755aa41ec7e92f9",
+    "service/http.cjs": "95ab02f974608185b05d8172e0761f80c67b4a103d4c91b2a881835e4bb1ce6e",
+    "service/main.cjs": "886153f2640fb23da0390de4c62418318f0b4c85760464ca78be4dba6d96f580",
+    "service/migrations/schema/001.sql": "5ba2da45b6b58c0a4ae54128c42b383fca0e59ddca50c39ec1054007aaab5d94",
+    "service/migrations/schema/002.sql": "4dfce5857ff2051ec8c0c7f344fc26247a220d7e075a80f96ae36175c4ff1cf6",
+    "service/prompts.cjs": "547e0a4923b80ad66320c1a094a8e831db79c8cf1b2d99a730690934ca581b00",
+    "service/providers.cjs": "78f375b8f6ee3df1a965f433dc6818a5879c2a8f56d9ab7300a35cf70a1fce52",
+    "service/routes.cjs": "72b0ac5083c573f055316bacb27f8e45e8e8a80d0242b54c78ae6bdb0fa59253",
+    "service/secrets.cjs": "9e4c1b96a4067312267cc42cd6bc6dd61256245f16b7d82d66173721d3dfe112",
+    "service/storage.cjs": "2a8fdf6c7d24a5615020cd2da157b763b331603da56033a5bc4580f4d1994a3e",
+    "contracts/endpoints.cjs": "88d9db0c89c1a602234dc729860698d614ad64311a6be5fbcde76cf498990037",
+    "contracts/http-v1.json": "f0c1fa7319ce06d02cb78f1b4fc0bc57a2a45de5a1f6915fb8a0f976ef2557e0",
+    "contracts/index.d.ts": "587293b447794f5348714c0d2ddf75250983c7aa9a75730adc8611a7bd94859f",
+    "contracts/tsconfig.json": "2822395d5f0fb5755e66abae54329c99a3df6f940fda45ff91c53d221f5be3cb",
+    "contracts/validate.cjs": "fb1ac410eb343b99367d99d156e894f0acd1cccf63dc11c29d225e7b49097f5a",
+    "contracts/validate.d.cts": "26cd33fc442262ffe6af1631f574c70ee59d84784a798c4789a80c6215076fe5",
+    "tests/service/gateway.cjs": "b49cda2596a6165db4127bb42e9e482bdbaf63790cd02675164b72d3d661685f",
+    "tests/service/generations.cjs": "2e2fb9f9da1fe3e8d067e061a9547394c93e1abdb729e58f03e66b99a7570e21",
+    "tests/service/main.cjs": "26a036c80f4bce70d1eb2cbe84ab5070b22f30910f34198a2318ad5300a3ae76",
+    "tests/service/providers.cjs": "5cdb0899b92326732e893ad5bb88a703480e5392839f9c6dab758595b521faf3",
+    "tests/service/storage.cjs": "24c34704a52cb3b92d980ae8f5a8a54c6be2e06d52897183c1de8280681f13fe",
+    "tests/service/utility.cjs": "d353b212e807e9a53be56bf617f2cf40ff22e54ff6a6aa9537067480376245ce",
+    "scripts/check.cjs": "596d2179637d3f9500a72104c6987cfd35a5e54cc69569d492d2146a351d183d",
+    "scripts/test-node-service.cjs": "07bed2c9672c7a44700b70a2993996678f19745e117d66a834e2b095844249a9",
+    "scripts/service-test-asar.cjs": "31dd183b507324c3408df0abc20919ba7b596a0f49097cfd5fa8b6298956fdeb",
+    "tests/node-runtime.test.cjs": "988b69aca6b608bdf2e64b6cfff63a034d3d8aa0b6858f64bbada9a1c129a32f",
+    "tests/contracts.test.cjs": "de19ef7bc1776e4e3784126b0c234f40d6be0c52dab7defc1d65febda0ca4ff2",
+    "tests/fixture.cjs": "c0b78408fb5fee04fb8ab274ba7d648d4105068e4324916008ce2504aa063c4a",
+    "tests/fixtures/contract-samples.cjs": "abb9628cca0ca8c0ff03463d4e64bc99b0eaf4111965eef3a5c3ce86292df33b",
+    "electron-builder.cjs": "40bb5067cb3586f68323b8e6b695cb97701955a566060ce50117d5e98d828dab",
+    "package.json": "68deb7b0975121dc2a08ae44792a2b44294f7ff73352fd7589f643555d59ea64",
+    "package-lock.json": "994fd225666705945ba882940d9c31a1d50d3b738c4512672008d8d026bc61a5",
+    "AGENTS.md": "c063880a7cdb516267dea7846a53b5f48dd551560be8ee212065488c30fc42f0"
+  },
+  "evidenceHashes": {
+    "check.log": "c5c528fa0bac2ea5617dfb4f53eadcf0c9d648dbf9bee4ab8062603dd7aaa939",
+    "legacy-ui.json": "0eeb87a7ee4dcf8391b1917f6c0f29296da172cca18f136fc8cb4724bc81f721",
+    "offline.tap": "6386693d365240a35e74f1b567e82d41739f4487c9e52320b15a74a69d8feb6a",
+    "service.log": "f387a8fecd0b2a2c0c9b17d63d4d3a2676388c68f562c677617c99cd195c0891"
+  },
+  "failuresRetained": [
+    "run-FWYwCq: concurrent return order assumption",
+    "run-YDbjie: Responses remote item reference",
+    "run-KJvsFb: fetch Host override assumption"
+  ],
+  "limits": [
+    "No physical phone or new React product page acceptance",
+    "No macOS / Keychain, arm64 or x64 final package or installer acceptance",
+    "No full legacy migration or rollback with newly added data (M4)",
+    "No new Rust input driver or native input acceptance",
+    "M0.2 actual reboot first launch remains 0/5 by user choice",
+    "Test archive size and test runtime are not final package or startup performance results"
+  ],
+  "realModelAccountsUsed": false,
+  "next": "M2.1"
+}

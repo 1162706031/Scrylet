@@ -1,8 +1,10 @@
 # Scrylet 轻量 Node 服务：逐文件实施与 agent 交接手册
 
-更新：2026-11-07，含 macOS 安装包交付补充。对应 [重构方案](node-service-refactor.md)，基线 `2.0.0-dev.6`。
+> 2026-11-09 本轮收尾：用户确认 M0 保留矩阵已测，明确授权移除旧依赖，并暂缓 Mac 实机测试、缩减重复测试。当前源码仅支持 Node，旧源码和原断言归档，正常 Windows 安装入口与 Mac 两架构 ZIP 构建已接通。实际产物、检查结果和边界以 [M5 收尾记录](node-service-finalization.md) 为准；下文保留此前分轮证据，不将未测门槛改为通过。
 
-**状态：仅文档已编写，M0～M5 均未实施。以下新文件、类型、接口、表和命令是待实现约定，不是现有能力。**
+更新：2026-11-09，含 Node 默认启动、自动旧库迁移、M3 原生输入与 macOS 构建 / 审计实施记录。对应 [重构方案](node-service-refactor.md)，基线 `2.0.0-dev.6`。
+
+**状态：M0～M3 已按各自范围实施；M4.1～M4.3 在 Windows x64 完成迁移、两引擎浏览器升级与新增数据后旧版实际读回。M4.4 隔离 NSIS 安装闭环通过，但正式生产 GUID 覆盖升级未验收；M4.5 缺真实 Mac，两架构 DMG / ZIP / Keychain 仍未通过。M5 已开始：Windows Node-only 候选与源码 `npm start` 均默认 Node，已有旧库自动只读导入独立 `Scrylet` 目录；显式旧版对照及 Python / Open WebUI 资源保留。逐卡结果见 [M4](node-service-m4.md) 和 [M5](node-service-m5.md)；本轮默认启动 / 迁移回归及剩余正式身份、Mac 实机、实体设备、五次真实重启首启不能省略。**
 
 ## 0. 新 agent 的第一步
 
@@ -46,7 +48,7 @@
 | 现有 `web/*.js`、测试和脚本 | 保留现有语言 | 复用纯逻辑或逐项替换 UI 绑定；不批量转换 TS、不全局打开旧文件的严格类型检查 |
 | `native/input-observer/` | Rust | 只输出平台鼠标事件；手势计时仍由 JS 实现 |
 
-根 `package.json` 不新增全局 `"type": "module"`。不要让既有 `require()`、测试入口和 Electron preload 因语言迁移失效。新前端需要的配置用独立 `phone/tsconfig.json` 和 `phone/vite.config.ts`；构建到 `build/phone/`，不是把源码目录当作可运行网页。
+根 `package.json` 不新增全局 `"type": "module"`。不要让既有 `require()`、测试入口和 Electron preload 因语言迁移失效。新前端使用独立 `phone/tsconfig.json` 和已创建的 `phone/vite.config.mts`（构建配置的显式 ESM 边界）；构建到 `build/phone/`，不是把源码目录当作可运行网页。M0.3 的 `phone/src/compatibility.tsx` 仅为实验入口，未接入默认网关，M2 仍要完成真实产品页。
 
 为复用的 JS 导出补足必要的 JSDoc / 类型声明，不靠大面积 `any`、`@ts-ignore` 或关闭新前端 `strict` 绕过类型错误。TS 编译器只用于构建，不进入最终运行依赖。
 
@@ -67,7 +69,7 @@
 | 当前文件 / 调用点 | 要怎么改 | 不得破坏 / 完成条件 |
 | --- | --- | --- |
 | `desktop/main.cjs` 的 `start()`、`before-quit` | 继续创建 `Runtime`，由门面选择 legacy / node；传入进程创建与窄密钥能力；订阅初始化阶段；退出顺序改为拒绝新任务、停止运行层、关闭网关和原生程序 | 保留单实例锁、userData 选择、所有现有 IPC、窗口沙箱、强制静音、托盘和关窗行为 |
-| `desktop/runtime.cjs` 的 `Runtime` | 逐步变为稳定门面；旧实现先移入 `desktop/legacy-runtime.cjs`，新实现放 `desktop/node-runtime.cjs`；M5 前默认 legacy | 保留消费者需要的 `ready/error/url`、`start/stop/providers/saveProvider`；不要在其他模块复制一套生成状态 |
+| `desktop/runtime.cjs` 的 `Runtime` | 稳定门面；旧实现位于 `desktop/legacy-runtime.cjs`，新实现位于 `desktop/node-runtime.cjs`；源码与 Node-only 候选默认 Node，显式旧版对照包标记 legacy | 保留消费者需要的 `ready/error/url`、`start/stop/providers/saveProvider`；不要在其他模块复制一套生成状态 |
 | 旧 `Runtime.request()` | legacy 模式继续调用上游；node 模式只调用新内部契约 | 同步迁移网关及测试的旧 URL，不实现一个假的完整 Open WebUI API 服务 |
 | 旧 `applyProductScope()`、`applyUiPolicy()`、`initializeWorkspace()`、`seedConnections()` | legacy 原样保留；node 模式改为本机产品策略、一次性种子迁移与用户配置读取 | 删除旧 HTTP 初始化链前确认静默、旧设置、提示词和已删除密钥语义都有替代 |
 | `desktop/runtime-paths.cjs` 的 `runtimePaths()` | 引入 `nodeServiceEntry/phoneDirectory/observer` 等明确字段；legacy 字段到 M5 再删 | 从 `app.getAppPath()` / `process.resourcesPath` 定位，不依赖 cwd、系统 Python 或 ASAR 中的原生可执行文件 |
@@ -108,15 +110,15 @@
 | `phone/src/main.tsx`、`App.tsx` | 路由 `/` 和 `/c/:id`、初始配对 / 状态读取、会话恢复；进入聊天前执行草稿迁移；不从 URL 接收模型密钥 |
 | `phone/src/chat/useComposer.ts` | 拥有当前文字、附件顺序、处理数、对话 epoch、草稿版本；公开 append / remove / undo / submit / readiness；只有它能提交当前草稿 |
 | `phone/src/chat/useConversation.ts`、`transport.ts` | 接 SDK 聊天状态、消息 / 分支快照、已有生成的 SSE 和明确 stop；不靠扫描发送按钮猜生成状态 |
-| `phone/src/chat/MessageList.tsx`、`Composer.tsx`、`HistoryPanel.tsx` | 显示与操作 F19～F23，遵循 M0 冻结的全部可达入口；按角色 / 标签定位测试，不复制上游所有菜单 |
+| `phone/src/chat/MessageList.tsx`、`ConversationView.tsx`、`HistoryPanel.tsx` | 显示与操作 F19～F23，遵循 M0 冻结的全部可达入口；按角色 / 标签定位测试，不复制上游所有菜单 |
 | `phone/src/capture/desktopReceiver.ts` | 替换 `web/desktop-capture.js` 的 DOM 注入，保留 poll / validate / ack、clientId、epoch、前台与 modal 检查；调用同一个 composer 提交 |
 | `phone/src/attachments/` | 替换 `web/attachments.js` 对上游 DOM 的操作；保留 12 张、顺序、预览、缩放、删除 / 清空、10 秒撤销和超限整批拒绝 |
-| `phone/src/attachments/crop.ts` | 移植 `web/extension.js` 的截图 / 框选逻辑，复用 Cropper.js，保留显示器和同尺寸框选记忆 |
+| `phone/src/attachments/Capture.tsx`、`images.ts` | 移植 `web/extension.js` 的截图 / 框选逻辑，复用 Cropper.js，保留显示器和同尺寸框选记忆 |
 | `phone/src/audio/` | 用 React 控制朗读 / 声音面板，复用 `web/read-aloud.js`、`web/voice-settings.js` 中纯函数；只接新版开始 / 完成事件，不构建第二个消息队列 |
 | `web/quiet.js` | 新页面仍在业务脚本之前加载静默桥；移除 node 页面中不必要的上游私有 EventTarget 劫持，legacy 模式保留；手机专用语音能力与媒体 / 通知 / 振动保护不放宽 |
 | `web/read-aloud.js`、`web/voice-settings.js` | 可提取纯函数到共享浏览器模块并保留旧导出，供新旧页面对照；不同时实例化旧 DOM 控件和新 React 控件 |
 | `web/pair.*`、`web/models.*`、`web/unavailable.*`、`web/pages.css` | 原样保留优先，只调整必要的状态 / 版本契约；无需为了 React 重写已独立工作的配对和模型页 |
-| `web/layout.js`、`web/mobile.css`、`web/scope.js` | 把实际产品布局、VisualViewport、可见动作和限制迁到新前端；不要复制上游 DOM 选择器作为新实现基础 |
+| `web/layout.js`、`web/mobile.css`、`web/scope.js` | 实际产品布局 / VisualViewport 由 `phone/src/chat/ConversationView.tsx`、`dialogs.ts`、`phone.css` / `controls.css` 接手；旧模块保留给 legacy，不以旧 DOM 选择器控制新 UI |
 | `web/tokens.css`、`web/brand/*` | 复用颜色、字体、图标与品牌；不下载外部字体或 CDN 资源 |
 | 旧 `web/composer.js`、`extension.js`、`attachments.js`、`desktop-capture.js` | M2～M4 保留供 legacy 对照；M5 确认全部替代与许可后才从新入口和发行资源中退出 |
 
@@ -145,14 +147,14 @@
 
 ### 3.1 稳定 Runtime 形状
 
-以下是待实现公共契约，现有消费者优先只依赖这些属性和方法：
+以下公共契约已在 M0.5 的 `contracts/index.d.ts` 固定初稿，M1 已接线隔离消费者和后端；正式默认切换仍受迁移 / 回退 / 最终包门槛约束，优先只依赖这些属性和方法：
 
 ```ts
 interface RuntimePort {
   kind: 'legacy' | 'node';
   ready: boolean;
-  error: string;                 // 面向用户的脱敏信息
-  url: string;                   // 内部 loopback，不下发给手机
+  error: string | null;          // 面向用户的脱敏信息
+  url: string | null;            // 内部 loopback，不下发给手机；未启动可为空
   start(): Promise<void>;
   stop(): Promise<void>;
   providers(): Promise<ProviderCatalogView>; // 无密钥原值
@@ -188,9 +190,13 @@ interface RuntimePort {
 
 初始化、关闭都要有有界超时和强制退出兜底；用可控制时钟 / fake child 检查时序，不靠长 sleep。父通道断开、父进程消失或初始化失败不得留下独立运行的服务。不得在 crash 后自动重发之前生成任务。
 
+M0.3 已验证源码与仓库外 ASAR 的 initialize / ready / stopped / exit 和父进程单独被杀。parentPort 的公开契约不提供可依赖的 close 事件；实验用显式父 PID 轮询。M0.5 已另行固定正式消息的共享声明与校验初稿，M1.1 已接线正式协议，nonce 心跳 / 失联、模拟时钟超时、stale nonce 和实际只杀父进程退出分别验证；没有把 PID 复用模拟检查写成真实 OS PID 复用验收。
+
 开发 / 对照可新增 `SNAP_RUNTIME_ENGINE=legacy|node`，但只在显式隔离 `SNAP_DATA_DIR` 下启用。正式切换由已验证的迁移标记决定；M5 之后不存在旧运行时，不静默回退到系统 Python。
 
 ## 4. 共享数据与运行时校验
+
+M0.5 已建立 `contracts/index.d.ts`、`validate.cjs`、`validate.d.cts`、`http-v1.json` 与严格声明 / 运行时样本检查，见 [契约记录](node-service-contracts.md)。它们在 M1 已接线隔离 Node HTTP / 进程 / 持久化边界；生产默认仍为 legacy，手机页与迁移 / 回退接线继续按 M2 / M4 实施。
 
 公共类型至少覆盖：状态、公开模型目录、提供商修改、消息部分、会话 / 分支、附件、草稿、生成快照、流事件、桌面指令和原生输入。对外字段固定一种命名风格，旧 `/snap` 字段保持兼容；JSON 时间戳统一约定为毫秒，旧库迁移识别原单位，不能直接混用。
 
@@ -253,6 +259,8 @@ SDK 所需的协议输出项不强行塞入这个最小展示联合类型。服�
 - 不记录秘密或完整载荷到 operation log；只在受保护的业务存储保存业务数据。查询使用参数绑定，schema 变更与版本推进在同一事务。
 
 SQLite 驱动、备份方法、外键 / 事务模式与读写锁策略由 M0 实验证实后固定在 `storage.cjs`。不要只验证开发 Node 下能 import 就认为 Electron 安装版也能加载。
+
+M0.1 已补充登记 F21 的置顶 / 归档、未读 / 全部已读、克隆、JSON / TXT / PDF 下载、消息删除，以及编辑中的保存 / 取消 / 发送和重答菜单。上表是最小结构，不能据此遗漏这些操作；相关状态、关系与导出兼容载荷在 M0.4 / M0.5 固定后纳入 M1.2 和 M2。消息删除不能以仅删除整段会话替代，尚未验证的操作语义保持未验证。
 
 ## 6. HTTP、生成订阅与 SDK transport
 
@@ -387,23 +395,24 @@ Mac 当前区域鼠标路径在 `CaptureControls.arm()` 中明确拒绝，并非
 
 旧目录由 `brand.dataDirectory()` 和实际 userData 决定。旧 SQLite 位于 `open-webui/` 数据目录，上传目录由旧文件表的 path / meta 和已验证根目录解析。不能只假设仓库 `.snapsolver/` 就包含所有聊天数据。
 
-本次仅从本地固定 wheel 的源码确认了以下结构，不表示已经读取或核验用户数据库。M0 仍要对隔离夹具执行 PRAGMA 检查并固定兼容版本：
+M0.4 已在隔离旧版执行 PRAGMA、冻结双写消息图 / 图片 / 配置 / 草稿，并关闭旧写入后只读导出，见 [格式证据](node-service-formats.md)。以下来源已与合成夹具核对，不表示读取或核验真实用户数据库：
 
 | 来源 | 当前源码中的字段 / 用途 | 新目标 |
 | --- | --- | --- |
 | `models/chats.py` 的 `chat` | id、user_id、title、chat JSON、created_at / updated_at、pinned、archived、meta、current_message_id 以及其他兼容字段 | chats、messages 与 legacy_ids；保留原 chat JSON 作无损兼容载荷 |
-| `chat` JSON | `history.messages` 消息图、当前节点及可能存在的线性 messages；需要以实际夹具确认优先级与一致性 | 恢复父子关系 / 当前分支，不按数组拍平 |
+| `chat` JSON | `history.messages` 消息图及线性 messages；固定版 loader 优先采用顶层有效的 `current_message_id`，否则采用 `history.currentId`。仅浏览兄弟分支不立即改变已保存指针，见 M0.1 基线 | 恢复父子关系 / 当前分支，不按数组拍平，不把临时展示当持久化承诺；M0.4 固定完整夹具及双指针优先级 |
+| `chat_message` / `chat_file` | M0.4 实际确认 19 / 7 列；normalized 消息与 chat JSON 双写，部分读取优先 normalized；保留 output、meta、usage、error、done 等完整载荷及文件关系 | 合并缺失父节点并比对两份图，保留冲突 / 兄弟分支，不只导入 JSON 或只取 normalized |
 | `models/files.py` 的 `file` | id、hash、filename、path、data、meta 和时间 | files、message_files，字节哈希和旧 URL 映射 |
 | `models/config.py` 的 `config` | **当前为逐 key 的 key / value / updated_at 表**，不是可直接假定的单行 JSON 配置 | 提供商配置与产品持有设置；单独映射相关 key |
 | 配置 key | `openai.api_keys`、`openai.api_base_urls`、`openai.api_configs`；按 index / prefix_id 关联，字段仍要按实际保存值校验 | provider_connections；用户值优先，删除 / 禁用状态保留 |
 | `models/models.py` 的 `model` | id、base_model_id、name、params、meta、is_active 等 | 模型显示 / 用户参数 / 能力与兼容字段，不能只导入 config 里的默认列表 |
 | `models/prompts.py` 的 `prompt` | id、command、name、content、data、meta、tags、is_active、版本和时间 | prompts 与原始兼容字段 |
 | `models/users.py` 的用户 settings | 本机账户 UI 等偏好，具体相关字段以夹具冻结 | 与产品相关的可保留设置；旧通知开启值仍不能解除强制静默 |
-| 浏览器原存储 | 旧上游草稿格式尚未在本文定案；`snap.*` 偏好已知 | 同 origin 的一次性草稿适配和保留原偏好 |
+| 浏览器原存储 | M0.4 已实测 sessionStorage 的 chat-input / chat-input-<id>、500ms 保存、完整 files 嵌套对象与 selectedModels；两个隔离引擎 IndexedDB 为空，不能推定所有旧用户也为空 | 同 origin 的一次性草稿适配，保留旧键与 snap.* 偏好；跨 origin 与失效 blob 限制单列 |
 
 源码在安装目录 `.runtime/Lib/site-packages/open_webui/`（Windows）或 `.runtime/lib/python3.12/site-packages/open_webui/`（对应源码环境）。该目录被忽略，搜索需要 `rg --no-ignore`；只读源码，不通过 import / 启动上游来“探测”真实用户数据，避免触发旧运行层迁移写入。
 
-如发现 `chat_message` 等额外消息存储，或旧库 schema 与此表不同，先分析固定版本实际读写逻辑与夹具；未知 schema 不按字段名猜测后丢数据。旧上游关闭的功能字段可继续保存为兼容元数据，不因此在新版新增隐藏功能。
+`chat_message` 已确认，必须同时迁移。遇到其他额外存储、未知 schema 或两份消息图冲突时，先分析固定版本实际读写逻辑与夹具，不按字段名猜测后丢数据。旧上游关闭的功能字段可继续保存为兼容元数据，不因此在新版新增隐藏功能。
 
 ### 9.2 必须实现的迁移函数边界
 
@@ -440,7 +449,7 @@ Mac 当前区域鼠标路径在 `CaptureControls.arm()` 中明确拒绝，并非
 
 ## 10. 分阶段任务卡：按顺序执行
 
-任务卡中的报告文件为实施时新增，本轮尚不存在。每一张卡都要记录关联 F 编号、实际改动、验证结果和下一项；卡片完成不等于整阶段完成。
+任务卡中的报告文件随实施新增，已创建 `docs/node-service-baseline.md`。每一张卡都要记录关联 F 编号、实际改动、验证结果和下一项；卡片完成不等于整阶段完成。
 
 ### M0：固定基线和高风险假设
 
@@ -511,6 +520,11 @@ Mac 当前区域鼠标路径在 `CaptureControls.arm()` 中明确拒绝，并非
 npm run check
 npm test
 npm run test:ui
+npm run test:baseline
+npm run test:startup
+npm run typecheck:phone
+npm run build:phone
+npm run test:compat
 npm run test:desktop
 npm run test:desktop-input
 npm run test:silent
@@ -521,17 +535,18 @@ npm run dist:win
 
 浏览器环境需按现有说明安装 Playwright 引擎。desktop-input / network 等脚本有本机平台要求，`dist:win` 必须在 Windows x64 原生构建；在 WSL / Linux 缺少原生条件不能报告为通过。
 
-建议分阶段新增以下入口，**先在 package.json 实现后才能执行 / 宣称存在**：
+以下入口以当前 package.json 为准；M4 已实现 `test:migration` / `test:migration:browser`、本地 `export:legacy` 与 Windows 安装验收入口，见 [M4 复现记录](node-service-m4.md)：
 
 | 建议名称 | 引入阶段 | 行为 |
 | --- | --- | --- |
-| `typecheck:phone`、`build:phone` | M2 前 | 新 TS 类型检查、Vite 静态构建，输出 build/phone |
-| `build:native` | M3 | 根据明确 target 构建正式 observer；测试 driver 使用独立显式目标 |
+| `build:native`、`test:native` | M3 已实现 | Windows x64 锁定 Rust 构建；observer 与测试 driver 是独立 binary / manifest，正式资源只白名单 observer；实际五键 / 清理验收 |
+| `test:desktop-lifecycle` | M3 已实现 | 源码 / 解包应用的关窗驻留、菜单恢复、正常退出和只杀主进程清理 |
 | `test:service` | M1 | 独立服务 / 事务 / SDK mock / 流契约，不启动上游 |
-| `test:migration` | M4 | 合成旧数据导入、恢复、浏览器格式和回退的自动化检查 |
-| `test:startup` | M0 / M5 | 隔离计时与结果汇总，模型请求仅到本地 mock |
+| `test:migration` / `test:migration:browser` | M4.1～M4.3 已实现 | 一致快照、真实阶段进程退出恢复、密钥解密、新增数据后旧版实际读回与两引擎浏览器升级 |
+| `prepare:upgrade:win` / `test:upgrade:win` | M4.4 隔离 NSIS 通过，正式 GUID 未测 | 保持 appId / payload，隔离安装注册 / 快捷方式 / 缓存；实际覆盖 / 重装 / 回退，拒绝覆盖既有安装 |
+| `export:legacy` | M4.3 已实现 | 停止写者后生成独立旧版副本与 Node 可读快照，不覆盖原数据 |
 | `dist:mac`、`dist:mac:arm64`、`dist:mac:x64` | M3.4 配置，M5 交付 | Mac 本机明确目标架构，生成对应 DMG / ZIP，详见第 11.4 节；不自动外部发布 |
-| `test:mac-package` | M4.5 | 运行实际 Mac 安装 / 升级与数据保留检查，分别记录 arm64 / x64，不在缺该平台的环境伪造通过 |
+| `test:mac-package` | M3.4 已实现脚本，M4.5 / M5 完整验收 | 真实目标 Mac 的隔离安装 / 替换 / 重装与 Keychain；完整旧库迁移 / Finder 操作仍单列，不在缺该平台的环境伪造通过 |
 
 每个阶段只运行与改动相关的检查；在最终切换时做完整回归。阶段结果和最终全套结果分别记录，不能把零散单项重试累加成“一次全套通过”。
 
@@ -559,7 +574,7 @@ Mac 构建与 `.app` 的资源布局按第 11.4 节执行；不能把这段 Wind
 
 ### 11.4 macOS 安装包：需要增加的脚本与配置
 
-本节针对重构完成后的 Node 版安装包。当前 `package.json` 没有 `dist:mac`，`prepare-runtime.cjs` 仅复制 Windows Python；**本轮只补文档，不修改它们，也不宣称已经产出 Mac 安装包。**
+本节针对重构完成后的 Node 版安装包。M3.4 已实现 `dist:mac` / 两架构命令、ICNS、资源 / 架构审计和安装验收脚本，见 [M3 证据](node-service-m3.md)；**没有真实 Mac，尚未生成或验收两架构 DMG / ZIP。** 当前只允许显式独立 Node 数据的 development 候选，M4/M5 前不开放 production 默认；Windows 原配置与 Python 对照仍保留。
 
 #### 11.4.1 产物和安装方式
 
@@ -576,9 +591,9 @@ DMG 中提供 `Scrylet.app` 和 Applications 快捷方式，用户拖入 Applica
 
 构建要求在 Mac 本机或 Mac CI 执行：优先在 Apple Silicon 构建 / 验证 arm64、Intel 构建 / 验证 x64。可以有交叉构建步骤，但交叉产物生成或 Rosetta 下运行不代替对应架构的安装验收。最低 macOS 版本根据固定 Electron 和实际依赖确定，并记录在产物说明；不能沿用一个未验证的旧系统版本数字。
 
-#### 11.4.2 `electron-builder.cjs` 的待实施增量
+#### 11.4.2 平台配置与已实现的 Mac 增量
 
-以下是待添加配置片段，沿用文件顶部的 `NAME` 和全局 `appId: APP_ID`，保留现有 Windows / NSIS 设置：
+实际配置由 `scripts/package-config.cjs` 生成，沿用 `NAME` / `APP_ID`，保留 Windows / NSIS。根 `electron-builder.cjs` 仅用于 Windows；Mac 必须经过 wrapper 生成对应架构配置。以下片段与实现一致：
 
 ```js
 mac: {
@@ -599,7 +614,7 @@ dmg: {
 
 脚本显式传入 `--arm64` 或 `--x64`，不让共享资源准备目录默默覆盖另一个架构。DMG 压缩先使用默认兼容的 UDZO；包体、挂载 / 拖拽时间按 Mac 实测，不能使用 Windows 的 115.2 MiB 实验结果当 Mac 指标。
 
-为 `scripts/generate-icons.cjs` 增加从现有 SVG 生成 16～1024 像素、含 Retina 对应尺寸的 iconset，并在 Mac 用系统 `iconutil` 生成 `packaging/icon.icns`。不把现有 256px PNG 拉大当作完整 Mac 图标，也不改品牌源文件来迎合打包格式。
+`scripts/generate-icons.cjs --mac` 已通过 `mac-icons.cjs` 从现有 SVG 生成 16～1024 像素、含 Retina 的 iconset，Mac 使用系统 `iconutil`。本次 Windows 已生成 PNG 块 ICNS 并验证全部 11 块尺寸；实际 iconutil / Finder 显示仍未测，不改品牌源文件或旧 Windows 图标。
 
 签名 / entitlements 配置与此最小片段分开，不能把 `identity: null` 永久写死从而覆盖未来正式证书。开发验收 profile 明确实际是未签名还是 ad-hoc，报告中不能写成 Developer ID；面向外部分发的 profile 检查签名、公证和下载后首次打开。不能通过关闭系统安全检查或清除 quarantine 来冒充正式分发验收。
 
@@ -612,10 +627,10 @@ dmg: {
 1. 验证 `process.platform === 'darwin'`，解析目标 `arm64|x64` 与开发 / 分发 profile；默认架构取宿主，拒绝未知架构，不自动安装 Rosetta。
 2. 运行前端类型 / 构建验证，准备 `build/phone`、ICNS 和目标架构的必要正式资源；验证 Node / SQLite 依赖和 Electron helpers 架构。
 3. 仅在 Mac observer 已实现且在该版本声明支持时准备 `build/native/darwin-<arch>/input-observer`；尚不支持长按时写明 capability=false，不引用空目录、不打包 Windows observer、不误报 mouseReady。
-4. 按目标资源配置调用 `electron-builder --config electron-builder.cjs --mac dmg zip --arm64 --publish never` 或相应 `--x64`。正式签名 / 公证如已配置按受控 profile 执行；生成本地包不自动上传发行渠道。
+4. 将平台 / 架构 / profile 配置写入 `build/mac-<arch>-<profile>/builder.json`，调用 `electron-builder --config <该文件> --mac dmg zip --arm64 --publish never` 或相应 `--x64`，各架构 output 独立。正式签名 / 公证按受控 profile 执行；生成本地包不自动上传。当前 distribution 在 M4/M5 前拒绝，development 显式隔离启动，不覆盖生产用户数据。
 5. 解析本次产物路径，检查文件存在、版本 / 架构命名、SHA-256、app 内容与依赖；输出脱敏打包记录，保留构建失败，不只凭 CLI 返回零退出码标记安装验收成功。
 
-待新增 npm 命令约定：`dist:mac:arm64` / `dist:mac:x64` 调用上述脚本的对应 `--arch`；`dist:mac` 调用默认宿主架构。交付两种架构要分别运行并验收两份构建，不能将单次 `dist:mac` 当作已生成全部四份包。
+已实现 npm 命令：`dist:mac:arm64` / `dist:mac:x64` 调用上述脚本的对应 `--arch`；`dist:mac` 调用默认宿主架构。交付两种架构要分别运行并验收两份构建，不能将单次 `dist:mac` 当作已生成全部四份包。非 Mac 调用立即失败，不输出构建 / 安装通过记录。
 
 #### 11.4.4 `.app` 资源定位与审计
 
@@ -652,17 +667,39 @@ dmg: {
 
 ## 12. 当前进度与可复制任务模板
 
-### 12.1 本轮结束时的真实状态
+### 12.1 实施中的真实状态（2026-11-08）
 
 | 范围 | 状态 |
 | --- | --- |
-| 重构方案、语言边界、逐文件手册 | 已编写；不是运行实现 |
-| M0 / 基线与兼容实验 | 未开始，本轮没有运行新版或重新做原生验收 |
-| M1～M5 | 未开始 |
-| 默认运行层 | 仍为 Open WebUI 0.12.2 + Python |
-| 新 Node 服务 / React 手机页 / Rust observer | 本文规划路径，尚未创建 |
-| Mac arm64 / x64 DMG / ZIP、构建与安装验收命令 | 已补入方案和任务卡，尚未实现或实际生成 |
-| 下一项 | 用户明确要求开始实施后，从 M0.1 开始 |
+| 重构方案、语言边界、逐文件手册 | 已收到实施指令；已同步 AGENTS / spec / architecture 过渡期约束与强制静默 |
+| M0.1 / 实际基线 | 已完成入口与证据登记；47 项离线、70 项原有两引擎全套、8 项新增两引擎基线、Windows 真实 2560×1440 / 关窗驻留通过。见 `artifacts/node-service-baseline-check.json`；仅观察入口 / 未测操作在基线逐项保留 |
+| M0.2 / 计时与包体 | 自动部分已通过，服务 ready 中位数 5,651.211ms、业务可用 8,007.293ms。真实系统重启首启 0 / 5，用户明确选择暂保留未测并继续 M0.3；不计整卡通过，证据见 `artifacts/node-service-startup-check.json` |
+| M0.3 / 兼容实验 | Windows x64 已通过：Electron 44.8.0 内置 Node 24.22.0 / SQLite 3.53.4；源码与仓库外真实 ASAR 均验证 SQL / 备份、CJS 动态 ESM、Chat 流 / Responses 非流式、退出 / 父进程死亡。strict 前端 4 份两引擎检查与 53 项离线检查通过；依赖已精确锁定，旧依赖版本未升级。Mac / 安装版仍未验证；见 `artifacts/node-service-compatibility-check.json` |
+| M0.4 / 旧格式与协议矩阵 | 已完成；真实旧库 PRAGMA / JSON + chat_message 图、图片字节、删除密钥与提示词重启、浏览器草稿 / 声音 / 框选偏好和配对 / 网卡夹具已冻结；2 项两引擎、14 项双协议、3 项固定夹具检查通过。见 `docs/node-service-formats.md` 与 `artifacts/node-service-formats-check.json`；合成边界和 M4 未完成项单独登记 |
+| M0.5 / 规则与 contracts | 已完成初稿与规则复核：共享声明、24 类运行时 schema、HTTP 草稿、32 项契约检查与 strict 类型反例；同轮 102 项离线通过。见 `docs/node-service-contracts.md` 与 `artifacts/node-service-contracts-check.json`；生产接线待 M1 |
+| M1.1 / 生命周期 | 已完成，正式 utilityProcess / 随机凭证 / 窄秘密通道 / nonce 心跳及超时已接线；Windows 真实 OS 加密、正常关闭和只杀父进程退出、6 项离线生命周期检查通过。见 `docs/node-service-m1.md` |
+| M1.2 / 事务存储 | 已完成；schema 校验和 / 单写者、消息图 / 分支 / 附件 / 草稿 / 提示词与管理操作、重复 domain 导入及冲突检查通过。Windows 7 组存储检查和 40 项相关离线通过；旧库迁移仍为 M4 |
+| M1.3 / SDK 与目录 | 已完成；真实双协议 JSON / SSE、多图历史、ID / 自定义地址、错误 / 取消 / 零重试、窄秘密通道与删除不复活通过。`run-8gwZTd` 为 Windows 证据，无真实账户 |
+| M1.4 / 持久生成 | 已完成；事务接受 / requestId 与 commandId 去重、真实 edit / regenerate 分支、增量落盘 / 缓存恢复 / 显式 stop、断订阅继续通过；正式 utilityProcess 杀服务后重启保留部分回答并 interrupted、不重放。Windows 证据 `run-npbuiz` |
+| M1.5 / 网关 | 已完成 Windows 后端范围；白名单、鉴权 / 身份覆盖、文件 / SSE、暂停 / 撤销不停止上游、单接收页 / context / 草稿拒绝、availableModels 适配通过；源码与独立测试 ASAR 证据见 `docs/node-service-m1.md` |
+| M2.1～M2.4 | 已完成 Windows 浏览器范围；最终新页面双引擎 50/50，独立 ASAR 手机 12/12、后端 34 组 / ASAR 33 组、旧 UI 70/70 和保存编辑 2/2，119 离线（含 43 契约）通过。单 composer / SDK、完整菜单、草稿 / 截图 / 框选、单接收页 / 不重放、手机主动朗读与恢复均有证据，见 `docs/node-service-m2.md` / `artifacts/node-service-m2-check.json`；物理手机未测 |
+| M2.5 | 已完成 Windows 两引擎范围；窄屏 / 短屏 / 长输入多图、VisualViewport / 缩放、弹层焦点、模型设置与等待恢复，16 份新渲染截图已保存；软键盘和语音引擎为模拟，未计物理扬声器通过 |
+| M3.1 | 已实现预编译 Rust observer / manifest / v1 JSON Lines / Node 生命周期，Windows 单屏 150% 的五键、双击、取消 / 超时、DPI 和异常退出通过；8 项 Node、3 项 Rust、5 组系统输入证据见 `docs/node-service-m3.md`。多屏 / 实际锁屏仍未测 |
+| M3.2 | 已实现独立 Rust test-input-driver / release guardian，desktop-input 无 Python 夹具 / driver；强杀释放通过，正式资源排除测试驱动。旧 Python 文件仅保留对照，未删除 |
+| M3.3 | Windows x64 源码 / 仓库外解包副本均通过 8 次 mock 的实际全屏 / 区域 / 五键 / 菜单 / 静默验收，各 4 组生命周期通过；146 份项目资源逐字节一致。M3 当时无新 NSIS；Mac 两架构、物理手机、多屏 / 权限拒绝仍未验收，不能计整卡跨平台通过 |
+| M3.4 | Mac ICNS / 两架构 DMG+ZIP 配置、平台过滤、dist wrapper 与实际安装审计脚本已实现；7 项结构检查通过。没有真实 Mac，0/4 产物、两架构安装 / Keychain / 签名 / 公证 / Finder 拖拽均未测。当前仅隔离 development 候选，M4/M5 前拒绝 distribution |
+| M4.1 | Windows 隔离验收完成：一致 SQLite / WAL 快照、源只读、分阶段验证 / 激活、文件字节 / 图分支 / 连接 / 桌面设置完整保留；未知 schema 拒绝。见 [M4](node-service-m4.md) 与机器汇总 |
+| M4.2 | Chromium / WebKit 同 origin 已保存图文草稿 / 偏好升级及回退 4 项通过，端口冲突 / 跨 origin 明确不可自动读；物理手机 / Mac 未测 |
+| M4.3 | 33 组迁移 / 失败 / 重入 / 新增数据后回退通过，六阶段真实进程退出恢复与 OS 密钥解密、两个 Node 快照重开和固定旧版实际读回均有证据；Mac Keychain 未测 |
+| M4.4 | 8 组实际旧 / 新 NSIS 安装闭环通过，中文 / 空格 / 点路径、重启 / 缓存 / 卸载重装 / 旧版读回；仅隔离安装命名空间，生产 GUID 覆盖升级未验收，整卡部分通过 |
+| M4.5 | 迁移与旧 app 读回自动化接线已实现；没有真实 Mac，两架构 DMG / ZIP 0/4、Keychain / 安装 / 旧版读回未测，整卡未完成 |
+| M5 | 已开始，尚未全部完成。源码 `npm start` 和 Windows Node-only 候选默认 Node，普通旧库自动迁移接线；setup / 默认浏览器测试 / dist / startup 已接新链路。Windows 隔离业务、原生、安装、十次常规启动与包体已有实测，见 [M5](node-service-m5.md)。本轮默认启动 / 自动迁移回归、生产 GUID、Mac、实体设备、冷启动和旧资源删除仍未通过 |
+| 默认运行层 | Node utilityProcess + SQLite + AI SDK；显式 `start:legacy` 才使用 Open WebUI 0.12.2 + Python 对照 |
+| 新 Node 服务 / React 手机页 / Rust observer | service / contracts、React 单 composer 与 Windows Rust observer 已接线；默认新数据目录与旧库只读迁移分离，Mac observer capability=false。原生输入不调用 Python；不计最终重构完成 |
+| Mac arm64 / x64 DMG / ZIP、构建与安装验收命令 | 命令与审计脚本已实现，未在 Mac 执行或实际生成；非 Mac 调用明确失败，不预填通过报告 |
+| 已新增的真实文件 / 命令 | M0～M3 文件保留。M4 新增 service/migrations、migration contracts、桌面迁移 / 进度、浏览器升级与回退镜像、实际安装助手 / 本地导出、迁移与安装验收；`test:migration` / `test:migration:browser` / `prepare:upgrade:win` / `test:upgrade:win` / `export:legacy` 已存在。M3 新增 native workspace、native-program、分平台 package-config / package-audit、ICNS、Mac wrapper / 安装脚本、Windows 独立输入 wrapper / lifecycle 测试；`build:native` / `test:native` / `test:desktop-lifecycle` / `dist:mac[:arm64\|:x64]` / `icons:mac` / `test:mac-package` 已存在。根 CJS / Electron 不变 |
+| 本轮失败 / 中断 | M4 真实安装预检保护、首次隔离安装中文 stdout 编码、fixture WAL 收尾竞态、file 映射计数旧断言和进度视口溢出均保留并修正，最终 141 离线 / 33 迁移 / 4 浏览器升级 / 8 安装 / 50 手机 / 12 手机 ASAR / 34+33 后端通过；详见 [M4](node-service-m4.md)。M0～M2 历史保留。M3 首次输入保护拒绝、测试上下文 / 等待与 PID 假设、Electron HTTP 504、许可布局 / 旧解包不一致已记录修正；一次 WSL interop 启动失败和附加控制进程退出 143 均未计通过。最终 134 离线、3 Rust、源码 / 解包各 8 次 mock + 各 4 生命周期、后端 34/33 通过，详见 `docs/node-service-m3.md` |
+| 下一项 | 用 `collect:m5` 将完整候选验收、同安装器的隔离安装、同 ASAR 的十次启动与包体绑定，保留 release blocked。随后需要独立 Windows 环境正式生产 GUID、真实 arm64 / x64 Mac 四份包与迁移 / 安装 / Keychain、实体 Android / iPhone、五次真实重启首启；多屏 / 锁屏仍保留。上述门槛全通过后才切换正式默认和删除旧资源 |
 
 后续实施者完成任务后更新这张表，保持日期、完成证据、下一项和本文实际路径一致。不要把本文示例接口当作已经部署的服务。
 

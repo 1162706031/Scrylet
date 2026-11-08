@@ -1,3 +1,5 @@
+const returnTo = new URLSearchParams(location.search).get("returnTo");
+if (returnTo && /^\/(?:c\/[A-Za-z0-9_-]+)?$/.test(returnTo)) document.querySelector("a.back").href = returnTo;
 const $ = (id) => document.getElementById(id);
 // Safari can shrink only the visual viewport when a key field is focused.
 // Anchor the sheet above the keyboard and keep its contents scrollable.
@@ -76,7 +78,7 @@ async function save(remove = false) {
     });
     const result = await response.json();
     if (!response.ok) throw new Error(result.error);
-    location.assign("/");
+    location.assign(returnTo && /^\/(?:c\/[A-Za-z0-9_-]+)?$/.test(returnTo) ? returnTo : "/");
   } catch (error) {
     $("save-error").textContent = error instanceof TypeError || error.name === "TimeoutError"
       ? "未确认保存结果，请检查电脑连接后重新打开设置"
@@ -144,3 +146,7 @@ fetch("/snap/api/providers", { signal: AbortSignal.timeout(15000) })
       ? "无法读取模型，请检查电脑连接后刷新"
       : error.message;
   });
+
+fetch("/snap/api/status").then(response => response.json()).then(state => {
+  if (state.runtimeKind === "node") document.querySelector("footer").textContent = "Scrylet";
+}).catch(() => {});

@@ -1,4 +1,4 @@
-/* Load before upstream modules. Notifications stay silent; only the phone's
+/* Load before application modules. Notifications stay silent; only the phone's
  * explicit read-aloud control may use the captured speech implementation. */
 (() => {
   if (window.__snapQuiet) return;
@@ -37,22 +37,12 @@
     voices: () => synthesis?.getVoices() || [],
     onVoicesChanged(listener) {
       synthesis?.addEventListener?.("voiceschanged", listener);
+      return () => synthesis?.removeEventListener?.("voiceschanged", listener);
     },
   });
   if (synthesis) {
     speechSynthesis.speak = function () {};
   }
-  // Open WebUI 0.12.2 emits these on a private EventTarget. Bridge only its
-  // lifecycle signals; upstream still owns all chat state and generation.
-  const dispatch = EventTarget.prototype.dispatchEvent;
-  EventTarget.prototype.dispatchEvent = function (event) {
-    const result = dispatch.call(this, event);
-    if ((event.type === "chat:start" || event.type === "chat:finish") &&
-        typeof event.detail?.id === "string") {
-      dispatch.call(window, new CustomEvent("snap:" + event.type, { detail: event.detail }));
-    }
-    return result;
-  };
   if (navigator.vibrate) navigator.vibrate = () => false;
   if (window.Notification) {
     window.Notification = class extends EventTarget {

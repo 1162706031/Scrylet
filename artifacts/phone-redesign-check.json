@@ -1,0 +1,99 @@
+{
+  "date": "2026-11-09",
+  "platform": "win32-x64",
+  "status": "passed",
+  "scope": "phone-ui-redesign",
+  "checks": {
+    "check": "passed",
+    "typecheck:phone": "passed",
+    "build:phone": "passed",
+    "test:phone": {
+      "passed": 54,
+      "failed": 0,
+      "skipped": 0,
+      "retries": 0,
+      "browsers": [
+        "chromium",
+        "webkit"
+      ],
+      "log": ".test-data/phone-redesign/accepted-browser.log"
+    },
+    "final-color-presentation": {
+      "passed": 4,
+      "failed": 0,
+      "log": ".test-data/phone-redesign/presentation.log"
+    }
+  },
+  "protectedSource": {
+    "phone/src/chat/useComposer.ts": {
+      "unchanged": true,
+      "sha256": "c02733bc1b15f585f260c9fa92c5831555eed1bd8d7850e3fe87fe0aca3cbbc0"
+    },
+    "phone/src/chat/useConversation.ts": {
+      "unchanged": true,
+      "sha256": "d1ff767802124729d62f0c97e8b5c52d3000f4b10d3c5bd3b813a3dd9a75d4f0"
+    },
+    "phone/src/chat/transport.ts": {
+      "unchanged": true,
+      "sha256": "0bef6bfdf85005da8b64db8940074ab203218b861d97ef2cc2b7f50ea897e332"
+    },
+    "phone/src/api.ts": {
+      "unchanged": true,
+      "sha256": "9cfa84fe5bed2b38a25b9063256e9e023612f050efb24954318d7c752089936c"
+    },
+    "phone/src/capture/desktopReceiver.ts": {
+      "unchanged": true,
+      "sha256": "4d93f4d7eeb3e0161207df75c878506f9a45d8e084526d7f14b918aadc934ccb"
+    },
+    "phone/src/exports.tsx": {
+      "unchanged": true,
+      "sha256": "986314d7f2bb608d12f370b6fce7760e611e7a82d7862894fa6bbde63c396f85"
+    }
+  },
+  "implementationSha256": {
+    "phone/index.html": "3adb7148a88a1c4fd8ffbbb3a85a7c3384e85ad72c43507e0b12f342c6b69ee5",
+    "phone/src/App.tsx": "18429a4c5350fbe9431e48df75a5296b7825d9d4b50571fc0f3c72f73152b3f2",
+    "phone/src/attachments/Capture.tsx": "6a02a9d0ddbfe5e69938b844ecd81cc0909572dc270080e09f47e6f771082c95",
+    "phone/src/audio/ReadAloud.tsx": "a7028f5aa4552268305b66a263374f7ba253afbe6fbdb12632e6459e61e629c0",
+    "phone/src/chat/ConversationView.tsx": "0c4061f41348abd58e2942b5ca394ebfd318e0f2b53c172ec02f6ca0dbd624db",
+    "phone/src/chat/HistoryPanel.tsx": "7820919bacd9316bedf78eb4537696b1c3aa50b77d53708dbd0e8bed51899299",
+    "phone/src/controls.css": "d61c712c9d03ea97d31118416c969f7d262ee8e787bfa6c2ee23eb6adc246554",
+    "phone/src/dialogs.ts": "eb965e13f3feda40ba9a1880371be771735c2ae4806b122dc1f4736722316f5a",
+    "phone/src/Icon.tsx": "4c77cbbcd73f9173bd2205137bfe9b53722b49b006b189926cbb30a75e2bfea4",
+    "phone/src/phone.css": "b60b13369046fc563782b4e1bdd33c763042c98026d957450da468890b738738",
+    "playwright.phone.config.cjs": "e88e27f9dd3392f52705a7460a22ce787d0445615d4c831b03d5b8dd5635f5e5",
+    "tests/phone/design.spec.cjs": "5435883069cf35a180f683367e5251e5ec207e2bc5877e8d7ed0ffd2f3a91947"
+  },
+  "screenshots": {
+    "artifacts/phone-redesign-conversation-chromium.png": "c7a630620c2e5724cefae1b2a03bf6a931854a6eb586f0841113d5f648ab44c9",
+    "artifacts/phone-redesign-conversation-webkit.png": "dc024e7b7ed0c3a7943673bfcf621a39702ceff7cb5abed4917710a66b25a264",
+    "artifacts/phone-redesign-draft-320x720-chromium.png": "8111681f81ce3e6d372490a067b665b7ea49fb138187a8c80e2bf518128ce778",
+    "artifacts/phone-redesign-draft-320x720-webkit.png": "ae3e413ecc28b3dfa42fbf7247020804a7e51deb55c7259e2e14f7be6505c74b",
+    "artifacts/phone-redesign-draft-375x812-chromium.png": "fecd6cbd933567cffaa56e510f57d5955acf6cbae1f447bc3ac786780236b62c",
+    "artifacts/phone-redesign-draft-375x812-webkit.png": "06e57da34acae99214473a36a1aa9bdb91d24a975821f7a02226376730b091e9",
+    "artifacts/phone-redesign-draft-390x460-chromium.png": "aa66dd859e593a7a88f62f2d30e03d082d1a01fd5b49e69f7a1d6da39f4aa07a",
+    "artifacts/phone-redesign-draft-390x460-webkit.png": "07558b4e8ec7f93578cb7eb960d0898fc4d5e8847182b34dd9ad20cd555e0ae6",
+    "artifacts/phone-redesign-draft-430x932-chromium.png": "5cc67b0e0d621b6b668884962c98943d54bc4d460772b8d28ec1fd29d0314374",
+    "artifacts/phone-redesign-draft-430x932-webkit.png": "5fddf44ee7f74bdbf2a4c514f7a2efb61c4caa4430949597b1a7e9eb282562ed",
+    "artifacts/phone-redesign-history-chromium.png": "cf1d32b71945d876fe6223a5e425ad3ddd41c0609814c3c805e4a42d8cd6014b",
+    "artifacts/phone-redesign-history-webkit.png": "db44429c7d4ce5e24382ea52c08a0a172dcd328668a8df6b699a145e67cf0083",
+    "artifacts/phone-redesign-welcome-chromium.png": "2d7ea1d978bb6c08c32e11fae43af20b238cc1230cb964d036845b99e374b75a",
+    "artifacts/phone-redesign-welcome-webkit.png": "2c6e15d526c0e7bd22052d1bf4a918cd03776f96810650999f15182f0bb521e5"
+  },
+  "mocked": [
+    "provider requests",
+    "screen capture",
+    "system speech"
+  ],
+  "unverified": [
+    "physical iPhone / Android keyboard and safe area",
+    "native screen capture",
+    "macOS hardware",
+    "final installers"
+  ],
+  "warnings": [
+    "existing Vite bundle size / quiet.js / SWR directive warnings",
+    "global diff whitespace warnings in pre-existing unrelated files"
+  ],
+  "failuresPreservedUnder": ".test-data/phone-redesign/"
+}

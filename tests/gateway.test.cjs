@@ -38,7 +38,7 @@ test("局域网网关阻止未配对、跨站和撤销设备访问系统能力",
     displays: () => [],
     capture: async () => {
       captures++;
-      return { image: "test" };
+      return { image: "data:image/png;base64,aGVsbG8=", displayId: "1", width: 1, height: 1 };
     },
   };
   const runtime = { ready: true };
@@ -88,12 +88,17 @@ test("局域网网关阻止未配对、跨站和撤销设备访问系统能力",
     // request on a fresh connection rather than an undici pooled socket.
     Connection: "close",
   };
+  for (const route of ["/api/chat/completions", "/api/v1/chats/new"]) {
+    const removed = await fetch(url + route, { method: "POST", headers, body: "{}" });
+    assert.equal(removed.status, 410);
+    assert.equal(require("../contracts/validate.cjs").validate("publicError", await removed.json()).code, "PROTOCOL_MISMATCH");
+  }
   assert.equal(
     (
       await fetch(url + "/snap/api/capture", {
         method: "POST",
         headers,
-        body: "{}",
+        body: JSON.stringify({ displayId: "1" }),
       })
     ).status,
     200,
@@ -127,7 +132,7 @@ test("局域网网关阻止未配对、跨站和撤销设备访问系统能力",
       await fetch(url + "/snap/api/capture", {
         method: "POST",
         headers,
-        body: "{}",
+        body: JSON.stringify({ displayId: "1" }),
       })
     ).status,
     423,
@@ -138,7 +143,7 @@ test("局域网网关阻止未配对、跨站和撤销设备访问系统能力",
   assert.equal(startingPage.status, 503);
   assert.match(await startingPage.text(), /connection-state/);
   const startingApi = await fetch(url + "/api/models", { headers: { ...headers, Accept: "text/html" } });
-  assert.equal(startingApi.status, 503);
+  assert.equal(startingApi.status, 404);
   assert.match(startingApi.headers.get("content-type"), /application\/json/);
   runtime.ready = true;
   gateway.revoke(gateway.pairing.list()[0].id);
@@ -147,7 +152,7 @@ test("局域网网关阻止未配对、跨站和撤销设备访问系统能力",
       await fetch(url + "/snap/api/capture", {
         method: "POST",
         headers,
-        body: "{}",
+        body: JSON.stringify({ displayId: "1" }),
       })
     ).status,
     401,
@@ -173,13 +178,24 @@ test("重启复用局域网端口，被占用时重新选择", async (t) => {
     fs.rmSync(directory, { recursive: true, force: true });
   });
 });
+test("浏览器禁止的已保存端口自动回退，显式禁止端口拒绝监听", async t => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "snap-safe-port-"));
+  fs.writeFileSync(path.join(directory, "network.json"), JSON.stringify({ port: 6668 }));
+  const gateway = new Gateway(directory, { permission: () => "granted", displays: () => [] }, { ready: true });
+  t.after(async () => { await gateway.close(); fs.rmSync(directory, { recursive: true, force: true }); });
+  await assert.rejects(gateway.start(6668), { code: "INVALID_PORT" });
+  await gateway.start();
+  assert.equal(require("../desktop/browser-ports.cjs").browserPortAllowed(gateway.port), true);
+  assert.notEqual(gateway.port, 6668);
+});
 
 test("安装目录包含点目录时仍能打开配对、模型设置、裁剪资源和等待页", async (t) => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "snap-hidden-path-"));
   const root = path.join(directory, ".apps", "Installed Client");
   fs.mkdirSync(root, { recursive: true });
   const source = path.resolve(__dirname, "..");
-  for (const name of ["desktop", "web"]) fs.cpSync(path.join(source, name), path.join(root, name), { recursive: true });
+  for (const name of ["desktop", "web", "contracts", "service"]) fs.cpSync(path.join(source, name), path.join(root, name), { recursive: true });
+  fs.copyFileSync(path.join(source, "package.json"), path.join(root, "package.json"));
   fs.mkdirSync(path.join(root, "config"));
   for (const name of ["providers.json", "product-scope.json"])
     fs.copyFileSync(path.join(source, "config", name), path.join(root, "config", name));
@@ -190,7 +206,11 @@ test("安装目录包含点目录时仍能打开配对、模型设置、裁剪�
   process.env.NODE_PATH = path.join(source, "node_modules");
   require("node:module").Module._initPaths();
   let HiddenGateway;
-  try { HiddenGateway = createRequire(path.join(root, "desktop/gateway.cjs"))(path.join(root, "desktop/gateway.cjs")).Gateway; }
+  try {
+    const relocated = createRequire(path.join(root, "desktop/gateway.cjs"));
+    HiddenGateway = relocated(path.join(root, "desktop/gateway.cjs")).Gateway;
+    relocated("./node-gateway.cjs");
+  }
   finally {
     if (originalNodePath === undefined) delete process.env.NODE_PATH;
     else process.env.NODE_PATH = originalNodePath;

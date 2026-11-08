@@ -8,7 +8,7 @@ function walk(dir) {
     return item.isDirectory() ? walk(file) : [file];
   });
 }
-for (const directory of ["desktop", "web", "scripts", "tests"]) {
+for (const directory of ["desktop", "web", "scripts", "tests", "contracts", "service"]) {
   for (const file of walk(path.join(root, directory)).filter((file) =>
     /\.(cjs|js)$/.test(file),
   )) {
@@ -32,18 +32,12 @@ for (const provider of catalog.providers) {
 const scope = require("../config/product-scope.json");
 if (!Number.isSafeInteger(scope.maxImages) || scope.maxImages < 1)
   throw new Error("附件上限必须是正整数");
-const upstream = path.join(
-  root,
-  ".runtime",
-  process.platform === "win32"
-    ? "Lib/site-packages/open_webui/config.py"
-    : "lib/python3.12/site-packages/open_webui/config.py",
-);
-if (fs.existsSync(upstream)) {
-  const source = fs.readFileSync(upstream, "utf8");
-  for (const key of Object.keys(scope.runtime)) {
-    if (!source.includes("'" + key + "':"))
-      throw new Error("未知的上游功能开关：" + key);
-  }
+if (fs.existsSync(path.join(root, "phone/tsconfig.json"))) {
+  const result = spawnSync(process.execPath, [path.join(root, "node_modules/typescript/bin/tsc"), "--noEmit", "-p", "phone/tsconfig.json"],
+    { cwd: root, stdio: "inherit" });
+  if (result.status !== 0) process.exit(result.status || 1);
 }
-console.log("JavaScript 语法、模型目录与产品开关检查通过。");
+const contracts = spawnSync(process.execPath, [path.join(root, "node_modules/typescript/bin/tsc"), "--noEmit", "-p", "contracts/tsconfig.json"],
+  { cwd: root, stdio: "inherit" });
+if (contracts.status !== 0) process.exit(contracts.status || 1);
+console.log("JavaScript 语法、模型目录、产品开关、phone 与 contracts 严格类型检查通过。");

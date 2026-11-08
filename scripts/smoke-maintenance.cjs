@@ -1,3 +1,4 @@
+const { openDesktopSection } = require("./desktop-ui-navigation.cjs");
 // Source or installed-client acceptance. No real model credentials or requests.
 const { _electron: electron, expect } = require("@playwright/test");
 const fs = require("node:fs");
@@ -11,7 +12,7 @@ const root = path.resolve(__dirname, "..");
 
 (async () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "snap-maintenance-app-"));
-  const env = { ...process.env, SNAP_DATA_DIR: directory, SNAP_LEGACY_DIR: path.join(directory, "no-legacy") };
+  const env = { ...process.env, SNAP_RUNTIME_ENGINE: "node", SNAP_DATA_DIR: directory, SNAP_LEGACY_DIR: path.join(directory, "no-legacy") };
   delete env.ELECTRON_RUN_AS_NODE;
   delete env.SNAP_PYTHON;
   for (const provider of catalog.providers) env[provider.envKey] = "";
@@ -25,7 +26,7 @@ const root = path.resolve(__dirname, "..");
   const settingsFile = path.join(directory, "capture-settings.json");
   const settingsText = JSON.stringify(settings);
   fs.writeFileSync(settingsFile, settingsText);
-  const upload = path.join(directory, "open-webui/uploads/preserved-attachment.txt");
+  const upload = path.join(directory, "chat-node/v1/files/preserved-attachment.txt");
   fs.mkdirSync(path.dirname(upload), { recursive: true });
   fs.writeFileSync(upload, "test-preserved-attachment");
   const server = http.createServer((request, response) => {
@@ -58,7 +59,7 @@ const root = path.resolve(__dirname, "..");
     }));
     const resourcesPath = path.join(path.dirname(application.executable), "resources");
     const paths = runtimePaths({ root: application.root, resourcesPath, pythonOverride: "" });
-    const runtime = { packaged: application.packaged, bundled: paths.packaged && paths.python.startsWith(resourcesPath) };
+    const runtime = { packaged: application.packaged, bundled: paths.packaged && paths.service.startsWith(resourcesPath) };
     if (executablePath) expect(runtime).toEqual({ packaged: true, bundled: true });
     await app.evaluate(async ({ BrowserWindow }, url) => {
       const session = BrowserWindow.getAllWindows()[0].webContents.session;
@@ -77,7 +78,7 @@ const root = path.resolve(__dirname, "..");
       await window.snap.pause(false);
       try { await window.snap.captureAndSend(); } catch { /* No receiver is paired in this fixture. */ }
     });
-    await page.locator("#maintenance summary").click();
+    await openDesktopSection(page, "activity");
     await expect(page.locator("#activity-log")).toContainText("聊天服务已就绪");
     await page.locator("#log-level").selectOption("errors");
     await expect(page.locator("#activity-log")).toContainText("本次截图未执行");
@@ -92,7 +93,7 @@ const root = path.resolve(__dirname, "..");
     expect(cookie[0].value).toBe("test-cookie-keep");
     expect(fs.readFileSync(settingsFile, "utf8")).toBe(settingsText);
     expect(fs.readFileSync(upload, "utf8")).toBe("test-preserved-attachment");
-    expect(fs.existsSync(path.join(directory, "open-webui/webui.db"))).toBe(true);
+    expect(fs.existsSync(path.join(directory, "chat-node/v1/chat.sqlite"))).toBe(true);
     const logFile = path.join(directory, "logs/activity.jsonl");
     expect(fs.readFileSync(logFile, "utf8")).not.toContain(settings.prompt);
     await expect(page.locator("#service-status")).toHaveText("可以连接手机");
@@ -101,7 +102,7 @@ const root = path.resolve(__dirname, "..");
       const main = element.closest("main");
       main.scrollTop += element.getBoundingClientRect().top - main.getBoundingClientRect().top - 16;
     });
-    await page.screenshot({ path: path.join(root, "artifacts/maintenance" + (executablePath ? "-packaged" : "") + ".png"), scale: "css" });
+    await page.screenshot({ path: path.join(root, "artifacts/maintenance" + (executablePath ? "-packaged" : "") + ".png"), scale: "css", mask: [page.locator("#qr"), page.locator("#code"), page.locator("#address")] });
     await app.evaluate(({ app }) => app.quit()).catch(() => {});
     await app.close();
     app = null;

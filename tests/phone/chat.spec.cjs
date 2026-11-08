@@ -1,0 +1,22 @@
+const { test, expect } = require("@playwright/test");
+const { nodePhone } = require("./fixture.cjs");
+let fixture;
+test.beforeAll(async () => { fixture = await nodePhone(); });
+test.afterAll(async () => fixture?.stop());
+test("M2.1 real service stream, Markdown, history, model switch and explicit stop", async ({ page }, info) => {
+  const errors = []; page.on("pageerror", error => errors.push(error.message));
+  await page.goto(fixture.pairingUrl); await expect(page.locator("#send-message-button")).toBeVisible();
+  await page.locator("#chat-input").fill("请解释三角形"); await page.locator("#send-message-button").click();
+  await expect(page.getByText("c = 5", { exact: false }).first()).toBeVisible(); await expect(page.getByRole("button", { name: "停止生成" })).toBeHidden();
+  await expect(page.locator(".katex")).toBeVisible(); await expect(page.locator(".message.assistant table")).toBeVisible();
+  await expect(page.getByRole("button", { name: "复制代码" })).toBeVisible();
+  await expect(page).toHaveURL(/\/c\//); const url = page.url();
+  await page.getByLabel("当前模型").selectOption("alibaba.fixture-model"); await page.locator("#chat-input").fill("换个模型继续"); await page.locator("#send-message-button").click();
+  await expect.poll(() => fixture.count()).toBe(2); await expect(page.getByRole("button", { name: "停止生成" })).toBeHidden();
+  await page.reload(); await expect(page.locator(".message.assistant")).toHaveCount(2); expect(page.url()).toBe(url);
+  await page.getByLabel("当前模型").selectOption("openai.cancel"); await page.locator("#chat-input").fill("慢速回答"); await page.locator("#send-message-button").click();
+  await expect(page.getByRole("button", { name: "停止生成" })).toBeVisible(); await page.getByRole("button", { name: "停止生成" }).click();
+  await expect(page.getByText("已停止", { exact: true })).toBeVisible();
+  await page.screenshot({ path: info.outputPath("phone-chat.png"), fullPage: true });
+  expect(errors).toEqual([]);
+});

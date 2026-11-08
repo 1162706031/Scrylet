@@ -1,0 +1,70 @@
+{
+  "task": "M0.5",
+  "testedAt": "2026-11-07T17:07:06.082Z",
+  "platform": "win32",
+  "arch": "x64",
+  "controllerNode": "22.14.0",
+  "electron": "44.8.0",
+  "run": ".test-data\\node-service-contracts\\run-2zsbZv",
+  "checks": {
+    "syntaxCatalogAndStrictTypes": true,
+    "offline": {
+      "tests": 102,
+      "passed": 102,
+      "failed": 0,
+      "skipped": 0
+    },
+    "contractTests": 32,
+    "runtimeSchemas": 24,
+    "httpDraftRoutes": 22,
+    "formatBrowsers": [
+      "chromium",
+      "webkit"
+    ],
+    "formatProtocolTests": 14,
+    "formatFixtureTests": 3,
+    "gitWhitespace": "passed with cr-at-eol for Windows CRLF"
+  },
+  "formatsEvidence": ".test-data\\node-service-formats\\run-lTwdpq",
+  "sourceHashes": {
+    "AGENTS.md": "40d5f90aaaa203c9973ac850873a7c41df053e94e9ce44214112f984f815f266",
+    "package.json": "5550f68cba7bfd9303ee9b6824f0452bb0424997c7648707b53631c78848645d",
+    "package-lock.json": "994fd225666705945ba882940d9c31a1d50d3b738c4512672008d8d026bc61a5",
+    "scripts/check.cjs": "a7773b720d214e1d72f9cfa343cf207776c8a09250517fb237f97cf790076913",
+    "scripts/freeze-legacy-formats.cjs": "bb822a10a2a8622c244f111d186c296eef4235711a454c4f57743a485d929c47",
+    "tests/contracts.test.cjs": "74bdef7ee1834ccb7ecba72b9d36ceb83ab2e3470a287f3594cefcdbe6cdd59e",
+    "tests/fixtures/contract-samples.cjs": "b1e83b8bc8909c0527f82cc40c678fe4c7959cc2de81125ec64058b183fd3190",
+    "tests/fixtures/protocol-provider.cjs": "b868c806923c0d2e95d92b281ab6aed30775d8214f683cf66cc01935150ff443",
+    "tests/provider-formats.test.cjs": "3c8fde7daa749dcea398d59351da5d5771763c4a014bebde08334b984effea43",
+    "tests/legacy-formats.test.cjs": "a5ae4ae05101a34187b8c1aeeee036569469d2727edd97c3e6405e17a84dad22",
+    "tests/types/contracts.ts": "04fea71222ef9240704ecd4274923352a15ade2dc894a92682b49a7000ab6995",
+    "playwright.formats.config.cjs": "444727d3ed3e171971531cd72778d3d1aef81bc56512a7c3b9922a3ef5ad37a1",
+    "contracts/http-v1.json": "0ad6bd0a1944d74c2972734dec9acef431b0c9bb050cc1c4d666e119aff57219",
+    "contracts/index.d.ts": "56ea95e2866c983c773e45046fe6213f8e7d0010473215713e14606f0eb90b1c",
+    "contracts/tsconfig.json": "2822395d5f0fb5755e66abae54329c99a3df6f940fda45ff91c53d221f5be3cb",
+    "contracts/validate.cjs": "d26a663a95db655f23192277aeb8533fef6d3e48db32e7531dfceba5a4d817f7",
+    "contracts/validate.d.cts": "eff04738dfc97c5d8774323ddca9f169846ff950d873d8aa80e4e34d9ba81f71",
+    "tests/legacy-freeze/export.cjs": "f59ca36e0d3bea0980ae573f40b21bc0aea21d7d01e2a2ece9a4fd4314f27561",
+    "tests/legacy-freeze/formats.spec.cjs": "3bcf74bd79c612bcd7616b2eb6bd45903f1c9b1ad1f7ef465a7c238c2f854e13",
+    "tests/legacy-freeze/replay.cjs": "9d457618b563fbef39a2e2458809123c317b192a44590d0360dc7554318a85dc",
+    "tests/fixtures/legacy-v1/browser.json": "ef95e6a454e2485881f6853fd2163677f0aa4091c283c6bd8c9bef93d66e88a2",
+    "tests/fixtures/legacy-v1/database.json": "319a70efcdcd7b16a99faa0e91c9812992c3a680059fb11782b2b1193bbad8d2",
+    "tests/fixtures/legacy-v1/desktop.json": "37ff9911fb5cfd80c54450b2125acd8ee27a71a2ec07d662a5590c56d5d2600a",
+    "tests/fixtures/legacy-v1/edge-cases.json": "fa6bae5ba2320583ee58ecd842e870563eb6a0dd93c5b9b689d68e9733f90fd1"
+  },
+  "evidenceHashes": {
+    "check.log": "c5c528fa0bac2ea5617dfb4f53eadcf0c9d648dbf9bee4ab8062603dd7aaa939",
+    "failed-bad-port.tap": "f823df35aa4b286419634445cc4a5c03492bfb6ecbf909f795698fb0c7b20b55",
+    "formats.log": "21b1815910251ef8bb75bd972acdc6d14364d55eee5870e8f3215dc36cff79e8",
+    "offline.tap": "594c33164edcd5fd1c2483397bd83dc27b673a5ccb1c2e04b0f3b838df17ae64"
+  },
+  "defaultRuntime": "legacy",
+  "productionRoutesWired": false,
+  "realAccountsUsed": false,
+  "limits": [
+    "M0.2 actual reboot first launch remains 0/5 by user choice",
+    "M1-M5 production service, migration and rollback remain unimplemented",
+    "No macOS, physical phone, native input or final installer acceptance in this task"
+  ],
+  "next": "M1.1"
+}

@@ -18,15 +18,15 @@
 
 [电脑静默截图设置](artifacts/scrylet-settings.png)
 
-## Windows 客户端
+## 安装包
 
-Windows x64 安装包生成在 `dist/Scrylet-2.0.0-dev.6-win-x64-Setup.exe`。运行安装向导后，从桌面或开始菜单打开 Scrylet。客户端包含 Python 3.12 与 Open WebUI 0.12.2，使用时无需另装 Node.js、Python、uv 或 Docker。安装包当前未签名，没有自动更新功能。
+当前本地交付版本为 `2.0.0-dev.7`，产物与 SHA-256 统一放在 `dist/releases/2.0.0-dev.7/`。Windows x64 使用 NSIS 安装包；Mac arm64 / x64 提供各自 ZIP。Mac DMG 需在 macOS 构建，本轮按要求不做 Mac 实机测试。未上传或发布 GitHub Release，旧 `dist/` 产物保留。
 
-已生成的安装包和校验文件见 [GitHub Releases](https://github.com/1162706031/Scrylet/releases/tag/v2.0.0-dev.6)。
+新版仅包含 Electron、Node 服务、React 手机页及必要的原生资源，无需另装 Node.js、Python、Rust、uv 或 Docker。Windows 包未签名；Mac ZIP 为跨平台构建，签名、公证与实际运行未验证。详见 [M5 收尾与交付](docs/node-service-finalization.md)。
 
 ## 源码启动
 
-需要 Node.js 22+，以及 [uv](https://docs.astral.sh/uv/getting-started/installation/) 或 Python 3.12。
+需要 Node.js 22.12+；新增默认准备和测试流程不安装 Python。保留根 CommonJS 和 Electron 44.8.0。
 
 ```sh
 npm ci
@@ -34,9 +34,22 @@ npm run setup
 npm start
 ```
 
-`setup` 优先使用 uv 创建 `.runtime` 并准备 Python 3.12；没有 uv 时，macOS 使用 `python3.12`、Windows 使用 `py -3.12`。首次安装需要联网下载 Electron、Python 运行环境与聊天框架。后续使用不需要 Docker。
+`setup` 执行严格类型检查、手机静态构建和 Windows 预编译 observer 校验，不创建 `.runtime`。Windows 开发者需要先准备锁定的 Rust 1.91.0 GNU 工具链并运行 `npm run build:native`；安装用户使用包内 observer，不需要 Rust 或系统 Node。
 
-源码运行方式适用于开发；Windows 还可以使用上述安装包。
+`npm start` 现在默认使用轻量 Node 服务和 React 手机页面，不需要 Python。已有旧版 `Snap-Solver/open-webui/webui.db` 时，首次启动会显示迁移进度，将聊天、图片、设置等只读导入新的 `Scrylet` 数据目录；旧目录保留，不覆盖或删除。迁移前先退出仍在运行的旧版；迁移失败不会把空数据当作成功。需要完全隔离的开发目录时，可继续运行 `npm run start:node -- --data <绝对路径>`。
+
+## 打包
+
+```sh
+npm run dist:win                    # 本机 Windows x64，正常安装身份
+npm run dist:win:candidate          # 保留独立 NSIS 验收身份
+npm run dist:mac:arm64              # macOS：arm64 DMG + ZIP
+npm run dist:mac:x64                # macOS：x64 DMG + ZIP
+```
+
+Mac 原生构建可手动运行 `.github/workflows/package-mac.yml`，只构建和审计，不运行 Mac 测试。Linux 可用 `scripts/dist-mac.cjs --arch arm64|x64 --archive-only --prebuilt-phone` 生成 ZIP；需先构建手机页，并准备本机 electron-builder 工具，可通过 `SCRYLET_BUILDER_CLI` 指定 CLI 路径。跨平台审计只验证文件、Mach-O 架构、权限与许可，不替代 macOS 运行验收。
+
+默认启动与正常安装包使用 `Scrylet` userData，无需运行层开关；Windows 继承显式 `APPDATA`。普通用户直接打开应用；独立开发数据使用 `npm run start:node -- --data <绝对路径>`。旧运行层、Python 准备脚本和 `http-proxy` 已移除，原对照源码、依赖声明和全部旧测试断言保存于 [源码归档](docs/archive/README.md)。数据兼容导入、浏览器草稿升级和 `export:legacy` 继续存在。
 
 ## 使用
 
@@ -68,17 +81,17 @@ npm start
 
 ## 聊天运行层与模型
 
-复用 **[Open WebUI 0.12.2](https://github.com/open-webui/open-webui/releases/tag/v0.12.2)** 的现有 UI 和运行层：多轮对话、历史、流式输出、停止、模型切换、Markdown / 公式 / 代码。截图作为它原生的图片附件加入，没有再实现一套聊天引擎。
+当前默认运行层是 Electron utilityProcess 中的轻量 Node 服务、SQLite、AI SDK 和 React 手机页：支持多轮对话、消息分支、历史、流式输出、真实停止、模型切换、Markdown / 公式 / 代码及图文草稿。截图统一加入当前 composer，不会另建一套输入状态。旧 Open WebUI 0.12.2 数据通过只读导入兼容；当前源码和发行包不含其运行依赖。
 
 2026-10-16 按官方目录整理了 6 家服务、16 款支持图像输入的模型：OpenAI、Anthropic、Google、通义千问、豆包、Kimi。型号、协议及来源见 [模型目录](config/providers.json) 和 [架构说明](docs/architecture.md)。手机端只保留模型连接表单，可修改内置服务的兼容地址。是否可调用取决于账户、地区、服务地址和模型权限。
 
-手机界面保留截图、图片附件、聊天、历史和模型切换。语音通话、工作空间、知识库、联网搜索、图像生成、工具与管理面板等不再作为产品入口；相关写入路由在网关禁用。启动时按产品边界覆盖旧的功能开关，保留模型密钥与聊天记录。自动标题、自动追问等额外模型请求保持关闭。
+手机界面保留截图、图片附件、聊天、历史和模型切换，并提供独立的声音 / 语速控制。语音通话、工作空间、知识库、联网搜索、图像生成、工具与管理面板不作为产品入口；Node 网关只暴露产品契约中的操作。自动标题、自动追问等额外模型请求保持关闭。
 
 ## 数据与迁移
 
 电脑窗口底部展开“操作日志与缓存”，可以查看最近 200 条操作、筛选异常、刷新记录，或清理页面与代码缓存。日志在本机轮换保存，记录截图、发送、配对、暂停和设置操作，不记录密钥、提示词、图片或聊天正文。清理缓存不会删除聊天、图片附件、模型密钥、配对、设置及操作日志。
 
-- 新安装的密钥、聊天、附件保存在 Electron userData：macOS 通常为 `~/Library/Application Support/Scrylet/`，Windows 为 `%APPDATA%/Scrylet/`。若已有旧版 `Snap-Solver/` 数据目录，则继续原地使用，避免改名后丢失设置和聊天；安装程序沿用原应用 ID。
+- 新安装的密钥、聊天、附件保存在 Electron userData：macOS 通常为 `~/Library/Application Support/Scrylet/`，Windows 为 `%APPDATA%/Scrylet/`。Node 默认启动会从已有旧版 `Snap-Solver/` 自动迁移到新目录，保持源库和图片不变，原旧目录保留。安装程序沿用原应用 ID。
 - 截屏只发生在主动点击时；发送后，所选图片、文字及对话上下文会交给所选模型服务。
 - 旧 `.snapsolver/` 和 `config/prompts.json` 只读迁移，不删除原文件。原提示词成为 `/snap-…` 快捷提示词，可在原生聊天框里输入 `/` 使用。
 - 新框架已有设置优先，重启不会覆盖在手机上做的修改；导入后可移除某家密钥而不被再次导回。
@@ -96,24 +109,38 @@ npm test
 npx playwright install chromium webkit
 npm run test:ui
 npm run test:desktop
+npm run test:startup       # Windows 原生 Electron + 隔离数据，10 次完整退出后的启动计时
+npm run typecheck:phone    # React 手机页严格 TS
+npm run build:phone
+npm run test:phone         # 新页面 + 真实 Node 服务，两引擎本地 mock 回归
+npm run test:phone:asar    # 仓库外独立测试 ASAR；非最终安装包
+npm run test:migration    # 冻结旧格式重建、阶段恢复、密钥及回退导出
+npm run test:upgrade:win -- --old-installer <旧安装器> --new-installer <新安装器> # Windows 隔离安装；详见 M4
+npm run test:compat        # 真实 utilityProcess / SQLite / SDK / 仓库外 ASAR 与两引擎实验
 npm run test:desktop-input # Windows 本机快捷键、长按、区域截图与自动发送
+npm run test:native        # Rust observer 协议 / 五键 / 父进程与驱动清理
+npm run test:desktop-lifecycle # 源码 / 解包应用生命周期与异常退出
 npm run test:silent        # 隔离验证静默截图、声音与通知拦截
 npm run test:maintenance   # 日志、缓存、数据保留与重启检查
 npm run test:network       # 默认网卡、手动切换、重启记忆与局域网配对
-npm run dist:win           # Windows x64 本机生成 NSIS 安装 EXE
+npm run dist:win           # Windows x64 本机生成正常安装身份的 Node NSIS
+npm run test:candidate:win # 候选完整回归；--native-only 只跑原生 / 生命周期 / 缓存 / 网卡
+npm run measure:package   # 完整候选安装器与解包的实际字节 / 哈希
 ```
 
-浏览器测试使用真实 Open WebUI 和本地模拟模型，**不使用真实 API Key、不调用外部模型**。桌面检查使用独立数据目录，实际调用本机截屏。验证范围和限制见 [验收记录](docs/verification.md)。
+`test:ui` / `test:phone` 使用真实隔离 Node 服务；模型请求均到本地 mock，**不使用真实 API Key、不调用外部模型**。桌面检查使用独立数据目录，实际调用本机截屏。验证范围和限制见 [验收记录](docs/verification.md)。
 
-[Electron + 轻量 Node 服务重构方案](docs/node-service-refactor.md) 记录完整功能保留清单、无 Python 架构、数据迁移与回退、分阶段实施和验收门槛；[逐文件实施手册](docs/node-service-implementation.md) 提供新 agent 的阅读顺序、具体改动点、接口契约与任务清单，并明确新增 macOS arm64 / x64 的 DMG、ZIP 安装包。本次不全量迁移 TypeScript，目前仍是设计方案，现有运行方式不变。
+[重构方案](docs/node-service-refactor.md) 与 [实施手册](docs/node-service-implementation.md) 记录 M0～M5 历史范围；当前清理内容、构建结果、失败记录及未测边界以 [M5 收尾](docs/node-service-finalization.md) 为准。按本轮要求沿用既有 M0 保留矩阵，不重复全量设备测试，不进行 Mac 实机验收。`test:release` 仍会对未完成的全平台验收报告阻断，不把本地打包或用户调整测试范围写成门槛通过。
 
 | 目录          | 职责                                          |
 | ------------- | --------------------------------------------- |
 | `desktop/`    | Electron 生命周期、系统截屏、局域网配对与代理 |
 | `desktop/ui/` | 桌面连接窗口                                  |
-| `web/`        | 手机配对、模型初设、截图附件与框选扩展        |
-| `runtime/`    | 固定版本的 Open WebUI 启动入口与依赖          |
+| `web/`        | 配对、模型设置、品牌和共用声音模块            |
+| `phone/`      | 严格 TypeScript / React 单一 composer 手机页   |
+| `service/`    | Node 服务、SQLite、生成与旧数据兼容            |
+| `native/`     | Windows Rust observer 与独立测试驱动源码      |
 | `config/`     | 模型目录与提示词种子                          |
 | `tests/`      | 配对测试、真实框架浏览器流程及模拟模型        |
 
-本项目遵循仓库的 [Apache-2.0 License](LICENSE)。Open WebUI 是保留原有界面标识与许可证的第三方组件；Windows 安装包附带运行层及相关许可文件，见 [第三方说明](THIRD_PARTY_NOTICES.md)。
+本项目遵循仓库的 [Apache-2.0 License](LICENSE)。新版安装包包含 Electron、Node / 浏览器依赖和原生程序的许可文件；历史比较组件的署名随源码归档保留，见 [第三方说明](THIRD_PARTY_NOTICES.md)。

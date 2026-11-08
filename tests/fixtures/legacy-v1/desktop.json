@@ -1,0 +1,29 @@
+{
+  "fixtureVersion": 1,
+  "networkAuto": {
+    "port": 9631
+  },
+  "network": {
+    "port": 9631,
+    "selectedNetwork": {
+      "name": "FixtureNIC",
+      "address": "192.0.2.10"
+    }
+  },
+  "deviceFields": [
+    "createdAt",
+    "id",
+    "lastSeen",
+    "name",
+    "tokenHash"
+  ],
+  "devices": [
+    {
+      "id": "882ebe6d-1af6-461e-aa93-41c85bff2a0f",
+      "name": "iPhone",
+      "createdAt": 1794070517874,
+      "lastSeen": 1794070517874
+    }
+  ],
+  "credentials": "omitted; test-only credential created on replay"
+}

@@ -1,0 +1,182 @@
+{
+  "schemaVersion": 1,
+  "at": "2026-11-07",
+  "sourceRevision": "d00f40fe17434576127dd7343ba11aed8f3bab73",
+  "version": "2.0.0-dev.6",
+  "initialWorktree": "clean",
+  "defaultEngine": "legacy",
+  "milestones": {
+    "M0.1": "complete",
+    "M0.2": "package-size-only; startup phases not measured",
+    "M0.3-M0.4": "not-started",
+    "M0.5": "rules updated; contracts not implemented",
+    "M1-M5": "not-started"
+  },
+  "environment": {
+    "node": "v22.14.0",
+    "platform": "win32",
+    "arch": "x64",
+    "release": "10.0.26200",
+    "version": "Windows 11 Pro",
+    "cpu": "AMD Ryzen 7 7800X3D 8-Core Processor           ",
+    "logicalProcessors": 16,
+    "memoryBytes": 33405857792,
+    "electron": "44.8.0",
+    "playwright": "1.64.1",
+    "python": "3.12.16",
+    "openWebUI": "0.12.2",
+    "orchestration": "WSL2; native Windows node.exe used for tests"
+  },
+  "checks": {
+    "syntax": "passed",
+    "offline": {
+      "passed": 47,
+      "failed": 0,
+      "skipped": 0,
+      "raw": ".test-data/node-service-m0/unit.log"
+    },
+    "existingBrowserSuite": {
+      "stats": {
+        "startTime": "2026-11-07T07:48:49.405Z",
+        "duration": 349415.03099999996,
+        "expected": 70,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "raw": ".test-data/node-service-m0/ui.json"
+    },
+    "supplementaryBaselineSuite": {
+      "stats": {
+        "startTime": "2026-11-07T08:10:13.855Z",
+        "duration": 73568.571,
+        "expected": 8,
+        "skipped": 0,
+        "unexpected": 0,
+        "flaky": 0
+      },
+      "tests": [
+        {
+          "project": "chromium",
+          "title": "F21 会话菜单：重命名、置顶、搜索、下载与删除实际可用",
+          "status": "expected",
+          "attempts": 1
+        },
+        {
+          "project": "chromium",
+          "title": "F21 编辑和重答保留消息图与可切换分支",
+          "status": "expected",
+          "attempts": 1
+        },
+        {
+          "project": "chromium",
+          "title": "F21 补充入口：标记全部已读、克隆和归档、会话分组折叠",
+          "status": "expected",
+          "attempts": 1
+        },
+        {
+          "project": "chromium",
+          "title": "F23 新对话和已有会话草稿键、图片引用、刷新与切换",
+          "status": "expected",
+          "attempts": 1
+        },
+        {
+          "project": "webkit",
+          "title": "F21 会话菜单：重命名、置顶、搜索、下载与删除实际可用",
+          "status": "expected",
+          "attempts": 1
+        },
+        {
+          "project": "webkit",
+          "title": "F21 编辑和重答保留消息图与可切换分支",
+          "status": "expected",
+          "attempts": 1
+        },
+        {
+          "project": "webkit",
+          "title": "F21 补充入口：标记全部已读、克隆和归档、会话分组折叠",
+          "status": "expected",
+          "attempts": 1
+        },
+        {
+          "project": "webkit",
+          "title": "F23 新对话和已有会话草稿键、图片引用、刷新与切换",
+          "status": "expected",
+          "attempts": 1
+        }
+      ],
+      "raw": ".test-data/node-service-m0/baseline-verified.json"
+    },
+    "nativeDesktop": {
+      "at": "2026-11-07T07:54:56.445Z",
+      "platform": "win32",
+      "ready": true,
+      "permission": "granted",
+      "capture": {
+        "success": true,
+        "width": 2560,
+        "height": 1440
+      },
+      "closeToTray": {
+        "visible": false,
+        "destroyed": false
+      }
+    }
+  },
+  "existingLegacyPackage": {
+    "artifact": "Scrylet-2.0.0-dev.6-win-x64-Setup.exe",
+    "installerBytes": 308753932,
+    "installerSha256": "13bbf529f3f0bb34165aaab6b85934398477f91a3df0138607d9feaa7aec7d55",
+    "appAsarBytes": 3903762,
+    "unpacked": {
+      "application": {
+        "bytes": 946046039,
+        "files": 23606
+      },
+      "python": {
+        "bytes": 555858509,
+        "files": 23527
+      },
+      "electronAndResources": {
+        "bytes": 390187530,
+        "files": 79
+      }
+    },
+    "scope": "existing Windows legacy artifacts, not a rebuilt Node package or macOS measurement"
+  },
+  "sourceSha256": {
+    "desktop/main.cjs": "2f230d850fee2b3841d9f4a991c125f3e58a0f8e5c9044b60e97c52b4d8dd845",
+    "desktop/runtime.cjs": "1cc519674f09b3d538ababb59b7750b615e4aed623bc0cab81a3a85ecc7c5ab8",
+    "desktop/gateway.cjs": "bec2907afa5936bc1fa7a78822ffda931a24ca4f9da39adf8adea3c75213c200",
+    "desktop/runtime-paths.cjs": "4022f2feb53a5f863b8e9dd72c5e25f7ca76ec8eba6d37ea0e9cba2c45ab804e",
+    "web/composer.js": "54ded735aa8a47caa08e1b04f3d191591e3481942320e8e94839110aab4038cc",
+    "web/scope.js": "1b3895675847f1deecc88f800d9f9b4cb8ee8a3e8578f870831ede25786b70be",
+    "config/providers.json": "677f4cedc0b1f9f9cf75230c9021cf8904b1fe3dc31e7183eeac5d40f22a11f9",
+    "config/product-scope.json": "ccaf671c6567a3b8c1e1d1bef72a3544a0b1ab82f78b37119ac5f516c7f4d616",
+    "tests/fixture.cjs": "5feb9a5eb5a05b60d07b974ea96097811b7ada9d7f8c10462235d5b82ee7d1c5"
+  },
+  "importantFindings": [
+    "Drafts use sessionStorage chat-input / chat-input-<id>; uploaded attachments carry file IDs and nested metadata.",
+    "Visible new-chat after a saved historical draft opens empty; returning restores that chat draft.",
+    "Editing and retry preserve old message nodes; sibling browsing alone is transient and reload restores saved branch.",
+    "Pinned loader prefers valid top-level current_message_id over history.currentId.",
+    "Sidebar buttons leave share / clone reachable despite role=menuitem hiding rules.",
+    "User edit needs hover/focus reveal; touch-only behavior is not accepted as verified."
+  ],
+  "failedOrInterruptedRuns": [
+    "desktop.log: launch failed with inherited ELECTRON_RUN_AS_NODE; explicit removal rerun passed.",
+    "baseline-first: interrupted while correcting fixture selectors; stopped only its isolated process tree.",
+    "baseline-second / third / fourth / fifth / sixth / final / accepted and branch-focus: retained selector, popup, touch reveal and persistence-assumption failures.",
+    "First WSL package-size script used unsupported pathlib API; native Windows Node count and compatible Linux count completed."
+  ],
+  "remainingAcceptance": [
+    "M0.2 monotonic phases and 10 complete-exit / 5 post-system-reboot startup runs",
+    "M0.3 utilityProcess / SQLite / SDK / ASAR / strict frontend compatibility",
+    "M0.4 complete schemas, key-deletion state, branches, attachment variants, draft fixtures and both mock protocol contracts",
+    "Additional registered menu actions: actual TXT/PDF output, share-link behavior, message deletion, archive restore and generation-time deletion",
+    "Touch-only edit reveal, physical phone keyboard / audio / scan",
+    "Windows system input, real LAN, maintenance and installation were not repeated this turn",
+    "macOS arm64/x64 DMG/ZIP, native permissions, Keychain, installation and upgrade are untested",
+    "Node functional parity, migration and rollback with new data, final Python removal are not implemented"
+  ]
+}

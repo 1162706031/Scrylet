@@ -309,3 +309,37 @@ async function refresh() {
 }
 refresh();
 setInterval(refresh, 2500);
+
+// Navigation only changes the visible workspace; every existing control keeps
+// its original DOM node, draft values, event handler and IPC path.
+const workspaceCopy = {
+  overview: ["连接你的日常", "问题在电脑，答案在手边。", "连接手机，让每一个问题都有清晰的答案。"],
+  capture: ["按你的习惯来", "让截图，成为提问的起点。", "设置顺手的快捷键与鼠标操作，用自己的方式开始对话。"],
+  network: ["保持连接", "让手机，找到这台电脑。", "查看连接码与局域网地址，选择适合当前网络的连接方式。"],
+  activity: ["运行记录", "每一次操作，都有迹可循。", "查看最近的操作与异常，按需管理临时缓存。"],
+};
+function showWorkspace(view) {
+  if (!Object.hasOwn(workspaceCopy, view)) return;
+  for (const button of document.querySelectorAll("[data-view]")) {
+    if (button.dataset.view === view) button.setAttribute("aria-current", "page");
+    else button.removeAttribute("aria-current");
+  }
+  for (const panel of document.querySelectorAll("[data-panel]")) {
+    panel.hidden = panel.dataset.panel !== view;
+    if (!panel.hidden && panel instanceof HTMLDetailsElement) {
+      if (!panel.open) panel.open = true;
+      else if (view === "activity") void loadMaintenance();
+    }
+  }
+  const [kicker, title, description] = workspaceCopy[view];
+  $("view-kicker").textContent = kicker;
+  $("view-title").textContent = title;
+  $("view-description").textContent = description;
+  $("desktop-main").scrollTop = 0;
+}
+for (const button of document.querySelectorAll("[data-view]"))
+  button.addEventListener("click", () => showWorkspace(button.dataset.view));
+document.querySelector("a.brand").addEventListener("click", (event) => {
+  event.preventDefault();
+  showWorkspace("overview");
+});

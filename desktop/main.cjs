@@ -1,3 +1,8 @@
+const startupStartedAt = require("node:perf_hooks").performance.now();
+const { StartupMetrics } = require("./startup-metrics.cjs");
+const startup = new StartupMetrics({ startedAt: startupStartedAt,
+  enabled: process.env.SNAP_STARTUP_METRICS === "1" && Boolean(process.env.SNAP_DATA_DIR) });
+startup.mark("app-start");
 const {
   app,
   BrowserWindow,
@@ -11,13 +16,13 @@ const {
 const electron = require("electron");
 const path = require("node:path");
 const { pathToFileURL } = require("node:url");
-const { Runtime } = require("./runtime.cjs");
+const { Runtime, runtimeDefault } = require("./runtime.cjs");
 const { Gateway } = require("./gateway.cjs");
 const { createNative } = require("./native.cjs");
 const { CaptureControls } = require("./capture-controls.cjs");
 const { ActivityLog, reasonFor } = require("./activity-log.cjs");
 const { Maintenance } = require("./maintenance.cjs");
-const { NAME, APP_ID, dataDirectory } = require("./brand.cjs");
+const { NAME, APP_ID, dataDirectory, migrationSource } = require("./brand.cjs");
 const ROOT = path.resolve(__dirname, "..");
 const page = path.join(__dirname, "ui/index.html");
 let window,
@@ -32,34 +37,70 @@ let window,
 
 app.setName(NAME);
 if (process.platform === "win32") app.setAppUserModelId(APP_ID);
-app.setPath("userData", dataDirectory(app.getPath("appData"), process.env.SNAP_DATA_DIR));
-if (!app.requestSingleInstanceLock()) {
-  app.quit();
+// Electron's Windows Known Folder lookup can ignore redirected APPDATA.
+// Honor the explicit Windows profile path before discovery or writer startup.
+if (process.platform === "win32" && path.isAbsolute(process.env.APPDATA || ""))
+  app.setPath("appData", path.resolve(process.env.APPDATA));
+const selectedEngine = runtimeDefault();
+if (process.env.SNAP_RUNTIME_ENGINE && process.env.SNAP_RUNTIME_ENGINE !== selectedEngine)
+  throw new Error("此版本仅支持 Node 聊天服务");
+const exportIndex = process.argv.indexOf("--scrylet-export-legacy");
+if (exportIndex >= 0) {
+  const output = process.argv[exportIndex + 1];
+  const isolatedExport = selectedEngine === "node" && process.env.SNAP_DATA_DIR && path.isAbsolute(process.env.SNAP_DATA_DIR);
+  if (!isolatedExport || !output || !path.isAbsolute(output) || process.argv.lastIndexOf("--scrylet-export-legacy") !== exportIndex) app.exit(2);
+  else {
+    app.setPath("userData", process.env.SNAP_DATA_DIR);
+    if (!app.requestSingleInstanceLock()) app.exit(2);
+    else app.whenReady().then(() => require("./migration.cjs").rollbackLegacy(process.env.SNAP_DATA_DIR, output, electron.safeStorage))
+      .then(report => { process.stdout.write(JSON.stringify(report) + "\n"); app.exit(0); })
+      .catch(() => { process.stderr.write("旧版副本未完成，原数据保持不变；请先退出正在使用该数据的应用并检查迁移记录。\n"); app.exit(1); });
+  }
 } else {
-  app.on("second-instance", () => {
-    window?.show();
-    window?.focus();
-  });
-  app
-    .whenReady()
-    .then(start)
-    .catch((error) => {
-      activity?.record("runtime.failed", { reason: reasonFor(error) });
-      dialog.showErrorBox("无法启动 " + NAME, error.message);
-      app.quit();
+  // Normal source and installed launches use Scrylet userData. Tests redirect
+  // APPDATA or explicitly set SNAP_DATA_DIR; no real database is needed here.
+  app.setPath("userData", dataDirectory(app.getPath("appData"), process.env.SNAP_DATA_DIR, selectedEngine));
+  if (!app.requestSingleInstanceLock()) {
+    app.quit();
+  } else {
+    app.on("second-instance", () => {
+      window?.show();
+      window?.focus();
     });
+    app
+      .whenReady()
+      .then(start)
+      .catch((error) => {
+        activity?.record("runtime.failed", { reason: reasonFor(error) });
+        dialog.showErrorBox("无法启动 " + NAME, error.message);
+        app.quit();
+      });
+  }
 }
 
 async function start() {
+  let migrationProgress;
+  const legacySource = selectedEngine === "node"
+    ? migrationSource(app.getPath("appData"), process.env.SNAP_DATA_DIR, process.env.SNAP_MIGRATION_SOURCE)
+    : null;
+  if (legacySource) {
+    migrationProgress = await require("./migration-window.cjs").migrationWindow(electron);
+    try { await require("./migration.cjs").migrateLegacy(legacySource, app.getPath("userData"), electron.safeStorage, { onProgress: value => migrationProgress.update(value) }); }
+    catch (error) { migrationProgress.close(); throw error; }
+  }
   activity = new ActivityLog(app.getPath("userData"));
   activity.record("app.started");
   const native = createNative(electron);
   runtime = new Runtime(app.getPath("userData"), {
+    bootstrapSources: true,
+    legacySource,
+    onStartupPhase: (phase) => startup.mark(phase),
     legacyDirectory:
       process.env.SNAP_LEGACY_DIR || path.join(ROOT, ".snapsolver"),
   });
   gateway = new Gateway(app.getPath("userData"), native, runtime, { activity });
   await gateway.start(Number(process.env.SNAP_PORT || 0));
+  startup.mark("gateway-listening");
   captureControls = new CaptureControls(electron, app.getPath("userData"), {
     native, gateway, runtime, activity, getWindow: () => window,
     legacyDirectory: process.env.SNAP_LEGACY_DIR || path.join(ROOT, ".snapsolver"),
@@ -81,6 +122,10 @@ async function start() {
     capture: captureControls.snapshot(),
   });
   handle("snap:state", connectionState);
+  if (startup.enabled) {
+    handle("snap:startup-metrics", () => startup.snapshot());
+    handle("snap:startup-observed", (phase) => startup.observe(phase));
+  }
   handle("snap:refresh-code", () => {
     gateway.pairing.rotate();
     return connectionState();
@@ -154,6 +199,8 @@ async function start() {
   });
   await window.loadFile(page);
   window.show();
+  migrationProgress?.close();
+  startup.mark("window-visible");
   captureControls.start();
   captureControls.on("change", (state) => {
     if (!window?.isDestroyed()) window?.webContents.send("snap:capture-state", state);
@@ -210,8 +257,9 @@ app.on("before-quit", (event) => {
   quitting = true;
   if (shutDown) return;
   event.preventDefault();
-  captureControls?.close();
-  Promise.allSettled([runtime?.stop(), gateway?.close()]).then(() => {
+  const inputStopped = captureControls?.close();
+  if (gateway) gateway.closing = true;
+  Promise.allSettled([inputStopped, runtime?.stop()]).finally(() => gateway?.close()).catch(() => {}).then(() => {
     activity?.record("app.stopped");
     shutDown = true;
     tray?.destroy();

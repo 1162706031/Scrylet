@@ -85,7 +85,7 @@ class CaptureControls extends EventEmitter {
   snapshot() {
     return {
       settings: this.settings, phase: this.phase, busy: this.busy,
-      mouseReady: this.mouseReady, mouseSupported: process.platform === "win32",
+      mouseReady: this.mouseReady, mouseSupported: process.platform === "win32" && process.arch === "x64",
       receiver: this.gateway.delivery.status(), message: this.message, error: this.error,
     };
   }
@@ -103,7 +103,7 @@ class CaptureControls extends EventEmitter {
   }
   arm() {
     this.ensureReady();
-    if (process.platform !== "win32") throw new Error("电脑鼠标区域截图目前支持 Windows；其他系统可使用手机框选");
+    if (process.platform !== "win32" || process.arch !== "x64") throw new Error("电脑鼠标区域截图目前支持 Windows x64；其他系统或架构可使用手机框选");
     this.gesture.arm();
     if (!this.settings.mouseEnabled && !this.mouseReady) this.mouse.start(this.settings.mouseButton);
     const window = this.getWindow();
@@ -212,9 +212,10 @@ class CaptureControls extends EventEmitter {
   }
   close() {
     this.gesture?.cancel();
-    this.mouse.stop();
+    const stopped = this.mouse.stop();
     for (const key of this.registered) this.electron.globalShortcut.unregister(key);
     this.electron.globalShortcut.setSuspended(false);
+    return stopped;
   }
 }
 

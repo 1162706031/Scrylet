@@ -7,7 +7,7 @@ async function checkConnection(resume = false) {
   try {
     const response = await fetch("/snap/api/status", { signal: AbortSignal.timeout(10000) });
     if (response.status === 401) {
-      location.replace("/snap/pair");
+      location.replace("/snap/pair?returnTo=" + encodeURIComponent(location.pathname));
       return;
     }
     if (!response.ok) throw new Error("connection");

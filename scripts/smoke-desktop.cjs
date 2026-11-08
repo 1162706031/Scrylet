@@ -17,6 +17,8 @@ const root = path.resolve(__dirname, "..");
     SNAP_LEGACY_DIR: path.join(directory, "no-legacy"),
   };
   for (const provider of catalog.providers) env[provider.envKey] = "";
+  delete env.SNAP_RUNTIME_ENGINE;
+  delete env.SNAP_MIGRATION_SOURCE;
   const app = await electron.launch({ args: [root], env });
   try {
     const page = await app.firstWindow();
@@ -56,11 +58,21 @@ const root = path.resolve(__dirname, "..");
       window.close();
       return { visible: window.isVisible(), destroyed: window.isDestroyed() };
     });
+    const engine = await app.evaluate(({ app }) => {
+      const load = process.getBuiltinModule("module").createRequire(app.getAppPath() + "/package.json");
+      return {
+        selected: load("./package.json").scryletRuntimeDefault,
+        override: process.env.SNAP_RUNTIME_ENGINE,
+        legacyLoaded: Object.keys(load.cache).some(file => /legacy-(?:runtime|gateway|paths)\.cjs$/.test(file)),
+      };
+    });
+    expect(engine).toEqual({ selected: "node", override: undefined, legacyLoaded: false });
     expect(closeToTray).toEqual({ visible: false, destroyed: false });
     const report = {
       at: new Date().toISOString(),
       platform: process.platform,
       ready: state.ready,
+      defaultEngine: engine,
       permission: state.permission,
       capture,
       closeToTray,

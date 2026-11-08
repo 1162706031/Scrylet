@@ -1,0 +1,496 @@
+{
+  "upstream": "0.12.2",
+  "alembic": "0bd252b206fb",
+  "tables": {
+    "chat": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "VARCHAR",
+          "pk": 1,
+          "notnull": 1
+        },
+        {
+          "name": "user_id",
+          "type": "VARCHAR",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "title",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "share_id",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "archived",
+          "type": "BOOLEAN",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "chat",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "pinned",
+          "type": "BOOLEAN",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "meta",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 1
+        },
+        {
+          "name": "folder_id",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "tasks",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "summary",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "last_read_at",
+          "type": "BIGINT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "current_message_id",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "variables",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "timer_at",
+          "type": "BIGINT",
+          "pk": 0,
+          "notnull": 0
+        }
+      ]
+    },
+    "chat_message": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "pk": 1,
+          "notnull": 1
+        },
+        {
+          "name": "chat_id",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "role",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 1
+        },
+        {
+          "name": "parent_id",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "content",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "output",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "model_id",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "files",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "sources",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "embeds",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "done",
+          "type": "BOOLEAN",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "status_history",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "error",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "usage",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "context_summary",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "meta",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 0
+        }
+      ]
+    },
+    "chat_file": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "pk": 1,
+          "notnull": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 1
+        },
+        {
+          "name": "chat_id",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 1
+        },
+        {
+          "name": "file_id",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 1
+        },
+        {
+          "name": "message_id",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT",
+          "pk": 0,
+          "notnull": 1
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT",
+          "pk": 0,
+          "notnull": 1
+        }
+      ]
+    },
+    "file": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "VARCHAR",
+          "pk": 1,
+          "notnull": 1
+        },
+        {
+          "name": "user_id",
+          "type": "VARCHAR",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "filename",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "meta",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "hash",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "data",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "path",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        }
+      ]
+    },
+    "config": {
+      "columns": [
+        {
+          "name": "key",
+          "type": "TEXT",
+          "pk": 1,
+          "notnull": 1
+        },
+        {
+          "name": "value",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 1
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT",
+          "pk": 0,
+          "notnull": 0
+        }
+      ]
+    },
+    "model": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "pk": 1,
+          "notnull": 1
+        },
+        {
+          "name": "user_id",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "base_model_id",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "params",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "meta",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "pk": 0,
+          "notnull": 1
+        },
+        {
+          "name": "version_id",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        }
+      ]
+    },
+    "prompt": {
+      "columns": [
+        {
+          "name": "id",
+          "type": "TEXT",
+          "pk": 1,
+          "notnull": 1
+        },
+        {
+          "name": "command",
+          "type": "VARCHAR",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "user_id",
+          "type": "VARCHAR",
+          "pk": 0,
+          "notnull": 1
+        },
+        {
+          "name": "name",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 1
+        },
+        {
+          "name": "content",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 1
+        },
+        {
+          "name": "data",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "meta",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "is_active",
+          "type": "BOOLEAN",
+          "pk": 0,
+          "notnull": 1
+        },
+        {
+          "name": "version_id",
+          "type": "TEXT",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "tags",
+          "type": "JSON",
+          "pk": 0,
+          "notnull": 0
+        },
+        {
+          "name": "created_at",
+          "type": "BIGINT",
+          "pk": 0,
+          "notnull": 1
+        },
+        {
+          "name": "updated_at",
+          "type": "BIGINT",
+          "pk": 0,
+          "notnull": 1
+        }
+      ]
+    }
+  }
+}

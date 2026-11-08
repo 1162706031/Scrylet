@@ -1,8 +1,16 @@
 # Scrylet：Electron + 轻量 Node 服务重构方案
 
-初稿：2026-11-06；实施交接与 macOS 安装包补充：2026-11-07。基线版本：`2.0.0-dev.6`。状态：设计方案，尚未实施。
+> 2026-11-09 本轮收尾：用户确认 M0 保留矩阵已测，明确授权移除旧依赖，并暂缓 Mac 实机测试、缩减重复测试。当前源码仅支持 Node，旧源码和原断言归档，正常 Windows 安装入口与 Mac 两架构 ZIP 构建已接通。实际产物、检查结果和边界以 [M5 收尾记录](node-service-finalization.md) 为准；下文保留此前分轮证据，不将未测门槛改为通过。
+
+初稿：2026-11-06；实施开始：2026-11-07；进度更新：2026-11-09。基线版本：`2.0.0-dev.6`。M0.3 Windows utilityProcess / SQLite / SDK / strict 构建 / 仓库外实际 ASAR 已通过；M0.2 的 5 次真实系统重启按用户选择保留未测，先继续技术验证。M0.4 旧格式 / 草稿 / 图片 / 配置夹具与双协议矩阵、M0.5 contracts 初稿和规则复核已完成，M1.1～M1.5 的 Windows Node 后端与隔离测试 ASAR 已通过，见 [M1 记录](node-service-m1.md)；M2.1～M2.5 的手机页实施与验收见 [M2 记录](node-service-m2.md)，默认仍为 legacy。证据与限制见 [兼容实验](node-service-compatibility.md)、[启动测量](node-service-startup.md) 和 [实施进度](node-service-implementation.md#12-当前进度与可复制任务模板)。
 
 > 新 agent 从这里开始：本文件定义“保留什么、为什么改和何时算完成”；[逐文件实施手册](node-service-implementation.md) 定义“先读什么、改哪些函数、接口和数据如何衔接、逐阶段怎么验证”。接到实施任务时两份都要读，不能只按技术栈表直接重写。
+
+M3.1～M3.4 更新：Windows 预编译 Rust observer、独立测试输入驱动、源码 / 解包截图与生命周期已验；Mac 两架构构建 / 图标 / 安装审计代码已落地，但没有真实 Mac，不计包生成、安装或 Keychain 通过。证据见 [M3](node-service-m3.md) / [机器汇总](../artifacts/node-service-m3-check.json)。M4 后续进度见下段，默认和旧资源继续保留；未测多屏 / 锁屏与物理设备范围没有因单屏通过而取消。
+
+M4 更新：只读一致快照、阶段恢复、旧文件映射、浏览器草稿与新增数据后回退已实现；Windows 迁移 33 组、两引擎升级 4 项和实际隔离 NSIS 安装 8 组通过。正式 Windows 生产 GUID 升级及 Mac 两架构真实包 / 安装 / Keychain 尚未验收；下一项 M4.4 / M4.5，不能切换默认或删除旧资源。见 [M4 逐卡记录](node-service-m4.md) / [机器汇总](../artifacts/node-service-m4-check.json)。
+
+M5 更新：2026-11-09 源码 `npm start` 与 Windows Node-only 候选均默认选择 Node，普通旧库自动只读迁移到独立新目录；显式 `start:legacy` 保留固定对照。构建 / 默认测试 / 包体 / 常规启动测量已接新链路，候选包不依赖 Python / Open WebUI。生产 GUID、Mac 两架构、实体手机、真实系统冷启动及最终双平台验收仍未通过，不删除仓库旧对照资源。逐卡结果、实测范围和发布阻断项见 [M5](node-service-m5.md)。
 
 ## 1. 目标与实施前提
 
@@ -10,7 +18,7 @@
 
 **完整保留当前用户可用的功能、数据与操作语义，是切换运行层的前提。不得用精简功能、清空历史、要求重新配置密钥或放宽自动发送限制换取体积与启动速度。**
 
-本轮只编写方案，不改变当前运行方式、依赖、数据、安装包或仓库规则。[AGENTS.md](../AGENTS.md) 中固定复用 Open WebUI、使用现有聊天框的约束继续适用于现有代码。开始替换实现时，要同步调整这些架构条款以及 [产品规格](../spec.md)、[架构说明](architecture.md) 和开发命令；继续保留单一聊天状态、窄 IPC、静默截图、模拟模型测试与数据保护要求。
+已收到开始实施指令，[AGENTS.md](../AGENTS.md)、[产品规格](../spec.md) 与 [架构说明](architecture.md) 已同步过渡期规则。固定上游 / 原生聊天框要求只适用于仍保留的 legacy 适配器；新实现遵守本文的 Node 服务与 React 单一 composer 边界。默认运行层、依赖删除和安装包切换仍由后续验收门槛控制，继续保留单一聊天状态、窄 IPC、静默截图、模拟模型测试与数据保护要求。
 
 ### 1.1 功能基线的认定
 
@@ -58,7 +66,7 @@
 
 压缩实验使用现有产物排除 `resources/python/`，保留其他文件，用 7-Zip 16.04、7z、级别 9、BCJ、1 MiB 字典和非固实压缩生成临时归档，完成后删除。参数接近当前 NSIS 载荷打包方式，但压缩器版本和最终安装器封装不完全相同，不能把它当作新版 exe 的测量结果。
 
-用户反馈本地服务启动约 10 秒；目前还没有在该设备上记录各阶段耗时。当前 [Runtime.start](../desktop/runtime.cjs) 包含 Python 进程启动、Open WebUI 加载、健康检查、本地登录、产品配置与界面偏好同步、工作区初始化；这些是需要分阶段测量的候选耗时，不能直接把 10 秒全部归因于 Python 导入。
+用户反馈本地服务启动约 10 秒。M0.2 已在该 Windows 设备用隔离源码应用完成一次初始化及 10 次完整退出启动：从主进程入口到服务 ready 中位数 5,651.211ms，手机交互 7,286.320ms，实际会话 / 草稿 / mock 请求核对完成 8,007.293ms；5 次系统重启首启仍为未测，见 [完整口径与证据](node-service-startup.md)。[Runtime.start](../desktop/runtime.cjs) 的 spawn → 健康接口观察区间中位数 5,124.408ms，包含 Python、Open WebUI、存储 / HTTP 初始化和健康轮询，不能全部归因于 Python 导入。这不是安装版或新版 Node 性能。
 
 ### 2.2 工程目标，均尚未达到实测验收
 
@@ -153,7 +161,7 @@ F21 必须在 M0 用隔离旧版逐一核对会话搜索、重命名、删除、
 | 聊天与模型协议 | AI SDK Core / UI 与必要的提供商适配器 | 复用 SDK 的流、消息与聊天状态；产品代码只负责鉴权、持久化、分支、幂等和业务限制 |
 | 本机存储 | SQLite + userData 内附件目录，使用显式 SQL 与版本化迁移 | 优先验证 Electron 内置 Node 的 `node:sqlite`；不直接假定本机开发 Node 与打包 Node 一致 |
 | 图片 / 文本展示 | 复用 Cropper.js、设计 tokens、现有图片交互与声音处理逻辑；补齐 Markdown / 数学公式渲染组件 | 裁剪和展示库按需加载；资源全部本地提供，代码块不执行，富文本过滤危险内容 |
-| 全局鼠标监听 | Rust 编译的原生辅助程序，通过 JSON Lines 与 Node 通信 | Windows 先完整替换现有 Python；macOS 实现独立适配，不共享 Windows 二进制 |
+| 全局鼠标监听 | Rust 编译的原生辅助程序，通过 JSON Lines 与 Node 通信 | Windows 已替换 Python 事件来源；Mac 当前 capability=false，未来如增加须独立适配，不共享 Windows 二进制 |
 
 `utilityProcess` 提供带 Node 与消息端口的子进程入口，具体能力与生命周期以当前固定 Electron 版本验证为准。[Electron 文档](https://www.electronjs.org/docs/latest/api/utility-process)
 
@@ -300,14 +308,14 @@ Mac 两架构的实际安装、升级、权限、LAN 配对、静默截图、数
 
 ## 6. 完全去除 Python 的原生输入迁移
 
-`desktop/mouse-input.py` 目前读取 Windows 按钮和指针状态，输出 `ready / down / move / up / cancel`，长按和选区规则位于 JS 模块中。因此只替换事件来源，不重新实现一套手势逻辑。
+M3 已将 Windows 事件来源替换为 `native/input-observer/` 的预编译 Rust 程序；原 `desktop/mouse-input.py` 仅保留隔离对照资源，正式监听不再调用它。`ready / down / move / up / cancel` 走 v1 JSON Lines，长按和选区规则继续位于 JS 模块，不重新实现另一套手势逻辑。实际证据与未测范围见 [M3 记录](node-service-m3.md)。
 
-统一的原生程序启动参数包含协议版本、鼠标按键和父进程标识；标准输出只发送有版本约束的 JSON Lines，诊断不混入事件。Node 校验事件类型、坐标和消息长度；收到 `ready` 才标记监听可用。stdin 关闭、父进程消失或正常退出时程序及时结束。
+统一的原生程序启动参数包含鼠标按键和父进程标识，协议版本在 ready / 每条事件中固定为 1；标准输出只发送有版本约束的 JSON Lines，诊断不混入事件。Node 校验事件类型、坐标和消息长度；收到 `ready` 才标记监听可用。stdin 关闭、父进程消失或正常退出时程序及时结束。
 
 | 平台 | 方案 | 验收边界 |
 | --- | --- | --- |
 | Windows x64 | Rust 调用 Win32，优先保持现有按钮状态读取方式和事件顺序；不拦截、吞掉或模拟用户原始点击 | 原有两个角长按、全部按钮、双击、拖动取消、超时、Esc、150% 缩放、负坐标与异常退出均必须回归 |
-| macOS arm64 / x64 | 同一协议、分别编译；如增加全局长按，使用平台鼠标事件监听适配 | 现有截图 / 快捷键 / 托盘必须保留；全局长按是新增兼容能力，未实现或未授权时明确不可用，不能宣称已通过 |
+| macOS arm64 / x64 | 当前 capability=false，不生成或引用 helper；如未来增加全局长按，按同一协议做独立平台适配和两架构预编译 | 现有截图 / 快捷键 / 托盘必须保留且仍待实机验收；全局长按未实现，不能宣称已通过 |
 
 Mac 截图仍需系统屏幕录制授权；新增监听应根据所选接口处理相应授权并提供状态，不假定 Windows 的权限行为适用于 Mac。[Electron 截图说明](https://www.electronjs.org/docs/latest/api/desktop-capturer)、[Apple 事件接口](https://developer.apple.com/documentation/coregraphics/cgevent)
 

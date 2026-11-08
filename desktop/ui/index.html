@@ -9,23 +9,30 @@
     <script defer src="app.js"></script>
   </head>
   <body>
-    <aside class="computer-panel">
-      <div class="brand">
-        <span class="brand-mark"><img src="../../web/brand/icon.svg" width="32" height="32" alt="" /></span>
-        <span>Scrylet</span>
-      </div>
+    <aside class="computer-panel" aria-label="桌面导航与快捷操作">
+      <a class="brand" href="#overview" aria-label="Scrylet 连接概览">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2.5c.7 5.8 3.7 8.8 9.5 9.5-5.8.7-8.8 3.7-9.5 9.5-.7-5.8-3.7-8.8-9.5-9.5 5.8-.7 8.8-3.7 9.5-9.5Z"/></svg></span>
+        <span>Scrylet<small>你的桌面 AI 搭档</small></span>
+      </a>
+      <nav class="desktop-nav" aria-label="工作区">
+        <span class="sidebar-label">工作区</span>
+        <button type="button" data-view="overview" aria-controls="overview-panel" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="12" height="14" rx="2"/><rect x="13" y="10" width="7" height="11" rx="1.5"/><path d="M7 21h3m-1-4v4"/></svg><span>连接概览</span></button>
+        <button type="button" data-view="capture" aria-controls="capture-panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M8 12h8m-4-4v8"/></svg><span>截图操作</span></button>
+        <button type="button" data-view="network" aria-controls="network-panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a15 15 0 0 1 18 0M6 12a10 10 0 0 1 12 0m-9 4a5 5 0 0 1 6 0"/><circle cx="12" cy="20" r="1"/></svg><span>网络设置</span></button>
+        <button type="button" data-view="activity" aria-controls="maintenance"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6m-6 5h6m-6 5h4"/></svg><span>操作日志</span></button>
+      </nav>
+        <section class="capture-card sidebar-capture" aria-label="电脑截图">
+          <h2 class="sidebar-label">快捷操作</h2>
+          <div class="capture-actions">
+            <button id="capture-send" class="primary-button" disabled><span><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2"/><path d="M8 21h8m-4-4v4"/></svg>截屏并发送</span><kbd id="full-shortcut">Ctrl+Alt+S</kbd></button>
+            <button id="capture-region" class="secondary-button" disabled><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3v15a2 2 0 0 0 2 2h13M3 6h15a2 2 0 0 1 2 2v13"/></svg>区域截屏</span><kbd id="region-shortcut">Ctrl+Alt+A</kbd></button>
+            <button id="capture-cancel" class="text-button" hidden>取消选区</button>
+          </div>
+          <p id="capture-target" class="capture-target" hidden>请在手机保持聊天页面打开</p>
+          <p id="capture-notice" class="capture-notice" role="status" aria-live="polite" hidden></p>
+        </section>
       <div class="host-overview">
-        <div class="host-visual" aria-hidden="true">
-          <svg viewBox="0 0 200 160">
-            <rect x="16" y="16" width="168" height="112" rx="10" fill="white" stroke="#b8c6dd"/>
-            <rect x="23" y="23" width="154" height="96" rx="5" fill="#eaf0fc" stroke="none"/>
-            <path d="M85 129v12h30v-12m-48 14h66" stroke="#a9b9d4" stroke-width="2"/>
-            <path d="M49 48h-9v9m111-9h9v9M40 88v9h9m111-9v9h-9" stroke="#2764e7" stroke-width="2"/>
-            <path d="M67 85h62L67 48z" fill="#d2e1ff" stroke="#779fe9"/>
-            <path d="M67 76h9v9" stroke="#779fe9"/>
-          </svg>
-        </div>
-        <h2>这台电脑</h2>
+        <h2 class="sidebar-label">这台电脑</h2>
         <span id="service-status" class="pill" role="status">正在启动</span>
         <div class="permission-card">
           <div class="permission-status"><span id="permission-icon" class="permission-icon" aria-hidden="true">…</span><span id="permission-title">检查屏幕权限</span></div>
@@ -33,21 +40,12 @@
         </div>
         <p id="permission-hint" class="permission-hint"></p>
       </div>
-      <div class="host-footer"><span class="background-icon" aria-hidden="true">↳</span><span id="background-note">关闭窗口后继续运行</span></div>
+      <div class="host-footer"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 5v9a3 3 0 0 0 3 3h11m-4-4 4 4-4 4"/></svg><span id="background-note">关闭窗口后继续运行</span></div>
     </aside>
     <div class="main-panel">
-      <main>
-        <header class="page-heading"><span class="eyebrow">你的桌面解题助手</span><h1>问题在电脑，答案在手边。</h1><p>连接手机，随时截取屏幕上的问题。</p></header>
-        <section class="capture-card" aria-label="电脑截图">
-          <div class="capture-heading"><span class="section-icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M8 12h8m-4-4v8" /></svg></span><div><h2>截取问题，直接提问</h2><p>截图与默认提示词一起发送到手机对话</p></div></div>
-          <div class="capture-actions">
-            <button id="capture-send" class="primary-button" disabled><span>截屏并发送</span><kbd id="full-shortcut">Ctrl+Alt+S</kbd></button>
-            <button id="capture-region" class="secondary-button" disabled><span>区域截屏</span><kbd id="region-shortcut">Ctrl+Alt+A</kbd></button>
-            <button id="capture-cancel" class="text-button" hidden>取消选区</button>
-          </div>
-          <p id="capture-target" class="capture-target" hidden>请在手机保持聊天页面打开</p>
-          <p id="capture-notice" class="capture-notice" role="status" aria-live="polite" hidden></p>
-        </section>
+      <main id="desktop-main">
+        <header class="page-heading"><span class="eyebrow" id="view-kicker">连接你的日常</span><h1 id="view-title">问题在电脑，答案在手边。</h1><p id="view-description">连接手机，让每一个问题都有清晰的答案。</p></header>
+        <section id="overview-panel" data-panel="overview" aria-label="连接概览">
         <section class="pair-section" aria-label="连接手机">
           <div class="qr-frame"><img id="qr" alt="用手机相机扫描连接" width="224" height="224" /><div id="qr-cover">准备中…</div></div>
           <div class="pair-instructions"><span class="eyebrow">连接手机</span><h2>扫一扫，把答案带到手机</h2>
@@ -60,17 +58,19 @@
           <div class="section-heading"><h2>已配对设备</h2><span id="device-count">0 台</span></div>
           <div id="devices"><p class="empty">等待手机连接</p></div>
         </section>
-        <div id="notice" role="status" aria-live="polite"></div>
-        <details class="capture-settings">
-          <summary><span>截图操作与默认提示词<small>快捷键、鼠标操作与提问方式</small></span></summary>
+        </section>
+        <details class="capture-settings workspace-panel" id="capture-panel" data-panel="capture" hidden>
+          <summary><span>截图操作与默认提示词<small>快捷键、鼠标操作与提问方式</small></span><span class="collapse-label">展开 / 收起</span></summary>
           <form id="capture-settings-form">
             <p class="setting-help">截图始终静默：不播放声音、不显示选区或结果提示，也不自动弹出窗口。异常可在操作日志中查看。</p>
+            <h3 class="settings-section-title">键盘快捷键</h3>
             <div class="settings-grid">
               <label>全屏截图快捷键<input id="setting-full" class="shortcut-input" autocomplete="off" readonly aria-label="全屏截图快捷键" /></label>
               <label>区域截图快捷键<input id="setting-region" class="shortcut-input" autocomplete="off" readonly aria-label="区域截图快捷键" /></label>
               <label>取消选区快捷键<input id="setting-cancel" class="shortcut-input" autocomplete="off" readonly aria-label="取消选区快捷键" /></label>
             </div>
             <p class="setting-help">点击快捷键输入框，再按下想使用的组合键。取消键只在选区时生效。</p>
+            <h3 class="settings-section-title">鼠标操作</h3>
             <label class="check-row"><input id="setting-mouse-enabled" type="checkbox" />启用全局鼠标操作（Windows）</label>
             <div class="settings-grid">
               <label>鼠标触发按键<select id="setting-mouse-button"><option value="left">左键</option><option value="right">右键</option><option value="middle">中键</option><option value="x1">侧键 1</option><option value="x2">侧键 2</option></select></label>
@@ -83,7 +83,7 @@
             <div class="settings-footer"><span>已有手机草稿或回答生成中时，暂不自动发送。</span><button id="save-capture-settings" type="submit" class="primary-button">保存设置</button></div>
           </form>
         </details>
-        <details class="connection-settings">
+        <details class="connection-settings workspace-panel" id="network-panel" data-panel="network" hidden>
           <summary><span>手动连接与网络设置<small>连接码、局域网地址与网络切换</small></span></summary>
           <div class="manual-grid">
             <div class="manual-address"><label>在手机浏览器打开</label><div class="address-row"><code id="address"></code><button id="copy" class="text-button">复制</button></div></div>
@@ -92,19 +92,20 @@
           </div>
           <p>手机连不上时，可换用个人热点。Windows 防火墙请选择允许专用网络。</p>
         </details>
-        <details id="maintenance" class="maintenance-panel">
-          <summary><span>操作日志与缓存<small>查看运行记录，管理临时缓存</small></span></summary>
+        <details id="maintenance" class="maintenance-panel workspace-panel" data-panel="activity" hidden>
+          <summary><span>操作日志与缓存<small>查看运行记录，管理临时缓存</small></span><span class="collapse-label">展开 / 收起</span></summary>
+          <div class="log-toolbar"><h2>操作日志</h2><select id="log-level" aria-label="筛选操作日志"><option value="all">全部操作</option><option value="errors">仅异常</option></select><button id="refresh-logs" class="text-button">刷新日志</button></div>
+          <p class="setting-help">最近 200 条，按时间倒序。本机轮换保存，不记录密钥、提示词、图片或聊天正文。</p>
+          <div id="activity-log" class="activity-log" aria-label="操作日志列表"><p class="empty">暂无操作记录</p></div>
           <div class="maintenance-cache">
             <div><h2>临时缓存</h2><p id="cache-size">正在读取…</p></div>
             <button id="clear-cache" class="secondary-button">清除缓存</button>
           </div>
           <p class="setting-help">仅清理页面与代码缓存，保留聊天、图片附件、密钥、配对、设置和操作日志。</p>
           <div id="maintenance-status" role="status" aria-live="polite"></div>
-          <div class="log-toolbar"><h2>操作日志</h2><select id="log-level" aria-label="筛选操作日志"><option value="all">全部操作</option><option value="errors">仅异常</option></select><button id="refresh-logs" class="text-button">刷新日志</button></div>
-          <p class="setting-help">最近 200 条，按时间倒序。本机轮换保存，不记录密钥、提示词、图片或聊天正文。</p>
-          <div id="activity-log" class="activity-log" aria-label="操作日志列表"><p class="empty">暂无操作记录</p></div>
         </details>
       </main>
+      <div id="notice" role="status" aria-live="polite"></div>
       <footer><button id="preview" class="text-button">预览手机端</button><div><button id="pause" class="text-button">暂停手机访问</button><button id="quit" class="text-button" title="退出 Scrylet" aria-label="退出 Scrylet">退出</button></div></footer>
     </div>
   </body>

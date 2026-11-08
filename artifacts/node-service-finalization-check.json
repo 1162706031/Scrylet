@@ -1,0 +1,125 @@
+{
+  "date": "2026-11-09",
+  "version": "2.0.0-dev.7",
+  "status": "engineering-retirement-and-local-packages-complete",
+  "userScope": {
+    "M0Matrix": "accepted as previously tested by user",
+    "macDeviceTests": "deferred by user",
+    "repeatedFullSuites": "not run"
+  },
+  "checks": {
+    "syntaxCatalogAndStrictTypes": "passed",
+    "offlineTests": {
+      "passed": 154,
+      "failed": 0,
+      "skipped": 0
+    },
+    "migration": {
+      "passed": 32,
+      "evidence": "artifacts/node-service-finalization-migration.json",
+      "sourceFixture": "frozen 0.12.2 business schema/content plus synthetic user; no Python"
+    },
+    "sourceDefaultMigration": "passed",
+    "unpackedWindowsDefaultMigrationAndRestart": "passed",
+    "buildResourceAudits": {
+      "windows": {
+        "evidence": "artifacts/node-service-finalization-windows-build.json",
+        "audit": "package-resources",
+        "installation": "unverified"
+      },
+      "macArm64": {
+        "evidence": "artifacts/node-service-finalization-macArm64-build.json",
+        "audit": "structure-only; target OS execution unverified",
+        "installation": "unverified"
+      },
+      "macX64": {
+        "evidence": "artifacts/node-service-finalization-macX64-build.json",
+        "audit": "structure-only; target OS execution unverified",
+        "installation": "unverified"
+      }
+    },
+    "externalModelRequests": 0,
+    "macArchiveIntegrity": [
+      {
+        "arch": "arm64",
+        "archiveCrc": "passed",
+        "mainExecutablePermission": true,
+        "symbolicLinks": 14,
+        "entries": 585
+      },
+      {
+        "arch": "x64",
+        "archiveCrc": "passed",
+        "mainExecutablePermission": true,
+        "symbolicLinks": 14,
+        "entries": 585
+      }
+    ],
+    "removedSubmissionContractRegression": "passed; HTTP 410 with validated PROTOCOL_MISMATCH and no replay"
+  },
+  "cleanup": {
+    "runtimeSourceRemoved": true,
+    "pythonVenvRemoved": true,
+    "pythonStagingLinkRemoved": true,
+    "legacyRuntimeModulesRemoved": true,
+    "httpProxyDependencyRemoved": true,
+    "historicalArtifactsPreserved": true,
+    "sharedUserPythonPreserved": true
+  },
+  "packages": {
+    "version": "2.0.0-dev.7",
+    "status": "built; platform acceptance remains deferred",
+    "artifacts": [
+      {
+        "file": "Scrylet-2.0.0-dev.7-win-x64-Setup.exe",
+        "bytes": 125867931,
+        "MiB": 120.037,
+        "sha256": "7a0f3ade51530546125fe0b16506330158f0fc7b8f41635ce9f6f1783a681875"
+      },
+      {
+        "file": "Scrylet-2.0.0-dev.7-mac-arm64.zip",
+        "bytes": 133169667,
+        "MiB": 127.0,
+        "sha256": "74ae8a6beae20b014cce6c2c2398a88be9d8fbc9cbdd070079c06fdc06c8bde4"
+      },
+      {
+        "file": "Scrylet-2.0.0-dev.7-mac-x64.zip",
+        "bytes": 136908724,
+        "MiB": 130.566,
+        "sha256": "c51646c5d6cbec19d4599b2da96eb8e0e5c8c29b5f25461ce679dbe67f9746a2"
+      }
+    ],
+    "windowsInstallation": "not performed; unpacked app startup/migration verified",
+    "mac": "Linux cross-built ZIP only; DMG, target OS execution, signing and notarization unverified"
+  },
+  "failuresRetained": [
+    {
+      "kind": "legacy unit request no longer matched Node contract",
+      "resolution": "fixture now sends the required displayId; regression passed"
+    },
+    {
+      "kind": "initial default-migration isolation failed: Electron ignored APPDATA and launched using system userData",
+      "resolution": "main honors Windows APPDATA before discovery/write; source and packaged isolated regressions passed; system directory preserved without deletion or rollback"
+    },
+    {
+      "kind": "fixture lacked ancillary legacy table / JSON was already decoded",
+      "resolution": "fixture/readback corrected; migration passed"
+    },
+    {
+      "kind": "fresh in-process fixture had not persisted Windows encryption identity before export",
+      "resolution": "fixture now waits for persisted identity to match stopped-profile export precondition; target and independent snapshot decrypt after restart"
+    }
+  ],
+  "limits": {
+    "windowsProductionIdentityInstallation": "not run; installer generated only",
+    "macDmg": "not generated; requires macOS",
+    "macNativeExecution": "not run",
+    "signingAndNotarization": "Windows unsigned; Mac unverified",
+    "physicalPhonesAndSystemRebootPerformance": "not repeated",
+    "fullReleaseGate": "blocked; no fabricated passes"
+  },
+  "legacySourceArchive": {
+    "file": "docs/archive/legacy-comparison-source.tar.gz",
+    "sha256": "1747f630f5cfb76d9f072fdbad7b01b9b93148258f92dae59f357999bc54f062"
+  }
+}

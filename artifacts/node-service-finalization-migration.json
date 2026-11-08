@@ -1,0 +1,70 @@
+{
+  "status": "passed",
+  "platform": "win32",
+  "arch": "x64",
+  "electron": "44.8.0",
+  "checks": [
+    "full-pinned-legacy-readonly-snapshot-activation",
+    "graph-branches-pointer-image-byte-key-deletion-preserved",
+    "repeat-import-no-reseed",
+    "resume-after-inspected",
+    "resume-after-snapshotted",
+    "resume-after-files",
+    "resume-after-data",
+    "resume-after-validated",
+    "resume-after-activated",
+    "insufficient-space-no-empty-success-resume",
+    "actual-committed-WAL-frames-in-consistent-SQLite-backup",
+    "legacy-custom-model-id-name-capability-and-real-SDK-parameters",
+    "source-target-overlap-refused-before-writing",
+    "unknown-schema-refused-before-target-open",
+    "missing-attachment-blocks-activation",
+    "invalid-provider-config-keeps-source-and-gate",
+    "embedded-normalized-conflict-preserves-two-graphs",
+    "exclusive-source-lease-refuses-writer-and-releases-on-failure",
+    "repeat-import-keeps-new-round-branch-and-deleted-new-key",
+    "rollback-rejects-active-new-writer",
+    "rollback-export-keeps-new-database-and-readable-node-snapshot",
+    "exported-legacy-schema-retains-new-graph-image-and-prompts",
+    "new-draft-retained-in-node-readable-snapshot",
+    "original-source-unmodified-after-entire-roundtrip",
+    "real-process-reopen-OS-secret-target",
+    "real-process-reopen-OS-secret-node-snapshot",
+    "real-process-exit-resume-with-OS-secret-inspected",
+    "real-process-exit-resume-with-OS-secret-snapshotted",
+    "real-process-exit-resume-with-OS-secret-files",
+    "real-process-exit-resume-with-OS-secret-data",
+    "real-process-exit-resume-with-OS-secret-validated",
+    "real-process-exit-resume-with-OS-secret-activated"
+  ],
+  "source": {
+    "chats": 2,
+    "messages": 10,
+    "files": 2
+  },
+  "legacyRuntimeReadback": "not rerun; original assertions and prior evidence retained in archive",
+  "migrated": {
+    "schemaVersion": 1,
+    "status": "activated",
+    "sourceIdentity": "cce7d80263b3b3032e48819349d3088696b0115a43f1fce4a9b5074862d6316b",
+    "snapshotHash": "cbb0d3ecafde04b39ba37cb976c15fe0b507c232305d4e1a3949a1d185a52687",
+    "counts": {
+      "chats": 2,
+      "messages": 10,
+      "files": 2,
+      "prompts": 7,
+      "connections": 6,
+      "conflicts": 0
+    }
+  },
+  "target": "D:\\MyProject\\Snap-Solver\\.test-data\\node-service-m4\\run-87qJDk\\node",
+  "rollbackDirectory": "D:\\MyProject\\Snap-Solver\\.test-data\\node-service-m4\\run-87qJDk\\旧版 回退.副本",
+  "processCrashes": [
+    "inspected",
+    "snapshotted",
+    "files",
+    "data",
+    "validated",
+    "activated"
+  ]
+}

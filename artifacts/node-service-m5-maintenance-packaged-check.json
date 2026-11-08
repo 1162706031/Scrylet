@@ -1,0 +1,19 @@
+{
+  "at": "2026-11-08T15:32:01.741Z",
+  "platform": "win32",
+  "packaged": true,
+  "bundledRuntime": true,
+  "cacheBefore": 529554,
+  "cacheAfter": 4460,
+  "cookiesPreserved": true,
+  "storagePreserved": true,
+  "settingsPreserved": true,
+  "attachmentsPreserved": true,
+  "logsSurviveRestart": true,
+  "logRecords": 11,
+  "nativeCapture": {
+    "width": 2560,
+    "height": 1440
+  },
+  "externalModelRequests": 0
+}

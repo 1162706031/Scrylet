@@ -1,0 +1,7 @@
+Scrylet native input programs: Apache-2.0 (repository LICENSE).
+Built using Rust 1.91.0 (MIT OR Apache-2.0) and its bundled Windows GNU runtime.
+Rust runtime and compiler-builtins: https://github.com/rust-lang/rust/tree/1.91.0
+Windows GNU target uses the Rust-distributed MinGW-w64 support and system DLLs.
+MinGW-w64 runtime licensing: https://www.mingw-w64.org/license/
+The observer only reads input. test-input-driver is a separate development tool
+and must not be included in distributed application resources.

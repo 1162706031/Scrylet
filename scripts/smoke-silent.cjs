@@ -1,10 +1,11 @@
+const { openDesktopSection } = require("./desktop-ui-navigation.cjs");
 // Isolated native capture with a local mock provider. Does not synthesize OS
 // input, so an already-running user's client cannot react to our test gestures.
 const { _electron: electron, chromium, expect } = require("@playwright/test");
 const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
-const { createFixture } = require("../tests/fixture.cjs");
+const { protocolProvider } = require("../tests/fixtures/protocol-provider.cjs");
 const { defaults } = require("../desktop/capture-settings.cjs");
 const root = path.resolve(__dirname, "..");
 
@@ -22,7 +23,7 @@ const root = path.resolve(__dirname, "..");
   fs.writeFileSync(settingsFile, originalSettings);
   let fixture, app, browser, desktop;
   try {
-    fixture = await createFixture(path.join(directory, "mock"));
+    fixture = await protocolProvider();
     const executablePath = process.env.SNAP_TEST_EXECUTABLE;
     app = await electron.launch({ ...(executablePath ? { executablePath, args: [] } : { args: [root] }), env });
     desktop = await app.firstWindow();
@@ -39,8 +40,7 @@ const root = path.resolve(__dirname, "..");
     expect(state.capture.settings.showCaptureHints).toBe(false);
     expect(fs.readFileSync(settingsFile, "utf8")).toBe(originalSettings);
     await expect(desktop.locator("#setting-show-hints")).toHaveCount(0);
-    await desktop.locator(".capture-settings summary").focus();
-    await desktop.locator(".capture-settings summary").press("Enter");
+    await openDesktopSection(desktop, "capture");
     await desktop.locator(".capture-settings").evaluate(element => element.scrollIntoView({ block: "start" }));
     fs.mkdirSync(path.join(root, "artifacts"), { recursive: true });
     await desktop.screenshot({ path: path.join(root, "artifacts/strict-silent-settings.png"), scale: "css" });
@@ -54,7 +54,7 @@ const root = path.resolve(__dirname, "..");
       headers, data: { credential: new URLSearchParams(new URL(state.pairingUrl).hash.slice(1)).get("token"), name: "静默验收手机" },
     })).ok()).toBe(true);
     expect((await phone.request.post(url.origin + "/snap/api/providers/alibaba", {
-      headers, data: { apiKey: "test-only-never-real", baseUrl: fixture.providerUrl },
+      headers, data: { apiKey: "test-only-never-real", baseUrl: fixture.baseURL },
     })).ok()).toBe(true);
     await phone.goto(url.origin);
     await expect(phone.locator("#snap-capture")).toBeEnabled({ timeout: 60000 });

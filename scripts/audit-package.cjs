@@ -1,21 +1,60 @@
-const fs = require("node:fs");
-const path = require("node:path");
-const assert = require("node:assert/strict");
-const asar = require("@electron/asar");
-
-const directory = path.resolve(process.argv[2] || path.join(__dirname, "../dist/win-unpacked"));
-const resources = path.join(directory, "resources");
-const files = asar.listPackage(path.join(resources, "app.asar")).map((file) => file.replace(/\\/g, "/"));
-const forbidden = /\/(?:\.runtime|\.snapsolver|\.test-data|\.git|tests|artifacts|scripts)(?:\/|$)|\/(?:\.env(?:\..*)?|api_keys\.json|api_base_urls\.json|devices\.json|runtime-secret\.json)$|^\/config\/.*\.local\.json$/;
-assert.deepEqual(files.filter((file) => forbidden.test(file) && !file.startsWith("/node_modules/")), []);
-for (const prefix of ["/node_modules/electron-builder/", "/node_modules/@playwright/", "/node_modules/playwright/", "/node_modules/app-builder-lib/"])
-  assert.equal(files.some((file) => file.startsWith(prefix)), false, "Development dependency was bundled: " + prefix);
-for (const file of ["/desktop/main.cjs", "/desktop/brand.cjs", "/web/brand/icon.svg", "/web/brand/icon.png", "/web/brand/trayTemplate.png", "/desktop/activity-log.cjs", "/desktop/maintenance.cjs", "/desktop/silent-audio.cjs", "/desktop/ui/index.html", "/web/extension.js", "/web/quiet.js", "/web/read-aloud.js", "/web/voice-settings.js", "/node_modules/express/package.json"])
-  assert.ok(files.includes(file), "Required application resource missing: " + file);
-for (const file of ["python/python.exe", "python/python312.dll", "python/LICENSE.txt", "python/Lib/site-packages/open_webui-0.12.2.dist-info/licenses/LICENSE", "runtime/launch.py", "runtime/mouse-input.py", "LICENSE.txt", "THIRD_PARTY_NOTICES.md"])
-  assert.ok(fs.existsSync(path.join(resources, file)), "Required runtime or notice missing: " + file);
-assert.equal(fs.existsSync(path.join(resources, "python/pyvenv.cfg")), false);
-const manifest = JSON.parse(fs.readFileSync(path.join(resources, "python/runtime-manifest.json")));
-assert.equal(manifest.openWebUI, "0.12.2");
-assert.ok(manifest.python.startsWith("3.12."));
-console.log(JSON.stringify({ files: files.length, noPrivateData: true, noDevelopmentDependencies: true, runtime: manifest }));
+const path = require("node:path"),
+  fs = require("node:fs");
+const { spawnSync } = require("node:child_process");
+const { auditPackage } = require("./package-audit.cjs");
+function argumentsFor(argv) {
+  const options = { directory: path.join(__dirname, "../build/node-win-x64-release/output/win-unpacked") };
+  for (let i = 0; i < argv.length; i++) {
+    const value = argv[i];
+    if (value === "--structural-only") { options.structuralOnly = true; continue; }
+    if (value.startsWith("--")) {
+      const key = {
+        "--platform": "platform",
+        "--arch": "arch",
+        "--runtime": "runtime",
+        "--output": "output",
+      }[value];
+      if (!key || !argv[i + 1]) throw Error("PACKAGE_ARGUMENTS");
+      options[key] = argv[++i];
+    } else options.directory = value;
+  }
+  return options;
+}
+function run(argv = process.argv.slice(2)) {
+  const options = argumentsFor(argv);
+  if ((options.platform || process.platform) === "darwin") {
+    if (process.platform !== "darwin" && !options.structuralOnly)
+      throw Error("Mac app 原生审计需要真实 macOS；跨平台仅可显式 --structural-only");
+    if (options.structuralOnly) {
+      options.plist = require("plist").parse(fs.readFileSync(path.join(options.directory, "Contents/Info.plist"), "utf8"));
+    } else {
+      const result = spawnSync(
+      "/usr/bin/plutil",
+      [
+        "-convert",
+        "json",
+        "-o",
+        "-",
+        path.join(options.directory, "Contents/Info.plist"),
+      ],
+      { encoding: "utf8" },
+    );
+      if (result.status !== 0) throw Error("MAC_PLIST_FAILED");
+      options.plist = JSON.parse(result.stdout);
+    }
+  }
+  const report = auditPackage(options);
+  report.verification = options.structuralOnly ? "structure-only; target OS execution unverified" : "package-resources";
+  if (options.output)
+    fs.writeFileSync(options.output, JSON.stringify(report, null, 2));
+  return report;
+}
+if (require.main === module) {
+  try {
+    console.log(JSON.stringify(run()));
+  } catch (error) {
+    console.error(error.message);
+    process.exitCode = 1;
+  }
+}
+module.exports = { run, argumentsFor };

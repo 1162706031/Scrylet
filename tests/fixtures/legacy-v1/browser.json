@@ -1,0 +1,97 @@
+{
+  "fixtureVersion": 1,
+  "project": "chromium",
+  "drafts": [
+    {
+      "key": "chat-input",
+      "value": {
+        "prompt": "M0.4 新对话已保存草稿",
+        "files": [
+          {
+            "type": "file",
+            "file": {
+              "id": "15c17b0d-b189-4396-9eaf-6625dacad6d6",
+              "user_id": "920fd7bd-0900-4ede-83f6-b0484bb43113",
+              "hash": null,
+              "filename": "Scrylet-1794070520371.jpg",
+              "data": {},
+              "meta": {
+                "name": "Scrylet-1794070520371.jpg",
+                "content_type": "image/jpeg",
+                "size": 46290,
+                "file_hash": "3795a69ddf152a483983c9bdb4c78aae0a3c012ca4fe4dfc38a6d79b5a429758",
+                "data": {}
+              },
+              "created_at": 1794070520,
+              "updated_at": 1794070520
+            },
+            "id": "15c17b0d-b189-4396-9eaf-6625dacad6d6",
+            "url": "15c17b0d-b189-4396-9eaf-6625dacad6d6",
+            "name": "Scrylet-1794070520371.jpg",
+            "status": "uploaded",
+            "size": 46290,
+            "error": "",
+            "itemId": "fcdd4c73-9e5d-426d-92b3-5cfbc8af3a3f",
+            "content_type": "image/jpeg"
+          }
+        ],
+        "selectedToolIds": [],
+        "selectedSkillIds": [],
+        "selectedFilterIds": [],
+        "imageGenerationEnabled": false,
+        "webSearchEnabled": false,
+        "codeInterpreterEnabled": false
+      }
+    },
+    {
+      "key": "chat-input-3707e393-9b6c-42fb-9656-5283f9693deb",
+      "value": {
+        "prompt": "M0.4 历史会话已保存草稿",
+        "files": [
+          {
+            "type": "file",
+            "file": {
+              "id": "ed9e856d-ed88-41a9-8137-6cc1e661c9a6",
+              "user_id": "920fd7bd-0900-4ede-83f6-b0484bb43113",
+              "hash": null,
+              "filename": "Scrylet-1794070526468.jpg",
+              "data": {},
+              "meta": {
+                "name": "Scrylet-1794070526468.jpg",
+                "content_type": "image/jpeg",
+                "size": 40718,
+                "file_hash": "ba7cf0a6fd3538d35f1144490a53f04f1604a5b6b8d06395cbc4ad219c6aedc8",
+                "data": {}
+              },
+              "created_at": 1794070526,
+              "updated_at": 1794070526
+            },
+            "id": "ed9e856d-ed88-41a9-8137-6cc1e661c9a6",
+            "url": "ed9e856d-ed88-41a9-8137-6cc1e661c9a6",
+            "name": "Scrylet-1794070526468.jpg",
+            "status": "uploaded",
+            "size": 40718,
+            "error": "",
+            "itemId": "c51723b4-347f-45e8-a9f4-f0c78963a1b3",
+            "content_type": "image/jpeg"
+          }
+        ],
+        "selectedToolIds": [],
+        "selectedSkillIds": [],
+        "selectedFilterIds": [],
+        "imageGenerationEnabled": false,
+        "webSearchEnabled": false,
+        "codeInterpreterEnabled": false
+      }
+    }
+  ],
+  "databases": [],
+  "selectedModels": "[\"alibaba.qwen3.8-max\"]",
+  "preferences": {
+    "snap.crop.1": "{\"width\":1440,\"height\":900,\"data\":{\"x\":144,\"y\":90,\"width\":1152,\"height\":720,\"rotate\":0,\"scaleX\":1,\"scaleY\":1}}",
+    "snap.speechRate": "0.9",
+    "snap.readAloud": "true",
+    "snap.speechVoice": "fixture:zh",
+    "snap.display": "1"
+  }
+}

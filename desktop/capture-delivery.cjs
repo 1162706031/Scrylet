@@ -34,6 +34,7 @@ class CaptureDelivery {
       ready: data.ready === true,
       active: data.active === true,
       reason: reasons[data.reason] || reasons.loading,
+      reasonCode: data.reason, activeCommandId: data.activeCommandId,
     };
     this.receivers.set(data.clientId, receiver);
     const selected = this.receivers.get(this.selected);

@@ -1,12 +1,17 @@
 # Third-party components
 
-Scrylet (formerly Snap-Solver) is an independent integration. It is not an official Open WebUI product and is not endorsed by its maintainers.
+Scrylet (formerly Snap-Solver) is an independent application. Current packages use an Electron-hosted Node service and a React phone interface. They do not contain Python, Open WebUI or http-proxy. The read-only legacy database importer and local rollback exporter are original compatibility code.
 
-- **Open WebUI 0.12.2** — the official, unmodified wheel is downloaded during setup and included in the Windows client. Its UI, runtime and branding remain present. See the [tagged source license](https://github.com/open-webui/open-webui/blob/v0.12.2/LICENSE), [license explanation](https://docs.openwebui.com/license/), and [official slim requirements](https://github.com/open-webui/open-webui/blob/v0.12.2/backend/requirements-slim.txt). Open WebUI and its dependencies retain their own licenses; the repository's Apache-2.0 license does not relicense them.
-- **CPython 3.12** — the Windows client includes the relocatable Python distribution prepared by python-build-standalone/uv. Its `LICENSE.txt` is retained in `resources/python/`, together with the installed dependencies and their original distribution notices.
-- **Electron 44.8.0** — [MIT and bundled Chromium notices](https://github.com/electron/electron/blob/v44.8.0/LICENSE).
-- **Cropper.js 1.6.2** — [MIT](https://github.com/fengyuanchen/cropperjs/blob/v1.6.2/LICENSE).
-- **Express**, **http-proxy**, **node-qrcode** — their installed packages include MIT license notices.
-- **Playwright** — [Apache-2.0](https://github.com/microsoft/playwright/blob/main/LICENSE), development verification only.
+- **Electron 44.8.0** — MIT and bundled Chromium notices. Electron's license files accompany the application.
+- **Vercel AI SDK 7.0.164**, **@ai-sdk/openai 4.0.110**, **@ai-sdk/openai-compatible 3.0.86**, **@ai-sdk/react 4.0.168** — Apache-2.0. Their dependencies retain their licenses, including json-schema (AFL-2.1 OR BSD-3-Clause), undici, eventsource-parser and standard-schema (MIT), and Vercel workflow/OIDC components (Apache-2.0).
+- **Express**, **node-qrcode**, **Zod 4.6.7** — MIT. Production Node packages retain their installed license files inside the application archive.
+- **React / React DOM 19.3.1**, **Cropper.js 1.6.2** — MIT. Compiled into the phone interface.
+- **react-markdown 10.1.0**, **remark-gfm 4.0.1**, **remark-math 6.0.0**, **rehype-katex 7.0.1**, **KaTeX 0.16.47** — MIT, including bundled KaTeX fonts.
+- **pdf-lib 1.17.1**, **html2canvas 1.4.1** — MIT; loaded on demand for local PDF export.
+- **Rust 1.91.0 standard library / Windows GNU runtime** — the precompiled Windows x64 input observer is original Scrylet code under Apache-2.0. Rust is MIT OR Apache-2.0 with component notices. The exact toolchain's `COPYRIGHT.html` and `COPYRIGHT-library.html` are copied to `resources/native/win32-x64/licenses/`, beside `NOTICE.txt`. The observer uses Windows system DLLs. Its separate test input driver is excluded from packages.
 
-Runtime dependency versions are recorded in `runtime/requirements.lock` and Node dependency versions in `package-lock.json`. The Windows installation includes this notice and the repository license under `resources/`, Python package license files under `resources/python/Lib/site-packages/`, Node package licenses in the application archive, and Electron's bundled Chromium notices in the installation directory. Development-only tools such as Playwright and electron-builder are not part of the installed application.
+Complete compiled browser dependency notices are generated into `phone-dist/licenses.md`. All installations include this notice, the repository license, production Node dependency licenses and Electron notices. macOS packages exclude Windows native helpers. No end-user Node, Python, Rust or development tools are required.
+
+Development-only tools include **Playwright** and **TypeScript 6.0.3** (Apache-2.0), **Vite 8.3.6** and **electron-builder** (MIT). They are excluded from installed packages. Exact Node dependency versions remain recorded in `package-lock.json`.
+
+Historical comparison source, original tests and notices are preserved in `docs/archive/legacy-comparison-source.tar.gz`; that source archive is excluded from application packages. Historical Open WebUI 0.12.2 and CPython 3.12 packages retain their original licenses and branding, including the [Open WebUI 0.12.2 license](https://github.com/open-webui/open-webui/blob/v0.12.2/LICENSE). Their notices in the archived source and previously built comparison installers remain intact. The repository's Apache-2.0 license does not relicense third-party components.

@@ -1,0 +1,14 @@
+{
+  "platform": "win32",
+  "application": "packaged",
+  "externalModelRequests": 0,
+  "checks": [
+    "default-source-node-without-engine-override",
+    "automatic-pinned-legacy-migration",
+    "legacy-source-bytes-preserved",
+    "restart-does-not-repeat-migration"
+  ],
+  "screenshot": "artifacts\\node-service-finalization-packaged.png",
+  "status": "passed",
+  "sourceChatId": "3707e393-9b6c-42fb-9656-5283f9693deb"
+}

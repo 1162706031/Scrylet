@@ -1,0 +1,21 @@
+{
+  "fixtureVersion": 1,
+  "provenance": "Synthetic edge cases; browser.json/database.json are the actual isolated legacy captures. These are importer requirements, not claims of an implemented importer.",
+  "timestamps": [
+    { "field": "chat.created_at", "unit": "seconds", "source": 1700000000, "targetMs": 1700000000000 },
+    { "field": "chat.chat.timestamp", "unit": "milliseconds", "source": 1700000000123, "targetMs": 1700000000123 },
+    { "field": "chat.timer_at", "unit": "nanoseconds", "sourceDecimal": "1700000000123456789", "policy": "Read as BigInt/string and retain exact compatibility value; disabled timer is not a new feature." }
+  ],
+  "attachments": [
+    { "kind": "inline", "source": { "type": "image", "url": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+/lWQAAAAASUVORK5CYII=" }, "policy": "Decode locally; retain ordinal and original reference." },
+    { "kind": "legacy-auth-url", "source": { "type": "image", "url": "/api/v1/files/fixture-file/content" }, "policy": "Resolve only through the isolated source file map, never by fetching arbitrary URLs." },
+    { "kind": "external", "source": { "type": "image", "url": "https://example.invalid/never-fetch.png" }, "policy": "No automatic download; preserve raw reference and block migration acceptance until readable or explicitly resolved." },
+    { "kind": "expired-blob", "source": { "type": "image", "url": "blob:http://127.0.0.1:49999/expired-fixture" }, "policy": "Server cannot recover bytes. Browser upgrade must capture still-live bytes; do not report expired bytes restored." }
+  ],
+  "normalizedGraphCases": [
+    { "case": "no-normalized-rows", "policy": "Use embedded history; preserve both source representations." },
+    { "case": "missing-normalized-parent", "policy": "Match pinned legacy fallback/enrichment and reconcile missing nodes from history." },
+    { "case": "normalized-and-embedded-disagree", "policy": "Retain both payloads, compare per field and report conflicts; never flatten or silently drop sibling branches." }
+  ],
+  "browser": { "crossOrigin": "Old sessionStorage/localStorage cannot be read from a new origin.", "unsavedWindowMs": 500, "keepOriginalKeys": true }
+}

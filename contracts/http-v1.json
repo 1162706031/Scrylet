@@ -1,0 +1,222 @@
+{
+  "apiVersion": 1,
+  "stage": "isolated-node",
+  "prefix": "/snap/api",
+  "commonErrors": {
+    "400": "INVALID_CONTRACT",
+    "401": "UNAUTHORIZED",
+    "403": "FORBIDDEN",
+    "404": "NOT_FOUND",
+    "409": [
+      "VERSION_CONFLICT",
+      "REQUEST_CONFLICT",
+      "DRAFT_CONFLICT"
+    ],
+    "413": "TOO_LARGE",
+    "423": "PAUSED",
+    "503": "NOT_READY"
+  },
+  "routes": [
+    {
+      "method": "GET",
+      "path": "/legacy/files/:id/content",
+      "status": 200,
+      "startsGeneration": false,
+      "binary": "validated-file"
+    },
+    { "method": "POST", "path": "/capture", "request": "captureRequest", "response": "capture", "status": 200, "startsGeneration": false },
+    { "method": "PATCH", "path": "/chats/:id/messages/:messageId", "request": "messagePatch", "response": "chat", "status": 200, "startsGeneration": false },
+    { "method": "GET", "path": "/files/:id/meta", "response": "file", "status": 200, "startsGeneration": false },
+    { "method": "GET", "path": "/legacy/files/:id", "response": "file", "status": 200, "startsGeneration": false },
+    {
+      "method": "GET",
+      "path": "/status",
+      "response": "status",
+      "status": 200,
+      "startsGeneration": false
+    },
+    {
+      "method": "GET",
+      "path": "/models",
+      "response": "publicModel[]",
+      "status": 200,
+      "startsGeneration": false
+    },
+    {
+      "method": "GET",
+      "path": "/providers",
+      "response": "providerCatalog",
+      "status": 200,
+      "startsGeneration": false
+    },
+    {
+      "method": "POST",
+      "path": "/providers/:id",
+      "request": "providerChange",
+      "status": 200,
+      "startsGeneration": false
+    },
+    {
+      "method": "GET",
+      "path": "/chats",
+      "response": "chatPage",
+      "status": 200,
+      "startsGeneration": false
+    },
+    {
+      "method": "POST",
+      "path": "/chats",
+      "status": 201,
+      "startsGeneration": false,
+      "request": "createChat",
+      "response": "chat"
+    },
+    {
+      "method": "GET",
+      "path": "/chats/:id",
+      "response": "chat",
+      "status": 200,
+      "startsGeneration": false
+    },
+    {
+      "method": "PATCH",
+      "path": "/chats/:id",
+      "request": "chatPatch",
+      "response": "chat",
+      "status": 200,
+      "startsGeneration": false
+    },
+    {
+      "method": "DELETE",
+      "path": "/chats/:id",
+      "status": 200,
+      "startsGeneration": false,
+      "request": "versionedOperation"
+    },
+    {
+      "method": "POST",
+      "path": "/chats/:id/messages",
+      "request": "submitMessage",
+      "response": "acceptedSubmission",
+      "status": 202,
+      "startsGeneration": true
+    },
+    {
+      "method": "GET",
+      "path": "/requests/:requestId",
+      "response": "acceptedSubmission",
+      "status": 200,
+      "startsGeneration": false
+    },
+    {
+      "method": "GET",
+      "path": "/generations/:id",
+      "response": "generation",
+      "status": 200,
+      "startsGeneration": false
+    },
+    {
+      "method": "GET",
+      "path": "/generations/:id/events",
+      "response": "event",
+      "status": 200,
+      "startsGeneration": false,
+      "resume": "after=lastSeq; subscribe only"
+    },
+    {
+      "method": "POST",
+      "path": "/generations/:id/stop",
+      "response": "generation",
+      "status": 200,
+      "startsGeneration": false,
+      "request": "emptyOperation"
+    },
+    {
+      "method": "POST",
+      "path": "/files",
+      "response": "file",
+      "status": 201,
+      "startsGeneration": false
+    },
+    {
+      "method": "GET",
+      "path": "/files/:id",
+      "status": 200,
+      "startsGeneration": false
+    },
+    {
+      "method": "GET",
+      "path": "/drafts/:chatKey",
+      "response": "draft",
+      "status": 200,
+      "startsGeneration": false
+    },
+    {
+      "method": "PUT",
+      "path": "/drafts/:chatKey",
+      "request": "draftWrite",
+      "response": "draft",
+      "status": 200,
+      "startsGeneration": false
+    },
+    {
+      "method": "GET",
+      "path": "/prompts",
+      "response": "prompt[]",
+      "status": 200,
+      "startsGeneration": false
+    },
+    {
+      "method": "POST",
+      "path": "/desktop/poll",
+      "request": "desktopPoll",
+      "status": 200,
+      "startsGeneration": false
+    },
+    {
+      "method": "POST",
+      "path": "/desktop/validate",
+      "request": "command",
+      "status": 200,
+      "startsGeneration": false
+    },
+    {
+      "method": "POST",
+      "path": "/desktop/ack",
+      "request": "desktopAck",
+      "status": 200,
+      "startsGeneration": false
+    },
+    {
+      "method": "POST",
+      "path": "/chats/read",
+      "request": "emptyOperation",
+      "status": 200,
+      "startsGeneration": false
+    },
+    {
+      "method": "POST",
+      "path": "/chats/:id/clone",
+      "request": "emptyOperation",
+      "response": "chat",
+      "status": 201,
+      "startsGeneration": false
+    },
+    {
+      "method": "DELETE",
+      "path": "/chats/:id/messages/:messageId",
+      "request": "versionedOperation",
+      "response": "chat",
+      "status": 200,
+      "startsGeneration": false
+    },
+    {
+      "method": "PATCH",
+      "path": "/prompts/:id",
+      "request": "promptChange",
+      "response": "prompt",
+      "status": 200,
+      "startsGeneration": false
+    }
+  ]
+}

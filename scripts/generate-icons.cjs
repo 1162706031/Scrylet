@@ -15,6 +15,10 @@ const directory = path.join(root, "web/brand");
       await page.setContent('<style>html,body{margin:0;background:transparent}svg{display:block;width:100vw;height:100vh}</style>' + source);
       return page.screenshot({ omitBackground: true });
     };
+    if (process.argv.includes("--mac")) {
+      console.log(JSON.stringify(await require("./mac-icons.cjs").macIcons(root, svg, raster)));
+      return;
+    }
     const sizes = [16, 24, 32, 48, 64, 128, 256];
     const images = [];
     for (const size of sizes) images.push(await raster(svg, size));

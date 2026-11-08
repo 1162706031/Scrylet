@@ -1,6 +1,8 @@
 const { contextBridge, ipcRenderer } = require("electron");
 contextBridge.exposeInMainWorld("snap", {
   state: () => ipcRenderer.invoke("snap:state"),
+  startupMetrics: () => ipcRenderer.invoke("snap:startup-metrics"),
+  startupObserved: (phase) => ipcRenderer.invoke("snap:startup-observed", phase),
   refreshCode: () => ipcRenderer.invoke("snap:refresh-code"),
   selectNetwork: (address) => ipcRenderer.invoke("snap:network", address),
   revoke: (id) => ipcRenderer.invoke("snap:revoke", id),

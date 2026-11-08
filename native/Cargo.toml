@@ -1,0 +1,11 @@
+[workspace]
+resolver = "2"
+members = ["win-system", "input-observer", "test-input-driver"]
+
+[profile.release]
+opt-level = "s"
+lto = true
+codegen-units = 1
+strip = true
+# The test driver uses unwinding to release synthetic input on errors.
+panic = "unwind"

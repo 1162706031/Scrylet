@@ -1,3 +1,0 @@
-# Open WebUI 0.12.2 official slim dependencies. The matching unmodified wheel is
-# installed with --no-deps by npm run setup to avoid the full RAG/ML stack.
--r runtime/requirements-slim.txt

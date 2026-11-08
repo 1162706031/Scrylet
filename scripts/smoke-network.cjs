@@ -1,3 +1,4 @@
+const { openDesktopSection } = require("./desktop-ui-navigation.cjs");
 // Native Windows/source or packaged-client acceptance, with isolated data.
 const { _electron: electron, chromium, expect } = require("@playwright/test");
 const fs = require("node:fs");
@@ -13,7 +14,7 @@ const root = path.resolve(__dirname, "..");
   if (!networks.length) throw new Error("本机没有可用于验收的 IPv4 网卡。");
   const expected = networks[0];
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "snap-network-app-"));
-  const env = { ...process.env, SNAP_DATA_DIR: directory, SNAP_LEGACY_DIR: path.join(directory, "no-legacy") };
+  const env = { ...process.env, SNAP_RUNTIME_ENGINE: "node", SNAP_DATA_DIR: directory, SNAP_LEGACY_DIR: path.join(directory, "no-legacy") };
   delete env.ELECTRON_RUN_AS_NODE;
   delete env.SNAP_PYTHON;
   for (const provider of catalog.providers) env[provider.envKey] = "";
@@ -40,12 +41,7 @@ const root = path.resolve(__dirname, "..");
   };
   const openNetworks = async () => {
     const panel = page.locator(".connection-settings");
-    if (!await panel.evaluate((element) => element.open)) {
-      // Keyboard activation avoids native-window mouse coordinate differences
-      // on Windows display scaling, and checks the accessible settings action.
-      await panel.locator("summary").focus();
-      await panel.locator("summary").press("Enter");
-    }
+    await openDesktopSection(page, "network");
     await expect(panel).toHaveAttribute("open", "");
     await expect(page.locator("#networks")).toBeVisible();
   };
@@ -88,7 +84,7 @@ const root = path.resolve(__dirname, "..");
     await page.locator(".connection-settings").scrollIntoViewIfNeeded();
     fs.mkdirSync(path.join(root, "artifacts"), { recursive: true });
     const suffix = executablePath ? "-packaged" : "";
-    await page.screenshot({ path: path.join(root, "artifacts/network" + suffix + ".png"), scale: "css" });
+    await page.screenshot({ path: path.join(root, "artifacts/network" + suffix + ".png"), scale: "css", mask: [page.locator("#qr"), page.locator("#code"), page.locator("#address")] });
     const { packaged, version } = await app.evaluate(({ app }) => ({ packaged: app.isPackaged, version: app.getVersion() }));
     if (executablePath) expect(packaged).toBe(true);
     expect(version).toBe(require("../package.json").version);

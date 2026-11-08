@@ -1,0 +1,8 @@
+{
+  "compilerOptions": {
+    "target": "ES2022", "module": "NodeNext", "moduleResolution": "NodeNext", "strict": true,
+    "noUncheckedIndexedAccess": true, "exactOptionalPropertyTypes": true, "skipLibCheck": false, "noEmit": true,
+    "allowJs": true, "checkJs": true
+  },
+  "include": ["*.d.ts", "*.d.cts", "../tests/types/contracts.ts", "../tests/fixtures/contract-samples.cjs"]
+}
