@@ -6,9 +6,9 @@
 
 > 新 agent 从这里开始：本文件定义“保留什么、为什么改和何时算完成”；[逐文件实施手册](node-service-implementation.md) 定义“先读什么、改哪些函数、接口和数据如何衔接、逐阶段怎么验证”。接到实施任务时两份都要读，不能只按技术栈表直接重写。
 
-M3.1～M3.4 更新：Windows 预编译 Rust observer、独立测试输入驱动、源码 / 解包截图与生命周期已验；Mac 两架构构建 / 图标 / 安装审计代码已落地，但没有真实 Mac，不计包生成、安装或 Keychain 通过。证据见 [M3](node-service-m3.md) / [机器汇总](../artifacts/node-service-m3-check.json)。M4 后续进度见下段，默认和旧资源继续保留；未测多屏 / 锁屏与物理设备范围没有因单屏通过而取消。
+M3.1～M3.4 更新：Windows 预编译 Rust observer、独立测试输入驱动、源码 / 解包截图与生命周期已验；Mac 两架构构建 / 图标 / 安装审计代码已落地，但没有真实 Mac，不计包生成、安装或 Keychain 通过。证据见 [M3](node-service-m3.md) / 机器汇总（本地：`artifacts/node-service-m3-check.json`）。M4 后续进度见下段，默认和旧资源继续保留；未测多屏 / 锁屏与物理设备范围没有因单屏通过而取消。
 
-M4 更新：只读一致快照、阶段恢复、旧文件映射、浏览器草稿与新增数据后回退已实现；Windows 迁移 33 组、两引擎升级 4 项和实际隔离 NSIS 安装 8 组通过。正式 Windows 生产 GUID 升级及 Mac 两架构真实包 / 安装 / Keychain 尚未验收；下一项 M4.4 / M4.5，不能切换默认或删除旧资源。见 [M4 逐卡记录](node-service-m4.md) / [机器汇总](../artifacts/node-service-m4-check.json)。
+M4 更新：只读一致快照、阶段恢复、旧文件映射、浏览器草稿与新增数据后回退已实现；Windows 迁移 33 组、两引擎升级 4 项和实际隔离 NSIS 安装 8 组通过。正式 Windows 生产 GUID 升级及 Mac 两架构真实包 / 安装 / Keychain 尚未验收；下一项 M4.4 / M4.5，不能切换默认或删除旧资源。见 [M4 逐卡记录](node-service-m4.md) / 机器汇总（本地：`artifacts/node-service-m4-check.json`）。
 
 M5 更新：2026-11-09 源码 `npm start` 与 Windows Node-only 候选均默认选择 Node，普通旧库自动只读迁移到独立新目录；显式 `start:legacy` 保留固定对照。构建 / 默认测试 / 包体 / 常规启动测量已接新链路，候选包不依赖 Python / Open WebUI。生产 GUID、Mac 两架构、实体手机、真实系统冷启动及最终双平台验收仍未通过，不删除仓库旧对照资源。逐卡结果、实测范围和发布阻断项见 [M5](node-service-m5.md)。
 
@@ -57,7 +57,7 @@ M5 更新：2026-11-09 源码 `npm start` 与 Windows Node-only 候选均默认�
 
 | 项目 | 体积 | 文件数 / 说明 |
 | --- | ---: | --- |
-| 当前完整 Windows 安装包 | 294.5 MiB | 308,753,932 字节，见 [安装包记录](../artifacts/scrylet-installer-check.json) |
+| 当前完整 Windows 安装包 | 294.5 MiB | 308,753,932 字节，见 安装包记录（本地：`artifacts/scrylet-installer-check.json`） |
 | 解压后的完整应用 | 902.2 MiB | 23,606 个文件 |
 | Python、Open WebUI 及依赖 | 530.1 MiB | 23,527 个文件 |
 | Electron 等基础文件 | 368.4 MiB | 78 个文件 |
@@ -477,9 +477,9 @@ M1～M4 的对照可以分别启动隔离旧版与新版，不同时占用正式
 
 - 当前功能与实现：[产品规格](../spec.md)、[现有架构](architecture.md)、[README](../README.md)、[模型目录](../config/providers.json)、[产品开关](../config/product-scope.json)。
 - 执行入口：[逐文件实施手册](node-service-implementation.md)，包含语言边界、调用点映射、数据与接口契约、任务拆分、命令和新 agent 任务模板。
-- 原生输入与静默基线：[Windows 输入记录](../artifacts/desktop-input-check.json)、[新版原生检查](../artifacts/scrylet-native-check.json)、[安装包记录](../artifacts/scrylet-installer-check.json)。
-- 维护与网络基线：[安装版维护记录](../artifacts/maintenance-packaged-check.json)、[安装版网络记录](../artifacts/network-packaged-check.json)。
-- 声音与手机基线：[朗读记录](../artifacts/read-aloud-check.json)、[声音设置记录](../artifacts/voice-settings-check.json)、[验收记录与边界](verification.md)。
+- 原生输入与静默基线：Windows 输入记录（本地：`artifacts/desktop-input-check.json`）、新版原生检查（本地：`artifacts/scrylet-native-check.json`）、安装包记录（本地：`artifacts/scrylet-installer-check.json`）。
+- 维护与网络基线：安装版维护记录（本地：`artifacts/maintenance-packaged-check.json`）、安装版网络记录（本地：`artifacts/network-packaged-check.json`）。
+- 声音与手机基线：朗读记录（本地：`artifacts/read-aloud-check.json`）、声音设置记录（本地：`artifacts/voice-settings-check.json`）、[验收记录与边界](verification.md)。
 - 技术接口：文中链接的 Electron、Node、AI SDK 和 Apple 官方文档供实现核对；网页最新 API 不代表当前固定依赖已经支持，最终以锁定版本与打包验证结果为准。
 
 本文件给出实施和验收约束，不包含重构完成、性能达标、真实模型账户可用或新增 macOS 鼠标能力已通过的声明。

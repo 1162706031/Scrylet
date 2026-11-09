@@ -38,7 +38,7 @@ Windows NSIS 使用正常应用身份 `com.snapsolver.desktop`，保留卸载时
 | Windows 最终解包应用 | 不设置运行层 override，实际使用最终 ASAR 完成上述自动迁移 / 完整退出 / 重启 |
 | 打包 / 归档 | Windows 资源与 observer；Mac 两架构结构、ZIP CRC / 符号链接 / 执行权限；三个文件实际 SHA-256 |
 
-[最终解包应用实际渲染](../artifacts/node-service-finalization-packaged.png) · [机器汇总](../artifacts/node-service-finalization-check.json) · [Windows 完整包体](../artifacts/node-service-finalization-windows-package.json)。原日志在忽略的 `.test-data/m5-final/`，导入与恢复使用独立合成数据。
+最终解包应用实际渲染（本地：`artifacts/node-service-finalization-packaged.png`） · 机器汇总（本地：`artifacts/node-service-finalization-check.json`） · Windows 完整包体（本地：`artifacts/node-service-finalization-windows-package.json`）。原日志在忽略的 `.test-data/m5-final/`，导入与恢复使用独立合成数据。
 
 没有重跑完整 M0、两引擎全量 UI、完整原生键鼠套件、实体手机、五次真实系统重启或 Mac 测试。现有 full-release evidence 检查继续阻断；用户调整测试范围不被写成所有平台门槛通过。历史 M0～M5 文档中的旧命令、旧体积和“暂不删除”描述属于前一轮记录，当前操作以本文为准。
 

@@ -48,13 +48,13 @@
 
 | 页面 | Chromium | WebKit |
 | --- | --- | --- |
-| 欢迎页 | [截图](../artifacts/phone-redesign-welcome-chromium.png) | [截图](../artifacts/phone-redesign-welcome-webkit.png) |
-| 对话 / 数学 / 表格 / 代码 | [截图](../artifacts/phone-redesign-conversation-chromium.png) | [截图](../artifacts/phone-redesign-conversation-webkit.png) |
-| 历史与当前会话 | [截图](../artifacts/phone-redesign-history-chromium.png) | [截图](../artifacts/phone-redesign-history-webkit.png) |
-| 320px 长草稿 | [截图](../artifacts/phone-redesign-draft-320x720-chromium.png) | [截图](../artifacts/phone-redesign-draft-320x720-webkit.png) |
-| 375px 长草稿 | [截图](../artifacts/phone-redesign-draft-375x812-chromium.png) | [截图](../artifacts/phone-redesign-draft-375x812-webkit.png) |
-| 430px 长草稿 | [截图](../artifacts/phone-redesign-draft-430x932-chromium.png) | [截图](../artifacts/phone-redesign-draft-430x932-webkit.png) |
-| 390×460 短视口 | [截图](../artifacts/phone-redesign-draft-390x460-chromium.png) | [截图](../artifacts/phone-redesign-draft-390x460-webkit.png) |
+| 欢迎页 | 截图（本地：`artifacts/phone-redesign-welcome-chromium.png`） | 截图（本地：`artifacts/phone-redesign-welcome-webkit.png`） |
+| 对话 / 数学 / 表格 / 代码 | 截图（本地：`artifacts/phone-redesign-conversation-chromium.png`） | 截图（本地：`artifacts/phone-redesign-conversation-webkit.png`） |
+| 历史与当前会话 | 截图（本地：`artifacts/phone-redesign-history-chromium.png`） | 截图（本地：`artifacts/phone-redesign-history-webkit.png`） |
+| 320px 长草稿 | 截图（本地：`artifacts/phone-redesign-draft-320x720-chromium.png`） | 截图（本地：`artifacts/phone-redesign-draft-320x720-webkit.png`） |
+| 375px 长草稿 | 截图（本地：`artifacts/phone-redesign-draft-375x812-chromium.png`） | 截图（本地：`artifacts/phone-redesign-draft-375x812-webkit.png`） |
+| 430px 长草稿 | 截图（本地：`artifacts/phone-redesign-draft-430x932-chromium.png`） | 截图（本地：`artifacts/phone-redesign-draft-430x932-webkit.png`） |
+| 390×460 短视口 | 截图（本地：`artifacts/phone-redesign-draft-390x460-chromium.png`） | 截图（本地：`artifacts/phone-redesign-draft-390x460-webkit.png`） |
 
 ## 验证与边界
 
@@ -64,7 +64,7 @@
 - 最后仅加深辅助文字 / 占位文字颜色，随后再次通过 `npm run check`、`npm run build:phone` 和两浏览器设计专项 **4/4**，最终截图来自这次构建。
 - 六个逻辑模块与任务开始前快照逐字节一致；本次修改文件无行尾空白。仓库全局 `git diff --check` 仍报告其他已有工作区文件的 CRLF 行尾问题，未改动这些文件。
 
-运行平台为 Windows x64（从 WSL 调用现有 Windows Node / Electron / Playwright）。完整通过日志：`.test-data/phone-redesign/accepted-browser.log`；最终配色与截图检查：`.test-data/phone-redesign/presentation.log`。摘要与受保护模块哈希见 [验证记录](../artifacts/phone-redesign-check.json)。
+运行平台为 Windows x64（从 WSL 调用现有 Windows Node / Electron / Playwright）。完整通过日志：`.test-data/phone-redesign/accepted-browser.log`；最终配色与截图检查：`.test-data/phone-redesign/presentation.log`。摘要与受保护模块哈希见 验证记录（本地：`artifacts/phone-redesign-check.json`）。
 
 现有 Vite 提示仍可见：同步 `quiet.js` 不作为模块打包、主包大于 500kB、SWR `use client` 指令提示。没有为 UI 改造升级依赖或更改 SDK。
 

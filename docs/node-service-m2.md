@@ -2,7 +2,7 @@
 
 2026-11-08；当前为未提交工作区。默认继续 legacy，仅显式选择 Node 的隔离目录使用新页面。旧 Python / Open WebUI 与原 UI 保留。
 
-**M2.1～M2.5 已完成 Windows 隔离浏览器范围。** 最终同次 Chromium / WebKit **50/50**，独立测试 ASAR 手机 **12/12**、后端源码 **34 组** / ASAR **33 组**，旧 UI **70/70**、补充旧保存编辑 **2/2**、离线 **119/119**（含 **43 契约**）通过；无 skip / flaky / 自动重试。strict、构建、语法与 M0.3 兼容探针源码 / ASAR 复测均通过。机器汇总：[node-service-m2-check.json](../artifacts/node-service-m2-check.json)。下一项 **M3.1**。
+**M2.1～M2.5 已完成 Windows 隔离浏览器范围。** 最终同次 Chromium / WebKit **50/50**，独立测试 ASAR 手机 **12/12**、后端源码 **34 组** / ASAR **33 组**，旧 UI **70/70**、补充旧保存编辑 **2/2**、离线 **119/119**（含 **43 契约**）通过；无 skip / flaky / 自动重试。strict、构建、语法与 M0.3 兼容探针源码 / ASAR 复测均通过。机器汇总：node-service-m2-check.json（本地：`artifacts/node-service-m2-check.json`）。下一项 **M3.1**。
 
 | 任务 | 真实进度 | 证据与限制 | 下一项 |
 | --- | --- | --- | --- |
@@ -22,14 +22,14 @@ M2.1 首次类型检查发现 transport 的 `body` 类型和 SDK `error` 与产�
 
 | 页面 | Chromium | WebKit |
 | --- | --- | --- |
-| 390×844 / 长草稿多图 | [手机页](../artifacts/node-service-m2-phone-chromium.png) | [手机页](../artifacts/node-service-m2-phone-webkit.png) |
-| 320×720 | [窄屏](../artifacts/node-service-m2-narrow-chromium.png) | [窄屏](../artifacts/node-service-m2-narrow-webkit.png) |
-| 390×460 | [短屏](../artifacts/node-service-m2-short-chromium.png) | [短屏](../artifacts/node-service-m2-short-webkit.png) |
-| 框选 | [选区](../artifacts/node-service-m2-crop-chromium.png) | [选区](../artifacts/node-service-m2-crop-webkit.png) |
-| 消息分支 | [分支](../artifacts/node-service-m2-branches-chromium.png) | [分支](../artifacts/node-service-m2-branches-webkit.png) |
-| 声音设置 | [声音](../artifacts/node-service-m2-voice-chromium.png) | [声音](../artifacts/node-service-m2-voice-webkit.png) |
-| 模型设置 | [模型](../artifacts/node-service-m2-models-chromium.png) | [模型](../artifacts/node-service-m2-models-webkit.png) |
-| 可恢复等待 | [等待](../artifacts/node-service-m2-waiting-chromium.png) | [等待](../artifacts/node-service-m2-waiting-webkit.png) |
+| 390×844 / 长草稿多图 | 手机页（本地：`artifacts/node-service-m2-phone-chromium.png`） | 手机页（本地：`artifacts/node-service-m2-phone-webkit.png`） |
+| 320×720 | 窄屏（本地：`artifacts/node-service-m2-narrow-chromium.png`） | 窄屏（本地：`artifacts/node-service-m2-narrow-webkit.png`） |
+| 390×460 | 短屏（本地：`artifacts/node-service-m2-short-chromium.png`） | 短屏（本地：`artifacts/node-service-m2-short-webkit.png`） |
+| 框选 | 选区（本地：`artifacts/node-service-m2-crop-chromium.png`） | 选区（本地：`artifacts/node-service-m2-crop-webkit.png`） |
+| 消息分支 | 分支（本地：`artifacts/node-service-m2-branches-chromium.png`） | 分支（本地：`artifacts/node-service-m2-branches-webkit.png`） |
+| 声音设置 | 声音（本地：`artifacts/node-service-m2-voice-chromium.png`） | 声音（本地：`artifacts/node-service-m2-voice-webkit.png`） |
+| 模型设置 | 模型（本地：`artifacts/node-service-m2-models-chromium.png`） | 模型（本地：`artifacts/node-service-m2-models-webkit.png`） |
+| 可恢复等待 | 等待（本地：`artifacts/node-service-m2-waiting-chromium.png`） | 等待（本地：`artifacts/node-service-m2-waiting-webkit.png`） |
 
 M2.1～M2.4 同次回归 `phone-fourth.log` **32/32**，无跳过 / 重试。旧保存编辑补充对照 `legacy-save-accepted.log` **2/2**，使用独立 legacy 目录，确认保存用户 / 助手文本保留 ID、children 和请求数。之前错误选择器与 range fill、语音分段尚未结束便计数等测试失败保留在原始目录；修正后重跑，未把失败删除或改为 skip。
 

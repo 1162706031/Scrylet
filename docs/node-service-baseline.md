@@ -2,7 +2,7 @@
 
 记录日期：2026-11-07。任务 **M0.1 完成入口与证据登记**；后续 M0.2 的分段计时与 10 次常规启动已实测、5 次真实系统重启待验收，见 [启动基线](node-service-startup.md)。这里记录旧版可复现行为，不代表新版已经实现或验证。入口基线为 `d00f40fe17434576127dd7343ba11aed8f3bab73`，版本 `2.0.0-dev.6`；M0.1 开始时工作区干净，M0.2 保留了这些未提交改动。M0.1 当时默认运行层为 Open WebUI 0.12.2 / Python，尚未新增业务 Node 服务或 phone 前端；后续实施进度以 [实施手册](node-service-implementation.md#12-当前进度与可复制任务模板) 为准，不能把本基线当作当前实现状态。
 
-脱敏汇总：[node-service-baseline-check.json](../artifacts/node-service-baseline-check.json)。真实隔离渲染：[会话菜单](../artifacts/node-service-baseline-menu.png)、[编辑后的分支](../artifacts/node-service-baseline-branches.png)。只有模拟聊天内容，未重新提交原生桌面的二维码 / 屏幕截图。
+脱敏汇总：node-service-baseline-check.json（本地：`artifacts/node-service-baseline-check.json`）。真实隔离渲染：会话菜单（本地：`artifacts/node-service-baseline-menu.png`）、编辑后的分支（本地：`artifacts/node-service-baseline-branches.png`）。只有模拟聊天内容，未重新提交原生桌面的二维码 / 屏幕截图。
 
 ## 环境和证据口径
 

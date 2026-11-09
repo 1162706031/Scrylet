@@ -4,7 +4,7 @@
 
 `npm run test:formats` 在 `.test-data/node-service-formats/` 新建隔离目录，启动真实旧运行层和本地 mock，跑 Chromium / WebKit，再检查固定夹具和两条真实 SDK 协议。`npm run test:formats -- --update` 在全部浏览器采集成功后更新脱敏夹具。原始旧库、运行日志和凭证只在忽略目录内；不读取实际 userData、真实账户或环境密钥。读取旧 schema 的 exporter 只允许带 synthetic 标记的指定测试目录，关闭旧写入后用固定 Electron 的 SQLite 只读打开。
 
-最终同轮证据见 [formats-check](../artifacts/node-service-formats-check.json)。两项浏览器、14 项协议检查、3 项固定夹具检查通过。此前普通更新接口不能制造双指针分歧、已停止的 Runtime 不能原对象重启、桌面 UA 隐藏声音入口、自动网卡配置不含 selectedNetwork 的失败均用于修正夹具，未记为产品通过；失败采集目录保留。runner 使用独立 run 输出目录，失败不会更新通过报告。协议探索及最终离线回归曾出现请求前失败（0 请求），最终诊断为 Windows 随机端口落入 fetch 禁用端口（bad port）；失败 TAP 保留于 `.test-data/node-service-contracts-offline-bad-port.tap`。mock 改在 20000～64999 选取可绑定端口，不是重试模型请求，随后完整重跑。图像输入使用当前 SDK 的 file 类型，未压制旧 image 类型弃用警告，也不能据此宣称真实厂商已兼容。
+最终同轮证据见 formats-check（本地：`artifacts/node-service-formats-check.json`）。两项浏览器、14 项协议检查、3 项固定夹具检查通过。此前普通更新接口不能制造双指针分歧、已停止的 Runtime 不能原对象重启、桌面 UA 隐藏声音入口、自动网卡配置不含 selectedNetwork 的失败均用于修正夹具，未记为产品通过；失败采集目录保留。runner 使用独立 run 输出目录，失败不会更新通过报告。协议探索及最终离线回归曾出现请求前失败（0 请求），最终诊断为 Windows 随机端口落入 fetch 禁用端口（bad port）；失败 TAP 保留于 `.test-data/node-service-contracts-offline-bad-port.tap`。mock 改在 20000～64999 选取可绑定端口，不是重试模型请求，随后完整重跑。图像输入使用当前 SDK 的 file 类型，未压制旧 image 类型弃用警告，也不能据此宣称真实厂商已兼容。
 
 后续 M4 已据本卡的冻结格式实现一致快照、normalized / embedded 图调和、受控图片映射、已保存浏览器草稿及新增数据后固定旧版实际读回；Windows 证据见 [M4](node-service-m4.md)。本文各处“待 M4”保留为 M0.4 当时的历史边界，不替代最新进度。外链和过期 blob 仍拒绝虚称恢复，Mac Keychain 未测。
 

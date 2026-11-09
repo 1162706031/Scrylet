@@ -40,11 +40,11 @@ electron-builder 已生成独立 Windows x64 `--dir`，复制到仓库外 `Scryl
 
 构建目录及仓库外副本资源审计均通过：ASAR 3,462 条目、146 份项目文件与当前源码 / 已构建 phone 逐字节一致，包含运行服务 / 静态资源 / 浏览器许可证；测试 driver / test-manifest / Rust 源码 / 开发工具 / 私有目录未进入正式资源。保留 Python 3.12.16 / Open WebUI 0.12.2 对照，observer PE / 哈希正确。ASAR SHA-256 `46cbcbd87702aaa1cbf9f5064891cb274e202c8e50d31b90f688c8ddcd6808d7`；审计见 `.test-data/node-service-m3/package-audit-final.json` / `unpacked-audit-final.json`。LICENSE 实际位于 resources/LICENSE.txt，与源码逐字节核对。
 
-独立新 UI 截图（二维码、配对码、地址已遮盖）：源码 [桌面](../artifacts/node-service-m3-desktop-input.png) / [设置](../artifacts/node-service-m3-desktop-input-settings.png) / [手机回答](../artifacts/node-service-m3-desktop-input-answer.png)；解包 [桌面](../artifacts/node-service-m3-desktop-input-packaged.png) / [设置](../artifacts/node-service-m3-desktop-input-packaged-settings.png) / [手机回答](../artifacts/node-service-m3-desktop-input-packaged-answer.png)。旧 M0 / M2 截图没有覆盖。
+独立新 UI 截图（二维码、配对码、地址已遮盖）：源码 桌面（本地：`artifacts/node-service-m3-desktop-input.png`） / 设置（本地：`artifacts/node-service-m3-desktop-input-settings.png`） / 手机回答（本地：`artifacts/node-service-m3-desktop-input-answer.png`）；解包 桌面（本地：`artifacts/node-service-m3-desktop-input-packaged.png`） / 设置（本地：`artifacts/node-service-m3-desktop-input-packaged-settings.png`） / 手机回答（本地：`artifacts/node-service-m3-desktop-input-packaged-answer.png`）。旧 M0 / M2 截图没有覆盖。
 
 Windows 本轮生成的是带旧资源的 `--dir` 解包候选，默认 legacy；显式独立 Node 数据验收。它不是新的 NSIS / 最终发行包。Mac arm64 / x64、屏幕权限拒绝后再授权、物理手机 / 扬声器和多屏仍未测，整卡不能称所有平台已通过。下一项 M3.4 的配置 / 静态审计已经完成，Mac 真机回归仍是门槛。
 
-同轮后端回归：源码 34 组、独立测试 ASAR 33 组通过，见 `.test-data/node-service-m1/run-AZOkkt/report.json` / `.test-data/node-service-m3/service-regression-final.log`；不把测试 ASAR 算成安装包。本轮未重跑 M2 的 50 项完整浏览器矩阵，原 M2 证据保持历史口径；本轮实际 Node 手机页与系统截图集成由上述源码 / 解包各 8 次请求验证。汇总见 [node-service-m3-check.json](../artifacts/node-service-m3-check.json)。
+同轮后端回归：源码 34 组、独立测试 ASAR 33 组通过，见 `.test-data/node-service-m1/run-AZOkkt/report.json` / `.test-data/node-service-m3/service-regression-final.log`；不把测试 ASAR 算成安装包。本轮未重跑 M2 的 50 项完整浏览器矩阵，原 M2 证据保持历史口径；本轮实际 Node 手机页与系统截图集成由上述源码 / 解包各 8 次请求验证。汇总见 node-service-m3-check.json（本地：`artifacts/node-service-m3-check.json`）。
 
 ## M3.4：Mac 图标、分架构构建和安装审计
 

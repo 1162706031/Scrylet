@@ -1,6 +1,6 @@
 # M0.3：Node / SDK / SQLite / 前端 / ASAR 兼容实验
 
-完成日期：2026-11-08（Asia/Shanghai）。**Windows x64 的 M0.3 已通过；macOS arm64 / x64 和实际安装版仍未验证。** 用户已明确将 M0.2 的真实重启首启保留未测，先继续本卡；没有重启 Windows，也不把 M0.2 标为全部通过。证据：[脱敏报告](../artifacts/node-service-compatibility-check.json)、[真实实验页](../artifacts/node-service-compatibility-phone.png)。
+完成日期：2026-11-08（Asia/Shanghai）。**Windows x64 的 M0.3 已通过；macOS arm64 / x64 和实际安装版仍未验证。** 用户已明确将 M0.2 的真实重启首启保留未测，先继续本卡；没有重启 Windows，也不把 M0.2 标为全部通过。证据：脱敏报告（本地：`artifacts/node-service-compatibility-check.json`）、真实实验页（本地：`artifacts/node-service-compatibility-phone.png`）。
 
 这是独立技术实验，默认仍为 `desktop/main.cjs` → legacy Python / Open WebUI 0.12.2。没有实现完整 Node 聊天服务、切换手机入口、迁移真实用户数据或删除 Python。实验页明确标注“不是手机聊天入口”，不将它作为重构产品交付。
 

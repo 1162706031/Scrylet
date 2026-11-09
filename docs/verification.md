@@ -24,7 +24,7 @@ M4.5 新增真实目标 Mac 的合成旧库迁移、先前 app 独立 Keychain �
 
 保留失败：正式身份安装前发现真实客户端而拒绝；首次隔离安装的 PowerShell stdout 编码导致中文路径归属误判，修正 UTF-8 后只经 GUID / 路径 / ASAR 确认卸载拥有的测试副本，完整重跑通过；合成夹具在旧进程退出后遇到 WAL 收尾竞态，增加夹具等待而不删 WAL；新增 file self-ID 映射后，旧存储断言错误地把全部映射计作会话，已分开验证 chat=1 / file=2 后完整源码 / ASAR 通过。原始失败没有删除或计作成功。
 
-证据：[M4 逐卡记录与命令](node-service-m4.md)、[脱敏机器汇总](../artifacts/node-service-m4-check.json)、[原生迁移进度](../artifacts/node-service-m4-migration-webkit.png)、[安装手机页](../artifacts/node-service-m4-installed-phone.png)、[安装旧版读回](../artifacts/node-service-m4-installed-rollback.png)。原始报告 `.test-data/node-service-m4/run-4JeirL/`、`browser-current.json`、`install-s2Ee68/`、`phone-final.json`、`windows-audit-current.json`；服务 `node-service-m1/run-lWGET9/`，手机 ASAR `node-service-m2/archive-Uf3URs/`。未使用真实模型账户或改写真实用户库。
+证据：[M4 逐卡记录与命令](node-service-m4.md)、脱敏机器汇总（本地：`artifacts/node-service-m4-check.json`）、原生迁移进度（本地：`artifacts/node-service-m4-migration-webkit.png`）、安装手机页（本地：`artifacts/node-service-m4-installed-phone.png`）、安装旧版读回（本地：`artifacts/node-service-m4-installed-rollback.png`）。原始报告 `.test-data/node-service-m4/run-4JeirL/`、`browser-current.json`、`install-s2Ee68/`、`phone-final.json`、`windows-audit-current.json`；服务 `node-service-m1/run-lWGET9/`，手机 ASAR `node-service-m2/archive-Uf3URs/`。未使用真实模型账户或改写真实用户库。
 
 下一项 **M4.4 在独立 Windows 环境验证正式 GUID、M4.5 真实 arm64 / x64 Mac 安装与 Keychain**。物理手机 / 扬声器、M3 多屏 / 锁屏 / Mac、M0.2 重启首启 0/5 和 M5 最终包 / 默认切换门槛保留，整个重构未完成。
 
@@ -40,7 +40,7 @@ Mac 已实现分平台 / 架构配置、从 SVG 16～1024px / Retina 生成的 I
 
 保留首次失败证据：已有测试 Electron 时拒绝注入，修正测试上下文 / 等待与启动器 PID 假设；长按合成测试增加 300ms 调度余量而不改 1200ms 默认；Electron 下载 HTTP 504 后使用本地同版 44.8.0；许可位置与旧解包不一致审计正确失败后重新打包。一次 WSL interop 启动失败、一次业务断言后控制进程退出 143 没有计整轮成功；最终完整重跑通过。实际锁屏 / UAC、多屏负原点 / 混合 DPI、人工物理输入、物理手机 / 扬声器、Mac 及权限拒绝后授权、完整迁移 / 新增数据后回退与最终包性能仍未通过。
 
-证据：[逐卡记录](node-service-m3.md)、[机器汇总](../artifacts/node-service-m3-check.json)、源码 [桌面](../artifacts/node-service-m3-desktop-input.png) / [设置](../artifacts/node-service-m3-desktop-input-settings.png) / [回答](../artifacts/node-service-m3-desktop-input-answer.png)，解包 [桌面](../artifacts/node-service-m3-desktop-input-packaged.png) / [设置](../artifacts/node-service-m3-desktop-input-packaged-settings.png) / [回答](../artifacts/node-service-m3-desktop-input-packaged-answer.png)。二维码 / 配对码 / 地址均遮盖，原 M0/M2 截图保留。原始记录 `.test-data/node-service-m3/`；后端 `run-AZOkkt`。下一项 **M4.1 只读旧格式导入及中断恢复**，Mac M3 和最终门槛继续保留。
+证据：[逐卡记录](node-service-m3.md)、机器汇总（本地：`artifacts/node-service-m3-check.json`）、源码 桌面（本地：`artifacts/node-service-m3-desktop-input.png`） / 设置（本地：`artifacts/node-service-m3-desktop-input-settings.png`） / 回答（本地：`artifacts/node-service-m3-desktop-input-answer.png`），解包 桌面（本地：`artifacts/node-service-m3-desktop-input-packaged.png`） / 设置（本地：`artifacts/node-service-m3-desktop-input-packaged-settings.png`） / 回答（本地：`artifacts/node-service-m3-desktop-input-packaged-answer.png`）。二维码 / 配对码 / 地址均遮盖，原 M0/M2 截图保留。原始记录 `.test-data/node-service-m3/`；后端 `run-AZOkkt`。下一项 **M4.1 只读旧格式导入及中断恢复**，Mac M3 和最终门槛继续保留。
 
 
 ## 2026-11-08 M2.1～M2.5 React 手机页与完整业务对照
@@ -59,7 +59,7 @@ quiet.js 先于 React 加载，Node 页不安装旧 EventTarget 劫持。React �
 
 同轮 **119/119 离线检查**（含 43 契约）、strict / build / syntax 通过；兼容探针源码 / ASAR 的两引擎复测通过。旧 UI **70/70** 全套通过，14 份历史 artifacts 恢复原字节；另用独立 legacy 目录补做用户 / 助手保存编辑 **2/2**，确认保存保持 ID / children 且无额外模型请求。全程只用 mock，无真实模型账户，未动用户目录或删除 Python / Open WebUI。
 
-失败保留并修正：WebKit 刷新取消轮询、SSE 断开后丢停止入口、SDK 7 system 消息显式信任、Windows ASAR 路径、损坏合成 PNG 与测试误认任意 receiver ready。最终完整复测通过，未删断言或改为 skip。证据：[逐卡与功能记录](node-service-m2.md)、[机器汇总](../artifacts/node-service-m2-check.json)、[真实手机渲染](../artifacts/node-service-m2-phone-webkit.png)、[短屏](../artifacts/node-service-m2-short-webkit.png)、[声音](../artifacts/node-service-m2-voice-webkit.png)。原始记录 `.test-data/node-service-m2/verified-browser.json` / `verified-results/`、`archive-pz1XBG/`；后端 `.test-data/node-service-m1/run-SRtCfU/`，兼容 `.test-data/node-service-m03/run-bFHimq/`。
+失败保留并修正：WebKit 刷新取消轮询、SSE 断开后丢停止入口、SDK 7 system 消息显式信任、Windows ASAR 路径、损坏合成 PNG 与测试误认任意 receiver ready。最终完整复测通过，未删断言或改为 skip。证据：[逐卡与功能记录](node-service-m2.md)、机器汇总（本地：`artifacts/node-service-m2-check.json`）、真实手机渲染（本地：`artifacts/node-service-m2-phone-webkit.png`）、短屏（本地：`artifacts/node-service-m2-short-webkit.png`）、声音（本地：`artifacts/node-service-m2-voice-webkit.png`）。原始记录 `.test-data/node-service-m2/verified-browser.json` / `verified-results/`、`archive-pz1XBG/`；后端 `.test-data/node-service-m1/run-SRtCfU/`，兼容 `.test-data/node-service-m03/run-bFHimq/`。
 
 下一项 **M3.1**（Rust observer），随后替换独立输入测试 driver。物理手机 / 扬声器、Mac 两架构 / Keychain、完整迁移与新增数据后回退、最终安装包 / 安装卸载仍未验收，真实 Windows 重启首启仍为 0/5。
 
@@ -79,7 +79,7 @@ quiet.js 先于 React 加载，Node 页不安装旧 EventTarget 劫持。React �
 
 旧默认 Chromium / WebKit **70 项全套同轮通过**，无失败 / flaky / 跳过，361,717.063ms。14 份旧 artifacts 截图恢复原字节，本轮渲染只留在忽略目录。失败记录保留：并发测试最初误认 HTTP 返回顺序、Responses 远端引用、fetch 未按意图覆盖 Host；均修正后完整重跑，未增加模型重试或删断言。
 
-证据：[逐卡记录](node-service-m1.md)、[机器汇总](../artifacts/node-service-m1-check.json)；最终原始服务证据 `.test-data/node-service-m1/run-CPPioi/`，旧 UI `.test-data/node-service-m1/legacy-ui-4Di99u/`。下一项 **M2.1**。Mac 两架构 / Keychain、物理手机、新旧完整迁移与新增数据后回退、Rust 与最终包仍未通过；真实重启首启仍 0/5。没有以测试 ASAR 数字宣称 Windows / Mac 包体或启动目标达成。
+证据：[逐卡记录](node-service-m1.md)、机器汇总（本地：`artifacts/node-service-m1-check.json`）；最终原始服务证据 `.test-data/node-service-m1/run-CPPioi/`，旧 UI `.test-data/node-service-m1/legacy-ui-4Di99u/`。下一项 **M2.1**。Mac 两架构 / Keychain、物理手机、新旧完整迁移与新增数据后回退、Rust 与最终包仍未通过；真实重启首启仍 0/5。没有以测试 ASAR 数字宣称 Windows / Mac 包体或启动目标达成。
 
 ## 2026-11-08 M0.4 旧格式与 M0.5 契约初稿
 
@@ -93,7 +93,7 @@ quiet.js 先于 React 加载，Node 页不安装旧 EventTarget 劫持。React �
 
 失败保持可见：普通更新接口重新计算分支指针、已停止 Runtime 原对象不可重启、桌面 UA 隐藏手机声音入口、自动网卡配置仅有 port 等夹具假设均已按实际行为修正。最终离线复测还捕获随机监听端口触发 fetch `bad port`，模型请求为 0；失败 TAP 单独保留，协议 mock 改用可绑定高位端口后完整重跑通过，未添加模型重试。既有 http-proxy 的 util._extend 弃用警告保留。
 
-证据：[旧格式与协议报告](node-service-formats.md)、[格式机器报告](../artifacts/node-service-formats-check.json)、[契约说明](node-service-contracts.md)、[契约机器报告](../artifacts/node-service-contracts-check.json)。M0.4 完成后已更新进度到 M0.5；M0.5 完成后更新至 **M1.1**。AGENTS / spec / architecture 的固定复用规则只约束 legacy，新增层按 CJS / strict TS + React / 预编译 Rust 边界实施，无相互冲突的全局条款。
+证据：[旧格式与协议报告](node-service-formats.md)、格式机器报告（本地：`artifacts/node-service-formats-check.json`）、[契约说明](node-service-contracts.md)、契约机器报告（本地：`artifacts/node-service-contracts-check.json`）。M0.4 完成后已更新进度到 M0.5；M0.5 完成后更新至 **M1.1**。AGENTS / spec / architecture 的固定复用规则只约束 legacy，新增层按 CJS / strict TS + React / 预编译 Rust 边界实施，无相互冲突的全局条款。
 
 M0.2 真实重启首启仍为 0/5；生产 Node 服务、迁移与新增数据后的回退、Rust 输入、物理手机、Mac arm64 / x64 DMG / ZIP 和最终安装验收仍未完成。旧默认、Python / Open WebUI 资源和用户数据继续保留。
 
@@ -111,7 +111,7 @@ M0.2 真实重启首启仍为 0/5；生产 Node 服务、迁移与新增数据�
 
 限制：phone 仅是明确标注的兼容实验页，未接默认网关，不是产品聊天页；正式 HTTP/SSE transport、应用级单写者锁 / 迁移 / 崩溃恢复、PID 复用与完整生命周期合同、Responses SSE / 多图 / 多轮 / 取消均进入后续任务。SQLite 是 Windows 候选，Mac arm64 / x64、实际安装版和 Keychain 未测；真实提供商账户、实体手机、系统键鼠与安装升级没有新增验收。实验 ASAR 不是最终 Node 安装包，不能用其大小宣称 Windows / Mac 包体目标达成。
 
-证据：[兼容决策与复现](node-service-compatibility.md)、[脱敏报告](../artifacts/node-service-compatibility-check.json)、[真实实验页](../artifacts/node-service-compatibility-phone.png)。最终原始证据 `.test-data/node-service-m03/run-ma75f2/`，前次失败在 `run-UICkdM`、`run-kbfltc` 与 `typecheck.log`。下一项 M0.4，继续固定旧格式和两条完整 mock 协议；M1～M5 尚未实施，默认仍为 legacy。
+证据：[兼容决策与复现](node-service-compatibility.md)、脱敏报告（本地：`artifacts/node-service-compatibility-check.json`）、真实实验页（本地：`artifacts/node-service-compatibility-phone.png`）。最终原始证据 `.test-data/node-service-m03/run-ma75f2/`，前次失败在 `run-UICkdM`、`run-kbfltc` 与 `typecheck.log`。下一项 M0.4，继续固定旧格式和两条完整 mock 协议；M1～M5 尚未实施，默认仍为 legacy。
 
 ## 2026-11-07 M0.2 启动分段与常规 10 次实测
 
@@ -127,7 +127,7 @@ Windows 11 x64 / Ryzen 7 7800X3D，实际 Electron 44.8.0 源码应用、固定 
 
 **5 次真实 Windows 重启后首次启动仍为 0 / 5**，因此 M0.2 未标整卡通过。同启动周期调用 `--post-reboot` 已实际被 `BOOT_ALREADY_SAMPLED` 拒绝，账本不变，未将进程重启冒充系统冷启动。重启会中断用户 Windows / IDE，本轮没有自动重启或改登录任务；已提供在前一启动周期准备数据、随后每次真实重启后采一次的命令。需要操作者在打开 Scrylet 前执行。当轮下一项原为补齐这 5 个启动周期，随后用户选择暂保留未测并继续 M0.3，最新结果见上节。
 
-证据：[完整口径与复现](node-service-startup.md)、[脱敏逐次样本 / 汇总](../artifacts/node-service-startup-check.json)。原始样本在 `.test-data/node-service-m02/measurement/samples.json`，全套浏览器报告在 `.test-data/node-service-m02/ui.json`。默认旧运行层、用户实际数据、Python 资源和已有功能保持。
+证据：[完整口径与复现](node-service-startup.md)、脱敏逐次样本 / 汇总（本地：`artifacts/node-service-startup-check.json`）。原始样本在 `.test-data/node-service-m02/measurement/samples.json`，全套浏览器报告在 `.test-data/node-service-m02/ui.json`。默认旧运行层、用户实际数据、Python 资源和已有功能保持。
 
 ## 2026-11-07 开始 Node 重构，核对 M0.1 实际基线
 
@@ -141,7 +141,7 @@ WSL2 编排下调用本机 Windows Node 22.14.0，实际测试平台为 Windows 
 
 侧栏弹层使用普通 button，分享 / 克隆未被按 menuitem 的裁剪规则隐藏；草稿使用 sessionStorage 的 `chat-input` / `chat-input-<id>`，含已上传文件 ID 与元数据。仅浏览兄弟分支不会立即保存选择，刷新恢复已保存分支；固定 loader 优先采用有效顶层 `current_message_id`，不能仅按线性消息最后一条推断。用户编辑依赖 hover / focus reveal，本次走聚焦后操作，纯触摸路径仍未验收。调试中的定位器、弹层时序和“展示选择已落盘”错误假设导致的失败 / 中断均保留，没有修改旧业务实现或删除原测试来获取通过。
 
-M0.1 已完成 36 项功能与 14 项扩充入口的证据登记；M0.2 已只读核对旧安装包 308,753,932 字节及原 SHA-256，解包 946,046,039 字节 / 23,606 文件，尚未做分段 / 重复启动计时。下一项继续 M0.2。M1～M5 尚未开始，Mac 四份安装包、Node 迁移及新增数据后回退保持未通过。脱敏汇总见 [基线报告](../artifacts/node-service-baseline-check.json)，真实隔离渲染见 [会话菜单](../artifacts/node-service-baseline-menu.png) 与 [消息分支](../artifacts/node-service-baseline-branches.png)。
+M0.1 已完成 36 项功能与 14 项扩充入口的证据登记；M0.2 已只读核对旧安装包 308,753,932 字节及原 SHA-256，解包 946,046,039 字节 / 23,606 文件，尚未做分段 / 重复启动计时。下一项继续 M0.2。M1～M5 尚未开始，Mac 四份安装包、Node 迁移及新增数据后回退保持未通过。脱敏汇总见 基线报告（本地：`artifacts/node-service-baseline-check.json`），真实隔离渲染见 会话菜单（本地：`artifacts/node-service-baseline-menu.png`） 与 消息分支（本地：`artifacts/node-service-baseline-branches.png`）。
 
 ## 2026-11-06 更名为 Scrylet 并更新图标（2.0.0-dev.6）
 
@@ -153,7 +153,7 @@ M0.1 已完成 36 项功能与 14 项扩充入口的证据登记；M0.2 已只�
 
 GitHub 目标为 `1162706031/Scrylet` 私有仓库，保留上游项目出处、许可证和历史。源码上传排除 `.runtime/`、`.test-data/`、本地配置及安装包二进制，安装包单独通过 Releases 提供。新桌面截图遮住二维码与连接码；历史截图保留在本地，本次不重新提交。通用静默验收文件会随复测更新，当前品牌证据使用独立的 Scrylet 文件。
 
-证据：[安装包校验](../artifacts/scrylet-installer-check.json)、[源码原生检查](../artifacts/scrylet-native-check.json)、[解包客户端检查](../artifacts/scrylet-packaged-check.json)、[依赖完整性](../artifacts/scrylet-dependencies-check.json)、[桌面界面](../artifacts/scrylet-desktop.png)、[手机页面](../artifacts/scrylet-phone-chromium.png)、[配对页](../artifacts/scrylet-pair-chromium.png)。
+证据：安装包校验（本地：`artifacts/scrylet-installer-check.json`）、源码原生检查（本地：`artifacts/scrylet-native-check.json`）、解包客户端检查（本地：`artifacts/scrylet-packaged-check.json`）、依赖完整性（本地：`artifacts/scrylet-dependencies-check.json`）、桌面界面（本地：`artifacts/scrylet-desktop.png`）、手机页面（本地：`artifacts/scrylet-phone-chromium.png`）、配对页（本地：`artifacts/scrylet-pair-chromium.png`）。
 
 ## 2026-11-06 手机声音优选与试听（2.0.0-dev.5）
 
@@ -167,7 +167,7 @@ GitHub 目标为 `1162706031/Scrylet` 私有仓库，保留上游项目出处、
 
 Windows x64 安装包 `dist/Snap-Solver-2.0.0-dev.5-win-x64-Setup.exe`，308,553,744 字节，SHA-256 `1786796a8108387e6e56f8dfb0a8fbd27a70b8402624098cdc3361cda9911511`，附带 `.sha256`，当前未签名。45 个应用源码与当前项目一致，829 项资源审计未发现私密数据或开发依赖。最终打包时 npm 未返回依赖树，构建器采用目录遍历回退；额外检查全部 99 份包元数据的 160 条必需依赖链接均可在归档中解析。依赖审计辅助脚本首轮因 Windows ASAR 路径分隔符报错，改用本机路径格式后通过，记录于 `.test-data/voice-dependency-audit-first-failure.json`。更新时从托盘退出旧版，再安装并重新打开手机页面。
 
-证据：[功能与浏览器检查](../artifacts/voice-settings-check.json)、[安装包检查](../artifacts/voice-settings-installer-check.json)、[依赖完整性](../artifacts/voice-settings-dependencies-check.json)、[手机面板](../artifacts/voice-settings-phone-chromium.png)、[WebKit 面板](../artifacts/voice-settings-phone-webkit.png)、[窄屏面板](../artifacts/voice-settings-narrow-webkit.png)。
+证据：功能与浏览器检查（本地：`artifacts/voice-settings-check.json`）、安装包检查（本地：`artifacts/voice-settings-installer-check.json`）、依赖完整性（本地：`artifacts/voice-settings-dependencies-check.json`）、手机面板（本地：`artifacts/voice-settings-phone-chromium.png`）、WebKit 面板（本地：`artifacts/voice-settings-phone-webkit.png`）、窄屏面板（本地：`artifacts/voice-settings-narrow-webkit.png`）。
 
 ## 2026-11-06 手机自动朗读回答（2.0.0-dev.4）
 
@@ -181,7 +181,7 @@ Windows x64 安装包 `dist/Snap-Solver-2.0.0-dev.5-win-x64-Setup.exe`，308,553
 
 Windows x64 安装包为 `dist/Snap-Solver-2.0.0-dev.4-win-x64-Setup.exe`，308,550,980 字节，SHA-256 为 `41e65d411cf7bd3782872db0422f652728e35a6874550a2b7a06db7fa2e7fde9`，附带 `.sha256`，当前未签名。44 个打包应用源码文件与当前项目一致，生产元数据和固定运行层匹配，828 项归档资源审计未发现私密数据或开发依赖。更新时先从托盘退出旧客户端，再安装并重新打开手机聊天页面。
 
-证据：[功能与浏览器验收](../artifacts/read-aloud-check.json)、[安装包审计](../artifacts/read-aloud-installer-check.json)、[Chromium 手机界面](../artifacts/read-aloud-phone-chromium.png)、[WebKit 手机界面](../artifacts/read-aloud-phone-webkit.png)、[320 像素窄屏](../artifacts/read-aloud-narrow-webkit.png)。
+证据：功能与浏览器验收（本地：`artifacts/read-aloud-check.json`）、安装包审计（本地：`artifacts/read-aloud-installer-check.json`）、Chromium 手机界面（本地：`artifacts/read-aloud-phone-chromium.png`）、WebKit 手机界面（本地：`artifacts/read-aloud-phone-webkit.png`）、320 像素窄屏（本地：`artifacts/read-aloud-narrow-webkit.png`）。
 
 ## 2026-11-06 回答完成提示音兜底修复（2.0.0-dev.3）
 
@@ -195,7 +195,7 @@ Windows x64 安装包为 `dist/Snap-Solver-2.0.0-dev.4-win-x64-Setup.exe`，308,
 
 安装包 `dist/Snap-Solver-2.0.0-dev.3-win-x64-Setup.exe`，308,548,680 字节，附带 `.sha256`，当前未签名。更新时从系统托盘选择“退出”以停止旧后台，再安装修复版，并重新打开电脑和手机上的全部聊天标签页。
 
-证据：[音频专项结果](../artifacts/completion-audio-check.json)、[Windows 安装版检查](../artifacts/completion-audio-installed-check.json)、[安装包与清理记录](../artifacts/completion-audio-installer-check.json)。
+证据：音频专项结果（本地：`artifacts/completion-audio-check.json`）、Windows 安装版检查（本地：`artifacts/completion-audio-installed-check.json`）、安装包与清理记录（本地：`artifacts/completion-audio-installer-check.json`）。
 
 ## 2026-11-06 强制静默修复（2.0.0-dev.2）
 
@@ -207,7 +207,7 @@ Windows x64 安装包为 `dist/Snap-Solver-2.0.0-dev.4-win-x64-Setup.exe`，308,
 
 新安装包 `dist/Snap-Solver-2.0.0-dev.2-win-x64-Setup.exe`，308,548,198 字节，附带 `.sha256`；Windows x64，内置 Python 3.12.16 / Open WebUI 0.12.2，未签名。42 个打包源码文件与当前项目逐字节一致，资源审计未发现私密数据或开发依赖。本轮未覆盖安装用户正在使用的客户端，也未合成系统键鼠输入；没有真实提供商请求，未做实体手机验收。更新时先退出旧版、安装修复版，再刷新手机页面以加载静默保护。
 
-证据：[修复版打包记录](../artifacts/strict-silent-installer-check.json)、[Windows 解包客户端验证](../artifacts/strict-silent-v2-packaged-check.json)、[源码验证](../artifacts/strict-silent-check.json)、[实际静默设置界面](../artifacts/strict-silent-settings.png)、[Chromium 页面](../artifacts/strict-quiet-chromium.png)、[WebKit 页面](../artifacts/strict-quiet-webkit.png)。
+证据：修复版打包记录（本地：`artifacts/strict-silent-installer-check.json`）、Windows 解包客户端验证（本地：`artifacts/strict-silent-v2-packaged-check.json`）、源码验证（本地：`artifacts/strict-silent-check.json`）、实际静默设置界面（本地：`artifacts/strict-silent-settings.png`）、Chromium 页面（本地：`artifacts/strict-quiet-chromium.png`）、WebKit 页面（本地：`artifacts/strict-quiet-webkit.png`）。
 
 ## 2026-11-06 打包最新页面为 Windows 安装包
 
@@ -217,7 +217,7 @@ Windows x64 安装包为 `dist/Snap-Solver-2.0.0-dev.4-win-x64-Setup.exe`，308,
 
 安装器实际安装到含点目录与空格的临时路径后，自带运行层启动、客户端重启、2560 × 1440 原生截屏、操作日志、缓存清理及设置 / 附件 / Cookie / 本地存储保留均通过。测试还缩减了启动环境 PATH，并设置不可用的 Python 环境路径，以验证自带运行环境。完成后已卸载测试副本，恢复原有快捷方式；测试安装注册项和进程均为 0。没有外部模型请求，未做实体手机或其他 Windows 设备验收。
 
-证据：[安装包验收记录](../artifacts/design-installer-check.json)、[安装后运行检查](../artifacts/maintenance-packaged-check.json)、[实际安装版界面](../artifacts/maintenance-packaged.png)。页面和浏览器集成验证见下节。
+证据：安装包验收记录（本地：`artifacts/design-installer-check.json`）、安装后运行检查（本地：`artifacts/maintenance-packaged-check.json`）、实际安装版界面（本地：`artifacts/maintenance-packaged.png`）。页面和浏览器集成验证见下节。
 
 ## 2026-11-06 页面与手机操作更新
 
@@ -229,7 +229,7 @@ Windows 原生 Electron 隔离验收通过：屏幕权限 granted、实际获取
 
 首轮浏览器检查为 33 / 34 通过：WebKit 在主动刷新页面时取消了上游尚未结束的聊天列表请求，产生两条 Load failed。trace 确认请求发生于刷新前，测试改为等待模型与侧栏列表读取结束，保留页面错误断言；随后 34 项、加入连接码与长草稿场景后的 36 项均通过。首轮失败截图与 trace 保存在 `.test-data/design-first-run-failure/`。首次直接启动 Electron 因 IDE 继承 `ELECTRON_RUN_AS_NODE=1` 未能启动；仅在验收进程去掉该变量后完成上述原生检查。
 
-实际渲染图：[桌面](../artifacts/design-desktop.png)、[最小桌面窗口](../artifacts/design-desktop-minimum.png)、[手机空稿](../artifacts/design-phone-empty.png)、[附件与输入](../artifacts/design-phone-attachments.png)、[长草稿与键盘视口](../artifacts/design-phone-keyboard.png)、[配对](../artifacts/design-pair.png)、[模型列表](../artifacts/design-models.png)、[模型表单](../artifacts/design-model-sheet.png)、[密钥输入与键盘视口](../artifacts/design-model-keyboard.png)。
+实际渲染图：桌面（本地：`artifacts/design-desktop.png`）、最小桌面窗口（本地：`artifacts/design-desktop-minimum.png`）、手机空稿（本地：`artifacts/design-phone-empty.png`）、附件与输入（本地：`artifacts/design-phone-attachments.png`）、长草稿与键盘视口（本地：`artifacts/design-phone-keyboard.png`）、配对（本地：`artifacts/design-pair.png`）、模型列表（本地：`artifacts/design-models.png`）、模型表单（本地：`artifacts/design-model-sheet.png`）、密钥输入与键盘视口（本地：`artifacts/design-model-keyboard.png`）。
 
 ## 已实际验证
 
@@ -269,13 +269,13 @@ Windows 原生 Electron 隔离验收通过：屏幕权限 granted、实际获取
 
 安装版首轮验收未能自动点击展开设置面板，证据保留在 `.test-data/network-failure-1793906647315/`，脚本改为键盘展开并断言可见。第二轮发现安装位置包含 `.test-data` 时配对页返回 404：Express 对绝对文件路径检查点目录，将安装目录也纳入了默认隐藏文件过滤。固定页面和裁剪资源改为“限定资源根目录 + 固定文件名”发送，保留隐藏文件过滤。新增实际点目录 HTTP 回归后，28 项单元检查和语法检查通过；第二轮证据保留在 `.test-data/network-failure-1793906771864/`。该修复已纳入重新构建的同一开发版本。
 
-最终 `2.0.0-dev.1` 已在 Windows 本机重新构建，安装到含点目录且带空格的路径并完整复验通过：配对页、裁剪脚本与样式均返回 200，默认 WLAN、手动切换、重启后记住选择、二维码 / 手动地址一致，以及本机浏览器经实际 WLAN origin 配对均通过。随后已卸载测试安装、恢复原快捷方式，没有测试安装注册项或后台进程残留。安装包为 `dist/Snap-Solver-2.0.0-dev.1-win-x64-Setup.exe`，大小 308,546,128 字节，附带 SHA-256；仍未签名，未做实体手机扫码。资源审计未包含本地用户数据或开发工具，41 个打包源码文件与当前源码逐字节一致。证据见 `artifacts/network-packaged-check.json`、`artifacts/network-installer-check.json` 与 [实际网络设置界面](../artifacts/network-packaged.png)。
+最终 `2.0.0-dev.1` 已在 Windows 本机重新构建，安装到含点目录且带空格的路径并完整复验通过：配对页、裁剪脚本与样式均返回 200，默认 WLAN、手动切换、重启后记住选择、二维码 / 手动地址一致，以及本机浏览器经实际 WLAN origin 配对均通过。随后已卸载测试安装、恢复原快捷方式，没有测试安装注册项或后台进程残留。安装包为 `dist/Snap-Solver-2.0.0-dev.1-win-x64-Setup.exe`，大小 308,546,128 字节，附带 SHA-256；仍未签名，未做实体手机扫码。资源审计未包含本地用户数据或开发工具，41 个打包源码文件与当前源码逐字节一致。证据见 `artifacts/network-packaged-check.json`、`artifacts/network-installer-check.json` 与 实际网络设置界面（本地：`artifacts/network-packaged.png`）。
 
 ## 2026-11-06 操作日志、缓存与 Windows 安装包
 
 连接窗口底部新增“操作日志与缓存”。日志显示最近 200 条记录，支持异常筛选和刷新，退出重启后保留；本机最多保留约 4 MiB 轮换日志。只记录固定操作与允许的尺寸、来源、结果分类，不记录密钥、提示词、图片、聊天正文或任意错误堆栈。清理功能仅调用 Electron 页面和代码缓存 API，保留持久化存储和应用数据。
 
-`npm run check` 和 23 项离线单元检查通过。Windows 源码、解包版和实际安装版分别通过维护验收。最终安装版在只保留 Windows 系统搜索路径、设置无效 `PYTHONHOME` / `PYTHONPATH` 的环境中，使用内置运行层启动和重启；缓存从 529,234 字节减少至 4,140 字节，Cookie、localStorage、设置和附件逐项保留，聊天数据库仍在，历史操作日志可再次读取。原生截屏为 2560 × 1440。实际界面见 [维护面板](../artifacts/maintenance-packaged.png)。
+`npm run check` 和 23 项离线单元检查通过。Windows 源码、解包版和实际安装版分别通过维护验收。最终安装版在只保留 Windows 系统搜索路径、设置无效 `PYTHONHOME` / `PYTHONPATH` 的环境中，使用内置运行层启动和重启；缓存从 529,234 字节减少至 4,140 字节，Cookie、localStorage、设置和附件逐项保留，聊天数据库仍在，历史操作日志可再次读取。原生截屏为 2560 × 1440。实际界面见 维护面板（本地：`artifacts/maintenance-packaged.png`）。
 
 安装后的客户端完成系统快捷键、两个角长按、5 秒超时、Esc 取消及自动发送验收。150% 缩放下，480 × 320 DIP 选区得到 720 × 480 图片，只产生两次预期的本地模拟模型请求；默认静默模式下窗口恢复、通知、截图托盘提示和选区窗口均为 0。开启 / 关闭提示的检查仍通过。外部模型请求为 0。
 
@@ -287,7 +287,7 @@ Chromium / WebKit 的 14 项电脑截图集成检查在最终同一次运行全�
 
 新增持久化的“显示截图提示与弹窗”开关，默认关闭，旧配置缺少字段时也关闭且不改写旧文件。关闭时不创建选区窗口、不显示倒计时、截图状态与成功 / 失败通知，不更新截图托盘提示，也不因截图成功、失败或取消而恢复主窗口；手机端不显示电脑截图 toast、附件高亮或主动滚动。关闭开关会清除先前请求的通知，手动开启后才显示截图提示。
 
-代码检查、18 项离线单元检查、Chromium / WebKit 的 14 项电脑截图集成检查通过，包含静默成功、静默失败、开启提示及旧配置兼容。Windows 本机重新验收全局快捷键、长按、超时、Esc 与原生裁剪：静默期间主窗口显示、选区窗口、系统通知调用及截图托盘提示均为 0，截图仍产生预期的两次本地模拟模型请求。开启后创建选区窗口、请求通知；再关闭时调用通知清理。通知以 API 调用次数验收，没有向系统发送实际 Toast。记录见 `artifacts/desktop-input-check.json`，实际界面见 [默认关闭的提示开关](../artifacts/capture-hints-settings.png)。
+代码检查、18 项离线单元检查、Chromium / WebKit 的 14 项电脑截图集成检查通过，包含静默成功、静默失败、开启提示及旧配置兼容。Windows 本机重新验收全局快捷键、长按、超时、Esc 与原生裁剪：静默期间主窗口显示、选区窗口、系统通知调用及截图托盘提示均为 0，截图仍产生预期的两次本地模拟模型请求。开启后创建选区窗口、请求通知；再关闭时调用通知清理。通知以 API 调用次数验收，没有向系统发送实际 Toast。记录见 `artifacts/desktop-input-check.json`，实际界面见 默认关闭的提示开关（本地：`artifacts/capture-hints-settings.png`）。
 
 额外手动聊天流程检查中，Chromium 首次通过，WebKit 首次在主动刷新时报告模型列表请求被取消；没有忽略页面错误，失败 trace 保留在 `.test-data/silent-capture-manual-first-run/`。随后单独复测该 WebKit 用例通过。本轮没有重新运行其余完整浏览器用例，上一轮完整 30 项记录对应下述日期。
 
@@ -295,7 +295,7 @@ Chromium / WebKit 的 14 项电脑截图集成检查在最终同一次运行全�
 
 `npm run check`、15 项离线单元检查及新增 Python 文件的语法编译通过。Windows 本机使用隔离数据目录、实际 Open WebUI 0.12.2 与本地模拟模型，经过设置表单录入自定义快捷键和提示词，再通过系统键鼠事件完成全屏发送、两个 1.2 秒长按、5 秒超时与 Esc 取消。150% 显示缩放下，480 × 320 DIP 选区得到 720 × 480 图片；两次操作只产生两次本地模型请求，外部模型请求为 0。手机草稿保留，设置已持久化；退出后鼠标辅助进程数为 0。另一个隔离桌面检查通过原生全屏获取（2560 × 1440）及关闭到托盘。
 
-实际渲染见 [电脑入口](../artifacts/desktop-input.png)、[自定义设置](../artifacts/desktop-input-settings.png)、[手机回答](../artifacts/desktop-input-answer.png)。电脑发送仍通过原版聊天框；生成中、草稿、暂停及接收途中切换对话均有拒绝提交的浏览器检查。
+实际渲染见 电脑入口（本地：`artifacts/desktop-input.png`）、自定义设置（本地：`artifacts/desktop-input-settings.png`）、手机回答（本地：`artifacts/desktop-input-answer.png`）。电脑发送仍通过原版聊天框；生成中、草稿、暂停及接收途中切换对话均有拒绝提交的浏览器检查。
 
 最终 Chromium / WebKit **30 项完整回归在同一次运行全部通过**（无跳过、无重试）；摘要见 `artifacts/desktop-input-ui-check.json`，本地完整报告与 trace 位于 `.test-data/final-ui-result.json`、`.test-data/final-ui-results/`。差异检查允许仓库现有 CRLF 行尾，通过 `git -c core.whitespace=cr-at-eol diff --check`，没有批量改写原有行尾。
 

@@ -113,4 +113,4 @@ npm run collect:m5 -- --acceptance <完整候选验收/report.json> --installati
 npm run test:release -- artifacts/node-service-m5-release.json <对应候选安装器> # 未测门槛必须仍退出 1
 ```
 
-完整机器结果：[node-service-m5-check.json](../artifacts/node-service-m5-check.json)。原始日志 / 数据仅在忽略的 `.test-data/node-service-m5/`；旧基线和 M4 夹具不改写。源码默认已切换为 Node；对外发布和 Python / Open WebUI 删除没有执行。
+完整机器结果：node-service-m5-check.json（本地：`artifacts/node-service-m5-check.json`）。原始日志 / 数据仅在忽略的 `.test-data/node-service-m5/`；旧基线和 M4 夹具不改写。源码默认已切换为 Node；对外发布和 Python / Open WebUI 删除没有执行。

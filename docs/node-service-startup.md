@@ -1,6 +1,6 @@
 # M0.2：旧运行层启动与包体基线
 
-2026-11-07，`2.0.0-dev.6`，默认仍为 legacy。**分段计时、一次首次初始化与 10 次完整退出后的启动已实测；5 次真实 Windows 重启后的首次启动仍未验收，M0.2 不标记全部通过。** 脱敏原始样本和汇总见 [启动报告](../artifacts/node-service-startup-check.json)。
+2026-11-07，`2.0.0-dev.6`，默认仍为 legacy。**分段计时、一次首次初始化与 10 次完整退出后的启动已实测；5 次真实 Windows 重启后的首次启动仍未验收，M0.2 不标记全部通过。** 脱敏原始样本和汇总见 启动报告（本地：`artifacts/node-service-startup-check.json`）。
 
 本轮没有构建新版安装包、删除 Python、访问真实模型账户或修改真实 userData。上一轮的 [M0.1 入口基线](node-service-baseline.md) 和历史证据保持原样。
 

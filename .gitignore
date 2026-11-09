@@ -143,3 +143,5 @@ test-results/
 playwright-report/
 .test-data/
 .runtime/
+# 本地验收截图与报告，不上传 GitHub；公开展示图保存在 docs/assets/
+/artifacts/

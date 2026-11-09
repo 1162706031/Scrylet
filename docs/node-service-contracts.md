@@ -11,7 +11,7 @@ M4 新增独立本地 `migration.cjs` / `.d.ts` 契约与 authenticated binary `
 - [http-v1.json](../contracts/http-v1.json) 固定 22 条 API 草稿、请求 / 响应 schema 名称、成功状态及错误码。只有显式 `POST /chats/:id/messages` 创建生成；请求查询、订阅恢复、草稿和 stop 都不能发起新一轮请求。stage 明确为 draft-not-routed。
 - [contract-samples.cjs](../tests/fixtures/contract-samples.cjs) 的全部 24 个正向夹具同时通过运行时校验和 strict JS 声明检查，schema 集与样本集必须一致；另有 TypeScript 的缺失 command、删除密钥仍带值、非终态 finish 等反例。
 
-`npm run test:contracts` 执行 32 项契约检查和 strict 声明检查；`npm run check` 包含 contracts 语法、声明 / 样本与已有 phone strict。`npm test` 同轮 102 项通过，无跳过；包括原有配对 / 网关 / 静默 / 草稿保护等离线回归、M0.3 协议、14 项 SDK 格式矩阵、3 项旧格式和 32 项契约。证据见 [contracts-check](../artifacts/node-service-contracts-check.json)。另重新执行两引擎旧版格式采集与冻结 schema 比对，见 [formats-check](../artifacts/node-service-formats-check.json)。没有把此前 70 项旧 UI 全套记为本轮重跑。
+`npm run test:contracts` 执行 32 项契约检查和 strict 声明检查；`npm run check` 包含 contracts 语法、声明 / 样本与已有 phone strict。`npm test` 同轮 102 项通过，无跳过；包括原有配对 / 网关 / 静默 / 草稿保护等离线回归、M0.3 协议、14 项 SDK 格式矩阵、3 项旧格式和 32 项契约。证据见 contracts-check（本地：`artifacts/node-service-contracts-check.json`）。另重新执行两引擎旧版格式采集与冻结 schema 比对，见 formats-check（本地：`artifacts/node-service-formats-check.json`）。没有把此前 70 项旧 UI 全套记为本轮重跑。
 
 ## 已固定的边界
 

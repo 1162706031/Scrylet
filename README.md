@@ -8,15 +8,15 @@
 
 在 macOS / Windows 启动桌面 App，手机连同一局域网并扫码。每次截屏添加一张图片，可以连续添加、按需框选，再把图片与问题一起发送。
 
-![Scrylet 电脑连接窗口](artifacts/scrylet-desktop.png)
+Scrylet 电脑连接窗口（本地：`artifacts/scrylet-desktop.png`）
 
-[手机页面](artifacts/scrylet-phone-chromium.png) · [电脑模型设置](artifacts/desktop-redesign-models.png) · [手机连接](artifacts/scrylet-pair-chromium.png)
+手机页面（本地：`artifacts/scrylet-phone-chromium.png`） · 电脑模型设置（本地：`artifacts/desktop-redesign-models.png`） · 手机连接（本地：`artifacts/scrylet-pair-chromium.png`）
 
-[手机自动朗读回答](artifacts/read-aloud-phone-chromium.png)
+手机自动朗读回答（本地：`artifacts/read-aloud-phone-chromium.png`）
 
-[手机声音与语速设置](artifacts/voice-settings-phone-chromium.png)
+手机声音与语速设置（本地：`artifacts/voice-settings-phone-chromium.png`）
 
-[电脑静默截图设置](artifacts/scrylet-settings.png)
+电脑静默截图设置（本地：`artifacts/scrylet-settings.png`）
 
 ## 安装包
 

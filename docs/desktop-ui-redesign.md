@@ -41,7 +41,7 @@
 | `playwright test --config playwright.phone.config.cjs provider-ui.spec.cjs layout.spec.cjs design.spec.cjs` | Chromium / WebKit **14/14**，无跳过或重试；320/375/390/430px、短视口、VisualViewport 缩小 / 偏移、密钥空值保存与显式移除、返回原 URL / 草稿、原对话布局和流式阅读 |
 | `node --test tests/ui-policy.test.cjs tests/maintenance.test.cjs` | **6/6**，静默桥与缓存 / 数据保留单元检查 |
 
-桌面验证摘要：[desktop-redesign-check.json](../artifacts/desktop-redesign-check.json)。原始日志在 `.test-data/desktop-ui-redesign/desktop-final.log`、`browser.log`、`final-check.log`。数据目录和服务均隔离，未访问真实用户数据库或使用真实模型密钥。
+桌面验证摘要：desktop-redesign-check.json（本地：`artifacts/desktop-redesign-check.json`）。原始日志在 `.test-data/desktop-ui-redesign/desktop-final.log`、`browser.log`、`final-check.log`。数据目录和服务均隔离，未访问真实用户数据库或使用真实模型密钥。
 
 ## 实际渲染截图
 
@@ -49,12 +49,12 @@
 
 | 页面 | 截图 |
 | --- | --- |
-| 桌面连接概览 | [查看](../artifacts/desktop-redesign-overview.png) |
-| 截图设置 | [查看](../artifacts/desktop-redesign-capture.png) |
-| 操作日志 | [查看](../artifacts/desktop-redesign-activity.png) |
-| 网络设置 | [查看](../artifacts/desktop-redesign-network.png) |
-| 模型列表 | [Chromium](../artifacts/model-services-redesign-chromium.png) / [WebKit](../artifacts/model-services-redesign-webkit.png) |
-| 模型表单 | [Chromium](../artifacts/model-credentials-redesign-chromium.png) / [WebKit](../artifacts/model-credentials-redesign-webkit.png) |
-| 短视口固定操作区 | [Chromium](../artifacts/model-sheet-short-redesign-chromium.png) / [WebKit](../artifacts/model-sheet-short-redesign-webkit.png) |
+| 桌面连接概览 | 查看（本地：`artifacts/desktop-redesign-overview.png`） |
+| 截图设置 | 查看（本地：`artifacts/desktop-redesign-capture.png`） |
+| 操作日志 | 查看（本地：`artifacts/desktop-redesign-activity.png`） |
+| 网络设置 | 查看（本地：`artifacts/desktop-redesign-network.png`） |
+| 模型列表 | Chromium（本地：`artifacts/model-services-redesign-chromium.png`） / WebKit（本地：`artifacts/model-services-redesign-webkit.png`） |
+| 模型表单 | Chromium（本地：`artifacts/model-credentials-redesign-chromium.png`） / WebKit（本地：`artifacts/model-credentials-redesign-webkit.png`） |
+| 短视口固定操作区 | Chromium（本地：`artifacts/model-sheet-short-redesign-chromium.png`） / WebKit（本地：`artifacts/model-sheet-short-redesign-webkit.png`） |
 
 本次未运行原生系统输入注入、实际屏幕捕获或最终安装包验收；这些能力的业务代码未变。尚未做物理手机软键盘、Mac 硬件和迁移窗口实际迁移流程的新增验收。Vite 既有体积、同步 quiet.js 和 SWR 指令提示仍保留。

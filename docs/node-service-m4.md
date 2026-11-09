@@ -66,8 +66,8 @@ npm run test:mac-package -- --arch arm64 --dmg "arm64.dmg" --zip "arm64.zip" --p
 
 ## 回归、截图与后续门槛
 
-本轮源码 / strict / 契约检查、完整离线 **141/141**、后端源码 **34** / 独立测试 ASAR **33** 组、手机 Chromium / WebKit **50/50** 通过；M0/M2 原截图按字节恢复，新增渲染单独保留。迁移两引擎、手机测试 ASAR 和最终资源审计的准确结果见 [机器汇总](../artifacts/node-service-m4-check.json)，不把测试 ASAR 当发行安装包。首次后端回归因新图片 self-ID 映射加入 legacy_ids 后，旧测试误把所有映射当会话计数而失败；已分别断言 chat=1 / file=2，源码 / ASAR 完整重跑通过，没有删除兼容映射或弱化验证。
+本轮源码 / strict / 契约检查、完整离线 **141/141**、后端源码 **34** / 独立测试 ASAR **33** 组、手机 Chromium / WebKit **50/50** 通过；M0/M2 原截图按字节恢复，新增渲染单独保留。迁移两引擎、手机测试 ASAR 和最终资源审计的准确结果见 机器汇总（本地：`artifacts/node-service-m4-check.json`），不把测试 ASAR 当发行安装包。首次后端回归因新图片 self-ID 映射加入 legacy_ids 后，旧测试误把所有映射当会话计数而失败；已分别断言 chat=1 / file=2，源码 / ASAR 完整重跑通过，没有删除兼容映射或弱化验证。
 
-实际渲染：[迁移进度](../artifacts/node-service-m4-migration-webkit.png)、[升级手机页](../artifacts/node-service-m4-upgraded-webkit.png)、[浏览器旧版回退](../artifacts/node-service-m4-rollback-webkit.png)、[已安装桌面](../artifacts/node-service-m4-installed-desktop.png)、[已安装手机](../artifacts/node-service-m4-installed-phone.png)、[安装旧版读回](../artifacts/node-service-m4-installed-rollback.png)。桌面二维码、配对码与地址已遮盖；手机内容 / 图片均为合成数据。未提交数据库、真实密钥、配对 token 或本地设置。
+实际渲染：迁移进度（本地：`artifacts/node-service-m4-migration-webkit.png`）、升级手机页（本地：`artifacts/node-service-m4-upgraded-webkit.png`）、浏览器旧版回退（本地：`artifacts/node-service-m4-rollback-webkit.png`）、已安装桌面（本地：`artifacts/node-service-m4-installed-desktop.png`）、已安装手机（本地：`artifacts/node-service-m4-installed-phone.png`）、安装旧版读回（本地：`artifacts/node-service-m4-installed-rollback.png`）。桌面二维码、配对码与地址已遮盖；手机内容 / 图片均为合成数据。未提交数据库、真实密钥、配对 token 或本地设置。
 
 下一项 **M4.4 正式 Windows 安装身份与 M4.5 Mac 两架构实机验收**。继续保留 M3 Mac 功能 / 权限、多屏 / 锁屏、物理手机、M0.2 重启首启 0/5 和 M5 最终包 / 默认切换门槛；当前不删除 Python / Open WebUI，不宣称整个重构完成。
