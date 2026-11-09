@@ -44,6 +44,10 @@ const root = path.resolve(__dirname, ".."), base = path.join(root, ".test-data/d
     await openDesktopSection(page, "capture");
     await expect(page.locator("#capture-panel")).toBeVisible();
     await expect(page.locator("#overview-panel")).toBeHidden();
+    if (process.platform === "darwin") {
+      await expect(page.locator("#setting-mouse-enabled")).toBeEnabled();
+      await page.screenshot({ path: path.join(root, "artifacts/mac-mouse-settings.png"), scale: "css", animations: "disabled" });
+    }
     const prompt = "用清晰的步骤解释截图里的问题。";
     await page.locator("#setting-prompt").fill(prompt);
     await openDesktopSection(page, "activity");

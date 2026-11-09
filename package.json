@@ -27,6 +27,7 @@
     "test:desktop-ui": "node scripts/test-desktop-ui.cjs",
     "test:desktop-input": "node scripts/smoke-desktop-input.cjs",
     "build:native": "node scripts/build-native.cjs",
+    "build:mac-input": "node scripts/build-mac-input.cjs",
     "test:native": "node scripts/test-native-input.cjs",
     "test:desktop-lifecycle": "node scripts/test-desktop-lifecycle.cjs",
     "test:mac-package": "node scripts/smoke-mac-package.cjs",

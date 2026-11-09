@@ -8,6 +8,7 @@ contextBridge.exposeInMainWorld("snap", {
   revoke: (id) => ipcRenderer.invoke("snap:revoke", id),
   pause: (value) => ipcRenderer.invoke("snap:pause", value),
   permission: () => ipcRenderer.invoke("snap:permission"),
+  openMousePermission: () => ipcRenderer.invoke("snap:mouse-permission"),
   testCapture: () => ipcRenderer.invoke("snap:test-capture"),
   copyAddress: () => ipcRenderer.invoke("snap:copy"),
   openPhonePreview: () => ipcRenderer.invoke("snap:preview"),

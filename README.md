@@ -34,7 +34,7 @@ npm run setup
 npm start
 ```
 
-`setup` 执行严格类型检查、手机静态构建和 Windows 预编译 observer 校验，不创建 `.runtime`。Windows 开发者需要先准备锁定的 Rust 1.91.0 GNU 工具链并运行 `npm run build:native`；安装用户使用包内 observer，不需要 Rust 或系统 Node。
+`setup` 执行严格类型检查、手机静态构建、Windows 预编译 observer 校验；在 Mac 源码环境还会用 Rust 1.91.0 编译同一 crate 的只读鼠标监听程序。不创建 `.runtime`。Mac 开发者需安装 Rust 1.91.0 与目标架构的标准库（`rustup toolchain install 1.91.0 --profile minimal`，再运行 `rustup target add --toolchain 1.91.0 aarch64-apple-darwin x86_64-apple-darwin`）；Cargo 不在 PATH 时可用 `SNAP_CARGO` 指向其绝对路径。Windows 开发者需要先准备锁定的 Rust 1.91.0 GNU 工具链并运行 `npm run build:native`；安装用户使用包内 observer，不需要编译器或系统 Node。
 
 `npm start` 现在默认使用轻量 Node 服务和 React 手机页面，不需要 Python。已有旧版 `Snap-Solver/open-webui/webui.db` 时，首次启动会显示迁移进度，将聊天、图片、设置等只读导入新的 `Scrylet` 数据目录；旧目录保留，不覆盖或删除。迁移前先退出仍在运行的旧版；迁移失败不会把空数据当作成功。需要完全隔离的开发目录时，可继续运行 `npm run start:node -- --data <绝对路径>`。
 
@@ -47,7 +47,7 @@ npm run dist:mac:arm64              # macOS：arm64 DMG + ZIP
 npm run dist:mac:x64                # macOS：x64 DMG + ZIP
 ```
 
-Mac 原生构建可手动运行 `.github/workflows/package-mac.yml`，只构建和审计，不运行 Mac 测试。Linux 可用 `scripts/dist-mac.cjs --arch arm64|x64 --archive-only --prebuilt-phone` 生成 ZIP；需先构建手机页，并准备本机 electron-builder 工具，可通过 `SCRYLET_BUILDER_CLI` 指定 CLI 路径。跨平台审计只验证文件、Mach-O 架构、权限与许可，不替代 macOS 运行验收。
+Mac 原生构建可手动运行 `.github/workflows/package-mac.yml`，只构建和审计，不运行 Mac 测试。Linux 可用 `scripts/dist-mac.cjs --arch arm64|x64 --archive-only --prebuilt-phone` 生成 ZIP；需先构建手机页，并提供从 Mac 构建的对应架构鼠标监听程序与清单到 `build/native/darwin-<arch>/`，以及本机 electron-builder 工具（可用 `SCRYLET_BUILDER_CLI` 指定）。跨平台审计只验证文件、Mach-O 架构、权限与许可，不替代 macOS 运行验收。
 
 默认启动与正常安装包使用 `Scrylet` userData，无需运行层开关；Windows 继承显式 `APPDATA`。普通用户直接打开应用；独立开发数据使用 `npm run start:node -- --data <绝对路径>`。旧运行层、Python 准备脚本和 `http-proxy` 已移除，原对照源码、依赖声明和全部旧测试断言保存于 [源码归档](docs/archive/README.md)。数据兼容导入、浏览器草稿升级和 `export:legacy` 继续存在。
 
@@ -73,7 +73,7 @@ Mac 原生构建可手动运行 `.github/workflows/package-mac.yml`，只构建�
 - **自定义**：展开“截图操作与默认提示词”，修改全屏、区域和取消快捷键、鼠标按键、长按时长、等待时间与提示词。可选的“双击截全屏并发送”默认关闭。
 - **截图静默**：截图成功或失败均不播放声音、不显示选区框、倒计时、结果通知或托盘提示，不自动恢复或聚焦电脑窗口。旧版“显示截图提示”配置会被忽略；手机通知声与振动保持关闭，回答朗读仅在手机主动开启后使用，截图不显示结果弹窗或附件高亮。
 
-全局鼠标手势目前支持 Windows。拖动鼠标不算长按；手机已有草稿、正在生成回答、位于后台或断线时暂不发送，原因可在电脑操作日志查看。发送只交给一个接收页面，不重放未确认的操作；多页面打开时，以最近激活的聊天页面为接收端。手机上的“截屏 / 框选”仍只追加附件，等待手动发送。
+全局鼠标手势支持 Windows x64 和 macOS arm64 / x64。Mac 首次启用时需在系统设置中允许输入监控；拖动鼠标不算长按。手机已有草稿、正在生成回答、位于后台或断线时暂不发送，原因可在电脑操作日志查看。发送只交给一个接收页面，不重放未确认的操作；多页面打开时，以最近激活的聊天页面为接收端。手机上的“截屏 / 框选”仍只追加附件，等待手动发送。
 
 电脑关窗后继续在菜单栏 / 托盘运行；退出 App 会停止后台服务。二维码与连接码 10 分钟轮换，已配对设备不会因此掉线。通常重启会复用原端口；端口被占用或电脑更换网络时，请重新扫码。
 

@@ -64,6 +64,16 @@ test("拖动、短按和取消都不会截图；双击可独立开启", (t) => {
   assert.equal(gesture.phase, "idle");
   assert.equal(regions.length, 0);
 });
+test("仅开启双击时，长按不会进入区域手势", (t) => {
+  const { gesture, doubles, tick } = fixture(t, { doubleMs: 500, holdEnabled: false });
+  gesture.down({ x: 20, y: 30 }); tick(1200); gesture.up();
+  assert.equal(gesture.phase, "idle");
+  gesture.down({ x: 20, y: 30 }); tick(40); gesture.up();
+  gesture.down({ x: 20, y: 30 }); tick(40); gesture.up();
+  assert.equal(doubles.length, 1);
+  gesture.arm(); gesture.down({ x: 20, y: 30 }); tick(1200);
+  assert.equal(gesture.phase, "release-first");
+});
 
 test("截图设置拒绝重复快捷键、无效按键和越界时长", () => {
   const settings = defaults(path.join(__dirname, "no-legacy"));

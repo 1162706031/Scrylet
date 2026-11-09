@@ -12,7 +12,7 @@ for (const args of [
   ],
   ...(process.platform === "win32"
     ? [["scripts/build-native.cjs", "--verify"]]
-    : []),
+    : process.platform === "darwin" ? [["scripts/build-mac-input.cjs"]] : []),
 ]) {
   const result = spawnSync(process.execPath, args, {
     cwd: root,

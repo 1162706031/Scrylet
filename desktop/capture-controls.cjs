@@ -29,7 +29,7 @@ class CaptureControls extends EventEmitter {
   start() {
     try { this.register(this.settings); } catch (error) { this.report(error.message, true); }
     this.createGesture();
-    if (this.settings.mouseEnabled) this.mouse.start(this.settings.mouseButton);
+    if (this.settings.mouseEnabled || this.settings.doubleClickEnabled) this.mouse.start(this.settings.mouseButton);
   }
   register(settings) {
     const globalShortcut = this.electron.globalShortcut;
@@ -68,7 +68,7 @@ class CaptureControls extends EventEmitter {
     this.mouse.stop();
     this.mouseReady = false;
     this.createGesture();
-    if (next.mouseEnabled) this.mouse.start(next.mouseButton);
+    if (next.mouseEnabled || next.doubleClickEnabled) this.mouse.start(next.mouseButton);
     this.report("截图设置已保存");
     this.activity?.record("settings.saved");
     return this.snapshot();
@@ -77,6 +77,7 @@ class CaptureControls extends EventEmitter {
     this.gesture = new RegionGesture({
       ...this.settings,
       doubleMs: this.settings.doubleClickEnabled ? this.settings.doubleClickMs : 0,
+      holdEnabled: this.settings.mouseEnabled,
       onChange: (state) => this.selection(state),
       onRegion: (first, second) => this.run(() => this.capture("region", first, second)),
       onDoubleClick: () => this.run(() => this.capture("full")),
@@ -85,7 +86,7 @@ class CaptureControls extends EventEmitter {
   snapshot() {
     return {
       settings: this.settings, phase: this.phase, busy: this.busy,
-      mouseReady: this.mouseReady, mouseSupported: process.platform === "win32" && process.arch === "x64",
+      mouseReady: this.mouseReady, mouseSupported: MouseInput.supported(),
       receiver: this.gateway.delivery.status(), message: this.message, error: this.error,
     };
   }
@@ -103,7 +104,7 @@ class CaptureControls extends EventEmitter {
   }
   arm() {
     this.ensureReady();
-    if (process.platform !== "win32" || process.arch !== "x64") throw new Error("电脑鼠标区域截图目前支持 Windows x64；其他系统或架构可使用手机框选");
+    if (!MouseInput.supported()) throw new Error("这台电脑暂不支持鼠标区域截图；可使用手机框选");
     this.gesture.arm();
     if (!this.settings.mouseEnabled && !this.mouseReady) this.mouse.start(this.settings.mouseButton);
     const window = this.getWindow();
@@ -120,7 +121,7 @@ class CaptureControls extends EventEmitter {
       this.activity?.record(state.message.includes("超时") ? "region.timeout" : "region.cancelled");
     if (state.phase === "idle") {
       this.electron.globalShortcut.unregister(this.settings.cancelShortcut);
-      if (!this.settings.mouseEnabled) {
+      if (!this.settings.mouseEnabled && !this.settings.doubleClickEnabled) {
         this.mouse.stop();
         this.mouseReady = false;
       }
@@ -138,19 +139,20 @@ class CaptureControls extends EventEmitter {
   pointer(event) {
     if (event.type === "ready") {
       this.mouseReady = true;
+      this.mouseCoordinates = event.coordinateSpace;
       this.emit("change", this.snapshot());
       return;
     }
     if (event.type === "cancel") { this.gesture.cancel(); return; }
     if (this.suspended || this.busy) return;
     const active = this.phase !== "idle";
-    if (!active && !this.settings.mouseEnabled) return;
+    if (!active && !this.settings.mouseEnabled && !this.settings.doubleClickEnabled) return;
     if (event.type === "down") {
       if (!this.gateway.delivery.status().ready || this.gateway.paused || !this.runtime.ready) {
         if (active) this.cancel();
         return;
       }
-      const point = this.electron.screen.screenToDipPoint({ x: event.x, y: event.y });
+      const point = this.pointerPoint(event);
       const window = this.getWindow();
       if (!active && window?.isFocused()) {
         const bounds = window.getBounds();
@@ -159,8 +161,12 @@ class CaptureControls extends EventEmitter {
       }
       this.gesture.down(point);
     } else if (event.type === "move") {
-      this.gesture.move(this.electron.screen.screenToDipPoint({ x: event.x, y: event.y }));
+      this.gesture.move(this.pointerPoint(event));
     } else if (event.type === "up") this.gesture.up();
+  }
+  pointerPoint(event) {
+    const point = { x: event.x, y: event.y };
+    return this.mouseCoordinates === "dip" ? point : this.electron.screen.screenToDipPoint(point);
   }
   suspend(value) {
     this.suspended = value === true;

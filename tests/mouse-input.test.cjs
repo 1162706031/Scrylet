@@ -39,9 +39,9 @@ function fixture(options = {}) {
     (message) => errors.push(message),
     {
       spawn,
-      program: () => "isolated.exe",
-      platform: "win32",
-      arch: "x64",
+      program: () => "isolated-observer",
+      platform: options.platform || "win32",
+      arch: options.arch || "x64",
       handshakeTimeout: 30,
       stopTimeout: 20,
     },
@@ -64,6 +64,17 @@ test("native reader accepts split/multiple lines only after physical v1 handshak
   assert.equal(c.exitCode, 0);
   assert.deepEqual(f.errors, []);
   assert.equal(f.mouse.child, null);
+});
+test("Mac observer accepts DIP handshake and stays read-only across lifecycle", async () => {
+  const f = fixture({ platform: "darwin", arch: "arm64" });
+  await f.mouse.start("x1");
+  assert.equal(f.children.length, 1);
+  f.children[0].stdout.write('{"protocolVersion":1,"type":"ready","coordinateSpace":"dip"}\n');
+  f.children[0].stdout.write('{"protocolVersion":1,"type":"down","x":-100,"y":80}\n');
+  assert.deepEqual(f.events.map(event => event.type), ["ready", "down"]);
+  assert.equal(f.events[0].coordinateSpace, "dip");
+  await f.mouse.stop();
+  assert.deepEqual(f.errors, []);
 });
 for (const [label, content] of [
   ["before-ready", '{"protocolVersion":1,"type":"cancel"}\n'],
@@ -110,7 +121,7 @@ test("rapid reconfiguration never spawns stale observer; unsupported platform an
     () => {},
     () => {},
     {
-      platform: "darwin",
+      platform: "linux",
       spawn: () => {
         spawned = true;
       },

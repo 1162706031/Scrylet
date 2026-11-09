@@ -82,7 +82,7 @@ function main(argv = process.argv.slice(2)) {
     version: metadata.version,
     profile: options.profile,
     installation: "unverified",
-    nativeMouseObserver: false,
+    nativeMouseObserver: true,
   };
   try {
     if (!options.prebuiltPhone) {
@@ -106,6 +106,11 @@ function main(argv = process.argv.slice(2)) {
     if (!fs.existsSync(icon) || fs.statSync(icon).size === 0) {
       if (process.platform !== "darwin") throw Error("MAC_ICON_MISSING");
       command(process.execPath, [path.join(root, "scripts/generate-icons.cjs"), "--mac"]);
+    }
+    if (process.platform === "darwin") command(process.execPath, [path.join(root, "scripts/build-mac-input.cjs"), "--arch", options.arch]);
+    else {
+      const prebuilt = path.join(root, "build/native/darwin-" + options.arch);
+      require("../desktop/native-program.cjs").observerProgram({ nativeDirectory: prebuilt, observer: path.join(prebuilt, "input-observer") }, { platform: "darwin", arch: options.arch });
     }
     const config = packageConfig({ platform: "darwin", ...options });
     if (process.platform === "darwin" && options.arch === process.arch) {

@@ -9,7 +9,7 @@ const root = path.resolve(__dirname, ".."),
 function buildNative({ verify = false } = {}) {
   if (process.platform !== "win32" || process.arch !== "x64")
     throw Error(
-      "原生 observer 目前只构建 Windows x64；Mac 长按 capability=false",
+      "此命令只构建 Windows x64；Mac 请运行 npm run build:mac-input",
     );
   const output = path.join(root, "build/native/win32-x64");
   if (!verify) {

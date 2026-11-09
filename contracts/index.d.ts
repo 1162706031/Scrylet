@@ -37,7 +37,7 @@ export type ProcessMessage = { protocolVersion: 1 } & (
   ({ type: 'secret-request'; requestId: string; providerId: string; secretRef?: string } & ({ operation: 'set'; value: string } | { operation: 'get' | 'delete'; value?: never })) |
   { type: 'secret-response'; requestId: string; ok: true; value: string | null } |
   ({ type: 'secret-response'; requestId: string; ok: false } & PublicError));
-export type NativeEvent = { protocolVersion: 1 } & ({ type: 'ready'; coordinateSpace: 'physical' } | { type: 'down' | 'move' | 'up'; x: number; y: number } | { type: 'cancel' });
+export type NativeEvent = { protocolVersion: 1 } & ({ type: 'ready'; coordinateSpace: 'physical' | 'dip' } | { type: 'down' | 'move' | 'up'; x: number; y: number } | { type: 'cancel' });
 export interface AcceptedSubmission { apiVersion: 1; chatId: string; generationId: string; userMessageId: string; assistantMessageId: string; status: GenerationStatus; deduplicated: boolean; chatVersion: number }
 export interface ChatPatch { apiVersion: 1; version: number; title?: string; pinned?: boolean; archived?: boolean; lastReadAt?: number | null; currentMessageId?: string | null; modelId?: string }
 export interface DraftWrite { apiVersion: 1; browserClientId: string; expectedRevision: number; modelId: string; parts: InputPart[] }

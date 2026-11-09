@@ -173,6 +173,12 @@ function renderCapture(next) {
     settingsSignature = signature;
   }
   $("setting-mouse-enabled").disabled = !next.mouseSupported;
+  const mouseSelected = next.settings.mouseEnabled || next.settings.doubleClickEnabled;
+  $("mouse-input-status").textContent = state?.platform === "darwin"
+    ? mouseSelected ? next.mouseReady ? "鼠标监听已就绪" : "鼠标监听未就绪，请在系统设置中允许输入监控，然后重新保存设置。"
+      : "macOS 鼠标操作需要输入监控权限；启用后会由系统请求授权。"
+    : "";
+  $("mouse-permission").hidden = state?.platform !== "darwin" || !mouseSelected || next.mouseReady;
 }
 function fillCaptureSettings(settings) {
   for (const [id, key] of [["full", "fullShortcut"], ["region", "regionShortcut"], ["cancel", "cancelShortcut"], ["mouse-button", "mouseButton"], ["prompt", "prompt"]])
@@ -218,6 +224,7 @@ async function desktopCapture(action) {
 }
 $("capture-send").onclick = () => desktopCapture(() => window.snap.captureAndSend());
 $("capture-region").onclick = () => desktopCapture(() => window.snap.selectRegion());
+$("mouse-permission").onclick = () => action(() => window.snap.openMousePermission());
 $("capture-cancel").onclick = () => window.snap.cancelRegion();
 window.snap.onCaptureState(renderCapture);
 let logEntries = [], clearingCache = false;

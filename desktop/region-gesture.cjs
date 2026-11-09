@@ -1,7 +1,7 @@
 // Only pointer timing/selection lives here; it never captures or sends by itself.
 class RegionGesture {
-  constructor({ holdMs, timeoutMs, onChange, onRegion, onDoubleClick, doubleMs = 0 }) {
-    Object.assign(this, { holdMs, timeoutMs, onChange, onRegion, onDoubleClick, doubleMs });
+  constructor({ holdMs, timeoutMs, onChange, onRegion, onDoubleClick, doubleMs = 0, holdEnabled = true }) {
+    Object.assign(this, { holdMs, timeoutMs, onChange, onRegion, onDoubleClick, doubleMs, holdEnabled });
     this.phase = "idle";
   }
   arm() {
@@ -15,7 +15,7 @@ class RegionGesture {
     if (this.pressed) return;
     clearTimeout(this.wait);
     this.pressed = { ...point, at: Date.now() };
-    this.hold = setTimeout(() => this.recognize(), this.holdMs);
+    if (this.holdEnabled || this.phase !== "idle") this.hold = setTimeout(() => this.recognize(), this.holdMs);
   }
   move(point) {
     if (!this.pressed) return;
@@ -62,7 +62,7 @@ class RegionGesture {
       const remaining = this.firstDeadline - Date.now();
       if (remaining <= 0) this.cancel("选区已超时取消");
       else this.wait = setTimeout(() => this.cancel("选区已超时取消"), remaining);
-    } else if (!pressed.held && !pressed.moved && this.doubleMs > 0) {
+    } else if (!pressed.held && !pressed.moved && this.doubleMs > 0 && Date.now() - pressed.at <= this.doubleMs) {
       const now = Date.now();
       if (this.lastClick && now - this.lastClick.at <= this.doubleMs &&
           Math.hypot(pressed.x - this.lastClick.x, pressed.y - this.lastClick.y) <= 8) {

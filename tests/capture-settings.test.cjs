@@ -5,6 +5,26 @@ const os = require("node:os");
 const path = require("node:path");
 const { CaptureControls } = require("../desktop/capture-controls.cjs");
 const { defaults, validateSettings } = require("../desktop/capture-settings.cjs");
+test("Mac DIP 鼠标坐标直接进入手势，Windows 物理坐标才缩放", () => {
+  const controls = { mouseCoordinates: "dip", electron: { screen: { screenToDipPoint: () => { throw Error("Mac 不支持此转换"); } } } };
+  assert.deepEqual(CaptureControls.prototype.pointerPoint.call(controls, { x: -240, y: 120 }), { x: -240, y: 120 });
+  controls.mouseCoordinates = "physical";
+  controls.electron.screen.screenToDipPoint = ({ x, y }) => ({ x: x / 2, y: y / 2 });
+  assert.deepEqual(CaptureControls.prototype.pointerPoint.call(controls, { x: 240, y: 120 }), { x: 120, y: 60 });
+});
+test("只开启双击时也启动鼠标监听", (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "scrylet-double-listener-"));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const controls = new CaptureControls({ globalShortcut: { register: () => true, unregister: () => {} } }, directory,
+    { legacyDirectory: path.join(directory, "no-legacy") });
+  const started = [];
+  controls.settings = { ...controls.settings, mouseEnabled: false, doubleClickEnabled: true, mouseButton: "right" };
+  controls.mouse = { start: button => started.push(button), stop: () => Promise.resolve() };
+  controls.start();
+  assert.deepEqual(started, ["right"]);
+  assert.equal(controls.gesture.holdEnabled, false);
+  assert.equal(controls.gesture.doubleMs, controls.settings.doubleClickMs);
+});
 
 for (const legacyFlag of [undefined, false, true]) test(`旧提示设置为 ${legacyFlag} 时强制静默且不改写原文件`, (t) => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "snap-silent-settings-"));

@@ -232,7 +232,7 @@ function auditPackage({
     assert.ok(plist, "Mac audit requires the actual parsed Info.plist");
     assert.equal(metadata.scryletBuild?.platform, "darwin");
     assert.equal(metadata.scryletBuild?.arch, arch);
-    assert.equal(metadata.scryletBuild?.mouseObserver, false);
+    assert.equal(metadata.scryletBuild?.mouseObserver, true);
     assert.ok(["node", "node-candidate"].includes(metadata.scryletBuild?.runtime));
     assert.equal(metadata.scryletBuild?.normalUserDataMigration, true);
     assert.equal(plist.CFBundleIdentifier, APP_ID);
@@ -286,11 +286,14 @@ function auditPackage({
       ),
     );
     assert.ok(binaries.some((b) => b.file.includes("Electron Framework")));
-    assert.equal(
-      fs.existsSync(path.join(resources, "native")),
-      false,
-      "Mac observer capability=false, no Windows or empty helper tree",
-    );
+    const nativeDirectory = path.join(resources, "native/darwin-" + arch);
+    const observer = path.join(nativeDirectory, "input-observer");
+    observerProgram({ nativeDirectory, observer }, { platform, arch });
+    assert.deepEqual(fs.readdirSync(path.join(resources, "native")), ["darwin-" + arch]);
+    assert.deepEqual(fs.readdirSync(nativeDirectory).sort(), ["NOTICE.txt", "input-observer", "licenses", "manifest.json"]);
+    for (const name of ["COPYRIGHT.html", "COPYRIGHT-library.html"])
+      assert.ok(fs.existsSync(path.join(nativeDirectory, "licenses", name)));
+    assert.ok(fs.statSync(observer).mode & 0o111);
   }
   let matched = 0;
   for (const file of files.filter((f) =>

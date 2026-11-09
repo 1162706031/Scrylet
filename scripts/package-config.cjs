@@ -33,7 +33,7 @@ function packageConfig({
       scryletBuild: {
         platform, arch, profile,
         runtime: profile === "node-candidate" ? "node-candidate" : "node",
-        mouseObserver: platform === "win32", normalUserDataMigration: true,
+        mouseObserver: true, normalUserDataMigration: true,
       },
     },
     win: {
@@ -62,6 +62,10 @@ function packageConfig({
       });
     }
   } else {
+    config.extraResources.push({
+      from: "build/native/darwin-" + arch, to: "native/darwin-" + arch,
+      filter: ["input-observer", "manifest.json", "NOTICE.txt", "licenses/**/*"],
+    });
     config.mac = {
       target: ["dmg", "zip"], icon: "packaging/icon.icns",
       category: "public.app-category.productivity",

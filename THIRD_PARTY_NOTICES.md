@@ -8,9 +8,9 @@ Scrylet (formerly Snap-Solver) is an independent application. Current packages u
 - **React / React DOM 19.3.1**, **Cropper.js 1.6.2** — MIT. Compiled into the phone interface.
 - **react-markdown 10.1.0**, **remark-gfm 4.0.1**, **remark-math 6.0.0**, **rehype-katex 7.0.1**, **KaTeX 0.16.47** — MIT, including bundled KaTeX fonts.
 - **pdf-lib 1.17.1**, **html2canvas 1.4.1** — MIT; loaded on demand for local PDF export.
-- **Rust 1.91.0 standard library / Windows GNU runtime** — the precompiled Windows x64 input observer is original Scrylet code under Apache-2.0. Rust is MIT OR Apache-2.0 with component notices. The exact toolchain's `COPYRIGHT.html` and `COPYRIGHT-library.html` are copied to `resources/native/win32-x64/licenses/`, beside `NOTICE.txt`. The observer uses Windows system DLLs. Its separate test input driver is excluded from packages.
+- **Rust 1.91.0 standard library / Windows GNU runtime** — the precompiled Windows x64 and macOS arm64 / x64 input observers are original Scrylet code under Apache-2.0, built from the same crate. Rust is MIT OR Apache-2.0 with component notices. The exact toolchain's `COPYRIGHT.html` and `COPYRIGHT-library.html` are copied beside each packaged observer under `resources/native/<platform>-<arch>/licenses/`, with `NOTICE.txt`. The Windows observer uses system DLLs; the Mac observer uses a passive Quartz event tap. The separate Windows test input driver is excluded from packages.
 
-Complete compiled browser dependency notices are generated into `phone-dist/licenses.md`. All installations include this notice, the repository license, production Node dependency licenses and Electron notices. macOS packages exclude Windows native helpers. No end-user Node, Python, Rust or development tools are required.
+Complete compiled browser dependency notices are generated into `phone-dist/licenses.md`. All installations include this notice, the repository license, production Node dependency licenses and Electron notices. macOS packages exclude Windows native helpers and include their own Rust observer. No end-user Node, Python, Rust or development tools are required.
 
 Development-only tools include **Playwright** and **TypeScript 6.0.3** (Apache-2.0), **Vite 8.3.6** and **electron-builder** (MIT). They are excluded from installed packages. Exact Node dependency versions remain recorded in `package-lock.json`.
 

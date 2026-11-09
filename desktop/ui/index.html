@@ -94,13 +94,14 @@
             </div>
             <p class="setting-help">点击快捷键输入框，再按下想使用的组合键。取消键只在选区时生效。</p>
             <h3 class="settings-section-title">鼠标操作</h3>
-            <label class="check-row"><input id="setting-mouse-enabled" type="checkbox" />启用全局鼠标操作（Windows）</label>
+            <label class="check-row"><input id="setting-mouse-enabled" type="checkbox" />启用全局鼠标长按区域截图</label>
+            <p id="mouse-input-status" class="setting-help" role="status"></p><button id="mouse-permission" class="text-button" type="button" hidden>打开输入监控设置</button>
             <div class="settings-grid">
               <label>鼠标触发按键<select id="setting-mouse-button"><option value="left">左键</option><option value="right">右键</option><option value="middle">中键</option><option value="x1">侧键 1</option><option value="x2">侧键 2</option></select></label>
               <label>每个角长按（秒）<input id="setting-hold" type="number" min="0.3" max="5" step="0.1" required /></label>
               <label>第二次长按等待（秒）<input id="setting-timeout" type="number" min="1" max="30" step="0.5" required /></label>
             </div>
-            <p class="setting-help">先按住左上角，松开后在时限内按住右下角；松开鼠标后截图并发送。拖动鼠标会取消本次长按。</p>
+            <p class="setting-help">先按住左上角，松开后在时限内按住右下角；松开鼠标后截图并发送。拖动鼠标会取消本次长按。macOS 首次启用时需允许输入监控。</p>
             <div class="double-click-settings"><label class="check-row"><input id="setting-double-enabled" type="checkbox" />双击同一鼠标按键，截全屏并发送</label><label>双击间隔（秒）<input id="setting-double-time" type="number" min="0.15" max="1" step="0.05" required /></label></div>
             <label class="prompt-label" for="setting-prompt">默认提示词</label><textarea id="setting-prompt" rows="5" maxlength="12000" required></textarea>
             <div class="settings-footer"><span>已有手机草稿或回答生成中时，暂不自动发送。</span><button id="save-capture-settings" type="submit" class="primary-button">保存设置</button></div>

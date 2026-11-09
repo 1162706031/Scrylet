@@ -1,3 +1,5 @@
+#[cfg(target_os = "macos")]
+mod macos;
 #[cfg(windows)]
 mod tracker;
 #[cfg(windows)]
@@ -63,9 +65,14 @@ fn main() {
         eprintln!("input observer unavailable");
         std::process::exit(2);
     }
-    #[cfg(not(windows))]
+    #[cfg(target_os = "macos")]
+    if macos::run().is_err() {
+        eprintln!("input observer unavailable");
+        std::process::exit(2);
+    }
+    #[cfg(not(any(windows, target_os = "macos")))]
     {
-        eprintln!("Windows observer only");
+        eprintln!("unsupported observer platform");
         std::process::exit(2);
     }
 }

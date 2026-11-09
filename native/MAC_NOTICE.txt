@@ -1,0 +1,5 @@
+Scrylet macOS input observer: Apache-2.0 (repository LICENSE).
+Built from the shared Rust 1.91.0 observer crate (MIT OR Apache-2.0 runtime).
+Rust runtime and compiler-builtins: https://github.com/rust-lang/rust/tree/1.91.0
+The observer passively reads mouse events through a listen-only Quartz event tap.
+It never injects or changes system input. No test driver is included in Mac packages.

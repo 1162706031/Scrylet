@@ -6,7 +6,7 @@ const { test } = require("node:test"),
 const { packageConfig } = require("../scripts/package-config.cjs");
 const { macho } = require("../scripts/package-audit.cjs");
 const { runtimePaths } = require("../desktop/runtime-paths.cjs");
-const { observerProgram, inspectPe } = require("../desktop/native-program.cjs");
+const { observerProgram, inspectPe, inspectMachO } = require("../desktop/native-program.cjs");
 const dist = require("../scripts/dist-mac.cjs"),
   smoke = require("../scripts/smoke-mac-package.cjs");
 test("per-platform packaging removes legacy runtime and ships only the precompiled observer", () => {
@@ -28,20 +28,17 @@ for (const arch of ["x64", "arm64"])
   test(
     "Mac " +
       arch +
-      " config has DMG/ZIP, ICNS, no Windows/Python/helper resources, default Node userData migration",
+      " config has DMG/ZIP, ICNS, Mac observer and default Node userData migration",
     () => {
       const mac = packageConfig({ platform: "darwin", arch });
       assert.deepEqual(mac.mac.target, ["dmg", "zip"]);
       assert.equal(mac.mac.icon, "packaging/icon.icns");
       assert.equal(mac.dmg.contents[1].path, "/Applications");
       assert.equal(mac.dmg.format, "UDZO");
-      assert.ok(
-        !mac.extraResources.some((f) =>
-          /python|runtime|native|\.exe/.test(f.from + f.to),
-        ),
-      );
+      assert.ok(!mac.extraResources.some((f) => /python|runtime|\.exe/.test(f.from + f.to)));
+      assert.deepEqual(mac.extraResources.find(f => f.to === "native/darwin-" + arch).filter, ["input-observer", "manifest.json", "NOTICE.txt", "licenses/**/*"]);
       assert.equal(mac.extraMetadata.scryletBuild.arch, arch);
-      assert.equal(mac.extraMetadata.scryletBuild.mouseObserver, false);
+      assert.equal(mac.extraMetadata.scryletBuild.mouseObserver, true);
       assert.equal(mac.extraMetadata.scryletBuild.normalUserDataMigration, true);
       assert.equal(Object.hasOwn(mac.mac, "identity"), false);
       const paths = runtimePaths({
@@ -52,8 +49,7 @@ for (const arch of ["x64", "arm64"])
         pythonOverride: "",
       });
       assert.equal(paths.packaged, true);
-      assert.equal(paths.observer, null);
-      assert.equal(observerProgram(paths, { platform: "darwin", arch }), null);
+      assert.equal(paths.observer, "/Applications/Scrylet.app/Contents/Resources/native/darwin-" + arch + "/input-observer");
     },
   );
 test("Mac wrappers reject unsupported arch/profile and non-Mac before creating success evidence", () => {
@@ -101,6 +97,20 @@ test("Mach-O architecture audit validates thin/fat CPU identity, bounds and load
   assert.deepEqual(macho(fat), ["x64", "arm64"]);
   fat.writeUInt32BE(999999, 16);
   assert.throws(() => macho(fat));
+});
+test("Mac observer rejects changed executable bytes and wrong architecture", (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "scrylet-mac-observer-"));
+  t.after(() => fs.rmSync(directory, { recursive: true, force: true }));
+  const observer = path.join(directory, "input-observer"), bytes = thin("arm64");
+  fs.writeFileSync(observer, bytes);
+  const actual = inspectMachO(observer);
+  fs.writeFileSync(path.join(directory, "manifest.json"), JSON.stringify({ schemaVersion: 1, protocolVersion: 1,
+    platform: "darwin", arch: "arm64", coordinateSpace: "dip", globalMouse: true,
+    files: { "input-observer": { bytes: actual.bytes, sha256: actual.sha256 } } }));
+  assert.equal(observerProgram({ nativeDirectory: directory, observer }, { platform: "darwin", arch: "arm64" }), observer);
+  assert.throws(() => observerProgram({ nativeDirectory: directory, observer }, { platform: "darwin", arch: "x64" }), /MANIFEST/);
+  fs.appendFileSync(observer, "changed");
+  assert.throws(() => observerProgram({ nativeDirectory: directory, observer }, { platform: "darwin", arch: "arm64" }), /HASH/);
 });
 test("generated ICNS contains native rasterized SVG sizes and Retina PNG entries", () => {
   const bytes = fs.readFileSync(

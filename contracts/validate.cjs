@@ -23,7 +23,7 @@ const processMessage = z.discriminatedUnion("type", [
     .refine(v => v.ok ? v.value !== undefined && v.error === undefined && v.code === undefined : v.value === undefined && v.error !== undefined && v.code !== undefined),
 ]);
 const nativeEvent = z.discriminatedUnion("type", [
-  object({ ...processBase, type: z.literal("ready"), coordinateSpace: z.literal("physical") }),
+  object({ ...processBase, type: z.literal("ready"), coordinateSpace: z.enum(["physical", "dip"]) }),
   ...["down", "move", "up"].map(type => object({ ...processBase, type: z.literal(type), x: z.number().int().min(-2147483648).max(2147483647), y: z.number().int().min(-2147483648).max(2147483647) })),
   object({ ...processBase, type: z.literal("cancel") }),
 ]);

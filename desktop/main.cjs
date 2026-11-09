@@ -144,6 +144,9 @@ async function start() {
     return connectionState();
   });
   handle("snap:permission", () => native.openPermission());
+  handle("snap:mouse-permission", () => process.platform === "darwin"
+    ? shell.openExternal("x-apple.systempreferences:com.apple.preference.security?Privacy_ListenEvent")
+    : undefined);
   handle("snap:test-capture", async () => {
     try {
       const result = await native.capture();

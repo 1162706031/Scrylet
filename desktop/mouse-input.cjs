@@ -16,8 +16,7 @@ class MouseInput {
       .then(() => {
         if (
           intent !== this.intent ||
-          (this.options.platform || process.platform) !== "win32" ||
-          (this.options.arch || process.arch) !== "x64"
+          !MouseInput.supported(this.options.platform || process.platform, this.options.arch || process.arch)
         )
           return;
         if (!["left", "right", "middle", "x1", "x2"].includes(button))
@@ -43,7 +42,7 @@ class MouseInput {
         };
         const timeout = setTimeout(
           () => fail("原生鼠标监听握手超时，请检查预编译程序"),
-          this.options.handshakeTimeout || 2500,
+          this.options.handshakeTimeout || ((this.options.platform || process.platform) === "darwin" ? 60000 : 2500),
         );
         child.stdin.on("error", () => {});
         child.stderr.resume();
@@ -84,7 +83,9 @@ class MouseInput {
           clearTimeout(timeout);
           if (this.child === child) {
             this.child = null;
-            this.onError("原生鼠标监听已停止，请重新保存截图设置后重试");
+            this.onError((this.options.platform || process.platform) === "darwin"
+              ? "鼠标监听已停止。请在系统设置允许输入监控，然后重新保存截图设置。"
+              : "原生鼠标监听已停止，请重新保存截图设置后重试");
           }
         });
       })
@@ -95,6 +96,10 @@ class MouseInput {
           );
       });
     return this.starting;
+  }
+  static supported(platform = process.platform, arch = process.arch) {
+    return (platform === "win32" && arch === "x64") ||
+      (platform === "darwin" && ["arm64", "x64"].includes(arch));
   }
   stop() {
     this.intent++;
