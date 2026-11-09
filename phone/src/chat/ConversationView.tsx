@@ -188,14 +188,9 @@ export function ConversationView({
           </span>
           <h1 title={conversation.graph?.title}>{conversation.graph?.title || "新对话"}</h1>
         </div>
-        <a
-          className="settings-link"
-          href={
-            "/snap/models?returnTo=" + encodeURIComponent(location.pathname)
-          }
-        >
-          <Icon name="settings" size={15} />模型设置
-        </a>
+        <span className="settings-link" title="请在电脑 App 的模型服务中管理 API Key">
+          <Icon name="settings" size={15} />电脑端设置模型
+        </span>
         {conversation.graph && (
           <details className="conversation-menu">
             <summary aria-label="对话操作"><Icon name="more" size={20} /></summary>

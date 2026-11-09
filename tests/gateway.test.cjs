@@ -189,7 +189,7 @@ test("浏览器禁止的已保存端口自动回退，显式禁止端口拒绝�
   assert.notEqual(gateway.port, 6668);
 });
 
-test("安装目录包含点目录时仍能打开配对、模型设置、裁剪资源和等待页", async (t) => {
+test("安装目录包含点目录时仍能打开配对、模型设置旧址跳转、裁剪资源和等待页", async (t) => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "snap-hidden-path-"));
   const root = path.join(directory, ".apps", "Installed Client");
   fs.mkdirSync(root, { recursive: true });
@@ -236,7 +236,7 @@ test("安装目录包含点目录时仍能打开配对、模型设置、裁剪�
   });
   assert.equal(paired.status, 200);
   const headers = { Cookie: paired.headers.get("set-cookie").split(";")[0], Accept: "text/html" };
-  assert.equal((await fetch(url + "/snap/models", { headers })).status, 200);
+  assert.equal((await fetch(url + "/snap/models", { headers, redirect: "manual" })).status, 302);
   const waiting = await fetch(url + "/", { headers });
   assert.equal(waiting.status, 503);
   assert.match(await waiting.text(), /connection-state/);

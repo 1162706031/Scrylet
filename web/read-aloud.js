@@ -92,7 +92,7 @@ export class ReadAloud {
     window.addEventListener("pagehide", () => this.leave());
     window.addEventListener("popstate", () => this.leave());
     document.addEventListener("click", event => {
-      if (event.target.closest?.('#new-chat-button,#sidebar-new-chat-button,a[href="/"],a[href^="/c/"],a[href="/snap/models"],button[aria-label="停止"],button[aria-label="Stop"]')) this.leave();
+      if (event.target.closest?.('#new-chat-button,#sidebar-new-chat-button,a[href="/"],a[href^="/c/"],button[aria-label="停止"],button[aria-label="Stop"]')) this.leave();
     }, true);
     // A restored preference may still need a user gesture after a reload.
     // Unlock silently on the first natural interaction, never per answer.

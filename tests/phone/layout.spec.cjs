@@ -29,13 +29,17 @@ test("M2.5 VisualViewport shrink/offset and zoom retain draft, stable focus and 
   const before = await page.evaluate(() => document.documentElement.style.getPropertyValue("--phone-height")); await page.evaluate(() => { visualViewport.scale = 2; visualViewport.height = 220; window.dispatchEvent(new Event("resize")); }); expect(await page.evaluate(() => document.documentElement.style.getPropertyValue("--phone-height"))).toBe(before);
   await expect(page.locator("#chat-input")).toHaveValue("键盘前后的输入"); await page.screenshot({ path: info.outputPath("visual-viewport.png"), fullPage: true });
 });
-test("M2.5 provider sheet keeps key private, preserves blank key, deletes explicitly and returns to original chat/draft", async ({ page }, info) => {
-  await open(page, fixture); const id = await send(page, fixture, "设置返回原对话"), before = await fixture.count(); await page.locator("#chat-input").fill("配置时也不能丢失的草稿"); await expect(page.getByText("已保存", { exact: true })).toBeVisible();
-  await page.getByRole("link", { name: "模型设置", exact: true }).click(); await page.getByRole("button", { name: /OpenAI/ }).click(); await expect(page.locator("#api-key")).toHaveValue(""); await expect(page.locator("#api-key")).toHaveAttribute("type", "password");
-  await page.setViewportSize({ width: 390, height: 460 }); await page.locator("#api-key").focus(); await inside(page, "#save"); await inside(page, "#close-provider"); await page.screenshot({ path: info.outputPath("model-sheet.png"), fullPage: true });
-  await page.locator("#save").click(); await expect(page).toHaveURL(fixture.url + "/c/" + id); await expect(page.locator("#chat-input")).toHaveValue("配置时也不能丢失的草稿"); expect(await fixture.count()).toBe(before);
-  await page.getByRole("link", { name: "模型设置", exact: true }).click(); await page.getByRole("button", { name: /OpenAI/ }).click(); page.once("dialog", dialog => dialog.accept()); await page.locator("#remove").click(); await expect(page).toHaveURL(fixture.url + "/c/" + id); await expect(page.locator("#chat-input")).toHaveValue("配置时也不能丢失的草稿"); await expect(page.locator("#send-message-button")).toBeDisabled(); expect(await fixture.count()).toBe(before);
-  expect(await fixture.app.evaluate(async () => (await globalThis.phoneFixture.runtime.providers()).providers.find(p => p.id === "openai").configured)).toBe(false);
+test("M2.5 phone keeps model selection reachable while API setup stays on desktop", async ({ page }, info) => {
+  await open(page, fixture); const id = await send(page, fixture, "设置留在电脑"), before = await fixture.count();
+  await page.locator("#chat-input").fill("切换视图也不能丢失的草稿");
+  await expect(page.getByText("已保存", { exact: true })).toBeVisible();
+  await page.setViewportSize({ width: 390, height: 460 });
+  await inside(page, "#send-message-button");
+  await expect(page.getByLabel("当前模型")).toBeVisible();
+  await expect(page.locator('a[href^="/snap/models"]')).toHaveCount(0);
+  await page.screenshot({ path: info.outputPath("phone-model-picker.png"), fullPage: true });
+  await page.reload(); await expect(page).toHaveURL(fixture.url + "/c/" + id);
+  await expect(page.locator("#chat-input")).toHaveValue("切换视图也不能丢失的草稿"); expect(await fixture.count()).toBe(before);
 });
 test("M2.5 startup/failure/pause/revocation retain URL and draft with explicit recovery", async ({ page }, info) => {
   await open(page, fixture); const id = await send(page, fixture, "恢复到原位置"); await page.locator("#chat-input").fill("恢复草稿"); await expect(page.getByText("已保存", { exact: true })).toBeVisible(); const before = await fixture.count();

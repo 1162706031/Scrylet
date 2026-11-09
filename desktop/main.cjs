@@ -22,6 +22,7 @@ const { createNative } = require("./native.cjs");
 const { CaptureControls } = require("./capture-controls.cjs");
 const { ActivityLog, reasonFor } = require("./activity-log.cjs");
 const { Maintenance } = require("./maintenance.cjs");
+const { validate } = require("../contracts/validate.cjs");
 const { NAME, APP_ID, dataDirectory, migrationSource } = require("./brand.cjs");
 const ROOT = path.resolve(__dirname, "..");
 const page = path.join(__dirname, "ui/index.html");
@@ -167,6 +168,13 @@ async function start() {
   handle("snap:activity", () => activity.list());
   handle("snap:cache-info", () => maintenance.stats());
   handle("snap:cache-clear", () => maintenance.clearCache());
+  handle("snap:providers", () => runtime.providers());
+  handle("snap:provider-save", async (change) => {
+    const value = validate("providerChange", change);
+    await runtime.saveProvider(value.providerId, value);
+    activity.record("provider.saved");
+    return runtime.providers();
+  });
   window = new BrowserWindow({
     title: NAME,
     icon: path.join(ROOT, "web/brand/icon.png"),

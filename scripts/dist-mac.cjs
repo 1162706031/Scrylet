@@ -102,8 +102,20 @@ function main(argv = process.argv.slice(2)) {
       for (const name of ["index.html", "licenses.md"])
         if (!fs.existsSync(path.join(root, "build/phone", name))) throw Error("MAC_PREBUILT_PHONE_MISSING");
     }
-    if (process.platform === "darwin") command(process.execPath, [path.join(root, "scripts/generate-icons.cjs"), "--mac"]);
+    const icon = path.join(root, "packaging/icon.icns");
+    if (!fs.existsSync(icon) || fs.statSync(icon).size === 0) {
+      if (process.platform !== "darwin") throw Error("MAC_ICON_MISSING");
+      command(process.execPath, [path.join(root, "scripts/generate-icons.cjs"), "--mac"]);
+    }
     const config = packageConfig({ platform: "darwin", ...options });
+    if (process.platform === "darwin" && options.arch === process.arch) {
+      command(process.execPath, [path.join(root, "node_modules/electron/install.js")]);
+      const electronDist = path.join(root, "node_modules/electron/dist");
+      const installedVersion = fs.readFileSync(path.join(electronDist, "version"), "utf8").trim();
+      if (installedVersion !== require("../node_modules/electron/package.json").version)
+        throw Error("MAC_ELECTRON_VERSION_MISMATCH");
+      config.electronDist = electronDist;
+    }
     config.directories.app = require("./node-package-stage.cjs").stageNodePackage(root, stage);
     config.files = config.files.map(file => typeof file === "object" && file.to === "phone-dist" ? { from: "phone-dist", to: "phone-dist", filter: ["**/*"] } : file);
     config.directories.output = path.join(stage, "output");

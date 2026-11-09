@@ -10,7 +10,7 @@ test("M2 refresh/navigation resumes existing partial generation without model re
   await open(page, fixture); await page.locator("#snap-read-aloud").click(); await page.getByLabel("当前模型").selectOption("openai.cancel"); const before = await fixture.count();
   await page.locator("#chat-input").fill("刷新不能重发"); await page.locator("#send-message-button").click(); await expect(page.locator(".message.assistant .message-parts")).not.toBeEmpty(); const id = new URL(page.url()).pathname.split("/").at(-1), original = await graph(page, id);
   await page.reload(); await expect(page.getByRole("button", { name: "停止生成" })).toBeVisible(); await expect(page.locator(".message.assistant .message-parts")).not.toBeEmpty(); expect(await fixture.count()).toBe(before + 1); expect((await graph(page, id)).activeGeneration.id).toBe(original.activeGeneration.id);
-  await page.getByRole("link", { name: "模型设置", exact: true }).click(); await page.getByRole("link", { name: "返回对话", exact: false }).click(); await expect(page.getByRole("button", { name: "停止生成" })).toBeVisible(); expect(await fixture.count()).toBe(before + 1);
+  await page.reload(); await expect(page.getByRole("button", { name: "停止生成" })).toBeVisible(); expect(await fixture.count()).toBe(before + 1);
   await page.getByRole("button", { name: "停止生成" }).click(); await expect(page.getByText("已停止", { exact: true })).toBeVisible(); expect((await graph(page, id)).messages).toHaveLength(2); expect(await page.evaluate(() => window.phoneSpeechCalls.filter(call => call.volume !== 0))).toEqual([]);
 });
 test("M2 delayed draft response cannot overwrite newer input; same-browser tab conflict preserves both pending drafts", async ({ page, context }) => {

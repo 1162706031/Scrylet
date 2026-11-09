@@ -17,6 +17,7 @@
       <nav class="desktop-nav" aria-label="工作区">
         <span class="sidebar-label">工作区</span>
         <button type="button" data-view="overview" aria-controls="overview-panel" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="3" width="12" height="14" rx="2"/><rect x="13" y="10" width="7" height="11" rx="1.5"/><path d="M7 21h3m-1-4v4"/></svg><span>连接概览</span></button>
+        <button type="button" data-view="models" aria-controls="models-panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3 2.7 6.3L21 12l-6.3 2.7L12 21l-2.7-6.3L3 12l6.3-2.7L12 3Z"/></svg><span>模型服务</span></button>
         <button type="button" data-view="capture" aria-controls="capture-panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M8 12h8m-4-4v8"/></svg><span>截图操作</span></button>
         <button type="button" data-view="network" aria-controls="network-panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a15 15 0 0 1 18 0M6 12a10 10 0 0 1 12 0m-9 4a5 5 0 0 1 6 0"/><circle cx="12" cy="20" r="1"/></svg><span>网络设置</span></button>
         <button type="button" data-view="activity" aria-controls="maintenance"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6m-6 5h6m-6 5h4"/></svg><span>操作日志</span></button>
@@ -50,7 +51,7 @@
           <div class="qr-frame"><img id="qr" alt="用手机相机扫描连接" width="224" height="224" /><div id="qr-cover">准备中…</div></div>
           <div class="pair-instructions"><span class="eyebrow">连接手机</span><h2>扫一扫，把答案带到手机</h2>
           <p class="wifi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a15 15 0 0 1 18 0M6 12a10 10 0 0 1 12 0m-9 4a5 5 0 0 1 6 0"/><circle cx="12" cy="20" r="1"/></svg>手机与电脑连接同一 Wi-Fi</p>
-          <ol class="pair-steps"><li>用手机相机扫描左侧二维码</li><li>连接模型，即可开始提问</li></ol>
+          <ol class="pair-steps"><li>先在电脑的“模型服务”中添加 API Key</li><li>用手机相机扫描左侧二维码，开始提问</li></ol>
           <div class="qr-caption"><span id="expiry"></span><span aria-hidden="true">·</span><button id="refresh-code" class="text-button" title="刷新二维码" aria-label="刷新二维码">换一个码</button></div>
           </div>
         </section>
@@ -58,6 +59,28 @@
           <div class="section-heading"><h2>已配对设备</h2><span id="device-count">0 台</span></div>
           <div id="devices"><p class="empty">等待手机连接</p></div>
         </section>
+        </section>
+        <section id="models-panel" class="workspace-panel model-settings" data-panel="models" aria-label="模型服务" hidden>
+          <div class="model-intro"><div><h2>连接模型服务</h2><p>选择服务，在这台电脑上保存 API Key。保存设置不会发送模型请求。</p></div><button id="refresh-providers" class="text-button" type="button">重新读取</button></div>
+          <div class="model-workspace">
+            <div id="providers" class="provider-list" aria-label="可用模型服务"></div>
+            <form id="provider-form" class="provider-form" hidden>
+              <div class="provider-form-heading"><h2 id="provider-name"></h2><span id="provider-state"></span></div>
+              <p id="provider-description">添加密钥后，可在手机对话中选择这家的模型。</p>
+              <label for="api-key">API Key</label>
+              <input id="api-key" type="password" autocomplete="new-password" spellcheck="false" maxlength="4096" placeholder="粘贴你的 API Key" />
+              <p id="key-note" class="setting-help"></p>
+              <details class="provider-advanced"><summary>模型与服务地址</summary>
+                <div id="model-list" class="model-list"></div>
+                <label for="base-url">API 基础地址</label>
+                <input id="base-url" type="url" spellcheck="false" required />
+              </details>
+              <p id="provider-error" class="provider-error" role="status" aria-live="polite"></p>
+              <div class="provider-actions"><button id="save-provider" class="primary-button" type="submit">保存设置</button><button id="remove-provider" class="text-button" type="button" hidden>移除密钥</button></div>
+            </form>
+          </div>
+          <p id="providers-message" class="setting-help" role="status" aria-live="polite">正在读取模型服务…</p>
+          <details class="model-info"><summary>数据与模型说明</summary><p>密钥和聊天记录保存在电脑。发送问题时，所选图片与文字会传给模型服务。具体可用型号取决于账户权限。</p><p id="verified"></p></details>
         </section>
         <details class="capture-settings workspace-panel" id="capture-panel" data-panel="capture" hidden>
           <summary><span>截图操作与默认提示词<small>快捷键、鼠标操作与提问方式</small></span><span class="collapse-label">展开 / 收起</span></summary>

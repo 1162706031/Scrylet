@@ -140,9 +140,7 @@ class Gateway {
       next();
     });
     this.app.use(restrict);
-    this.app.get("/snap/models", (_request, response) =>
-      response.sendFile("models.html", { root: ASSETS }),
-    );
+    this.app.get("/snap/models", (_request, response) => response.redirect("/"));
     this.app.get("/snap/api/status", (_request, response) =>
       response.json({
         ready: this.runtime.ready,

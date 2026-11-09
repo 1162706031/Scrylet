@@ -21,4 +21,6 @@ contextBridge.exposeInMainWorld("snap", {
   activityLog: () => ipcRenderer.invoke("snap:activity"),
   cacheInfo: () => ipcRenderer.invoke("snap:cache-info"),
   clearCache: () => ipcRenderer.invoke("snap:cache-clear"),
+  providers: () => ipcRenderer.invoke("snap:providers"),
+  saveProvider: (change) => ipcRenderer.invoke("snap:provider-save", change),
 });

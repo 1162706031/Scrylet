@@ -112,7 +112,7 @@ export function App({
           <span className="empty-icon"><Icon name="spark" size={34} /></span>
           <h1>从一个问题开始</h1>
           <p role="status">{error || "正在连接电脑…"}</p>
-          <a href="/snap/models">连接模型服务</a>
+          <p>请在电脑 App 的“模型服务”中添加 API Key。</p>
           <a
             href={
               "/snap/pair?returnTo=" + encodeURIComponent(location.pathname)

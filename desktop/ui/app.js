@@ -310,10 +310,128 @@ async function refresh() {
 refresh();
 setInterval(refresh, 2500);
 
+let providers = [], selectedProviderId = "", providerSaving = false, providerLoading = false, providerLoaded = false;
+const providerMarks = { openai: "O", anthropic: "A", google: "G", alibaba: "千", doubao: "豆", moonshot: "K" };
+function selectedProvider() { return providers.find(provider => provider.id === selectedProviderId); }
+function renderProviders() {
+  const list = $("providers");
+  list.replaceChildren();
+  for (const provider of providers) {
+    const button = document.createElement("button"), mark = document.createElement("span"), copy = document.createElement("span");
+    button.type = "button";
+    button.className = "provider-option" + (provider.configured ? " configured" : "");
+    button.dataset.id = provider.id;
+    button.setAttribute("aria-current", String(provider.id === selectedProviderId));
+    button.disabled = providerSaving;
+    mark.className = "provider-mark";
+    mark.setAttribute("aria-hidden", "true");
+    mark.textContent = providerMarks[provider.id] || provider.name.slice(0, 1);
+    const name = document.createElement("strong"), status = document.createElement("small");
+    name.textContent = provider.name;
+    status.textContent = provider.configured ? "密钥已存" : "添加密钥";
+    copy.append(name, status);
+    button.append(mark, copy);
+    button.onclick = () => chooseProvider(provider.id);
+    list.append(button);
+  }
+}
+function chooseProvider(id) {
+  if (providerSaving) return;
+  selectedProviderId = id;
+  const provider = selectedProvider();
+  renderProviders();
+  $("provider-form").hidden = !provider;
+  if (!provider) return;
+  $("provider-name").textContent = provider.name;
+  $("provider-state").textContent = provider.configured ? "密钥已存" : "";
+  $("api-key").value = "";
+  $("api-key").required = !provider.configured;
+  $("api-key").placeholder = provider.configured ? "已保存 · 留空保留" : "粘贴你的 API Key";
+  $("key-note").textContent = provider.configured ? "填写新密钥可替换已有密钥；留空则保留" : "密钥仅保存在这台电脑";
+  $("base-url").value = provider.baseUrl;
+  $("model-list").replaceChildren(...provider.models.map(model => {
+    const line = document.createElement("div");
+    line.textContent = model;
+    return line;
+  }));
+  $("remove-provider").hidden = !provider.configured;
+  $("provider-error").textContent = "";
+}
+async function loadProviders() {
+  if (providerSaving || providerLoading) return;
+  providerLoading = true;
+  $("refresh-providers").disabled = true;
+  try {
+    const catalog = await window.snap.providers();
+    providers = catalog.providers;
+    providerLoaded = true;
+    $("verified").textContent = "目录更新于 " + catalog.verifiedAt;
+    $("providers-message").textContent = "";
+    chooseProvider(providers.some(p => p.id === selectedProviderId) ? selectedProviderId : providers[0]?.id);
+  } catch {
+    $("providers-message").textContent = "暂时无法读取模型服务，请检查电脑服务后点击“重新读取”。";
+  } finally {
+    providerLoading = false;
+    $("refresh-providers").disabled = false;
+  }
+}
+async function saveProvider(remove = false) {
+  if (providerSaving) return;
+  const provider = selectedProvider();
+  if (!provider) return;
+  providerSaving = true;
+  const key = $("api-key").value.trim();
+  const change = {
+    apiVersion: 1, providerId: provider.id, revision: provider.revision,
+    baseUrl: $("base-url").value.trim(), apiType: provider.apiType,
+    modelIds: provider.models, keyAction: remove ? "delete" : key ? "set" : "keep",
+    ...(remove || !key ? {} : { apiKey: key }),
+  };
+  $("api-key").value = "";
+  $("save-provider").disabled = true;
+  $("remove-provider").disabled = true;
+  $("save-provider").textContent = remove ? "正在移除…" : "正在保存…";
+  $("provider-error").textContent = "";
+  renderProviders();
+  try {
+    const catalog = await window.snap.saveProvider(change);
+    providers = catalog.providers;
+    $("verified").textContent = "目录更新于 " + catalog.verifiedAt;
+    $("providers-message").textContent = remove ? "密钥已移除；聊天记录保留。" : "设置已保存；不会自动调用模型。";
+    selectedProviderId = provider.id;
+  } catch (error) {
+    const message = String(error?.message || "");
+    $("provider-error").textContent = message.includes("VERSION_CONFLICT")
+      ? "设置已在别处更新，请点击“重新读取”查看最新状态。"
+      : message.includes("INVALID_CONTRACT") ? "请检查 API 地址和密钥后重试。"
+        : "保存结果未确认，请点击“重新读取”查看状态后再操作。";
+  } finally {
+    providerSaving = false;
+    $("save-provider").disabled = false;
+    $("remove-provider").disabled = false;
+    $("save-provider").textContent = "保存设置";
+    renderProviders();
+    const current = selectedProvider();
+    if (current) {
+      $("provider-state").textContent = current.configured ? "密钥已存" : "";
+      $("api-key").required = !current.configured;
+      $("api-key").placeholder = current.configured ? "已保存 · 留空保留" : "粘贴你的 API Key";
+      $("key-note").textContent = current.configured ? "填写新密钥可替换已有密钥；留空则保留" : "密钥仅保存在这台电脑";
+      $("remove-provider").hidden = !current.configured;
+    }
+  }
+}
+$("provider-form").onsubmit = event => { event.preventDefault(); void saveProvider(); };
+$("refresh-providers").onclick = () => { if (!providerSaving) void loadProviders(); };
+$("remove-provider").onclick = () => {
+  if (confirm("移除这家服务的密钥？聊天记录会保留。")) void saveProvider(true);
+};
+
 // Navigation only changes the visible workspace; every existing control keeps
 // its original DOM node, draft values, event handler and IPC path.
 const workspaceCopy = {
   overview: ["连接你的日常", "问题在电脑，答案在手边。", "连接手机，让每一个问题都有清晰的答案。"],
+  models: ["模型服务", "连接你的 AI 搭档。", "在电脑上管理 API Key，手机只需选择模型并提问。"],
   capture: ["按你的习惯来", "让截图，成为提问的起点。", "设置顺手的快捷键与鼠标操作，用自己的方式开始对话。"],
   network: ["保持连接", "让手机，找到这台电脑。", "查看连接码与局域网地址，选择适合当前网络的连接方式。"],
   activity: ["运行记录", "每一次操作，都有迹可循。", "查看最近的操作与异常，按需管理临时缓存。"],
@@ -336,6 +454,7 @@ function showWorkspace(view) {
   $("view-title").textContent = title;
   $("view-description").textContent = description;
   $("desktop-main").scrollTop = 0;
+  if (view === "models" && !providerLoaded) void loadProviders();
 }
 for (const button of document.querySelectorAll("[data-view]"))
   button.addEventListener("click", () => showWorkspace(button.dataset.view));
