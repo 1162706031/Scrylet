@@ -22,6 +22,8 @@ async function migrationWindow(electron) {
   });
   window.webContents.setAudioMuted(true);
   await window.loadFile(path.join(__dirname, "ui/migration.html"));
+  const theme = new (require("./appearance.cjs").Appearance)(electron.app.getPath("userData")).snapshot().themeId;
+  await window.webContents.executeJavaScript(`document.documentElement.dataset.theme=${JSON.stringify(theme)};`);
   window.show();
   return {
     window,

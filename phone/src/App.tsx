@@ -5,6 +5,7 @@ import { ConversationView } from "./chat/ConversationView";
 import { HistoryPanel } from "./chat/HistoryPanel";
 import { useDialogFocus } from "./dialogs";
 import { Icon } from "./Icon";
+import { BrandMark } from "./BrandMark";
 type Route = { id: string | null; visit: string };
 const currentChatId = (): string | null =>
   /^\/c\/([A-Za-z0-9_-]+)$/.exec(location.pathname)?.[1] || null;
@@ -80,7 +81,7 @@ export function App({
             navigate(null);
           }}
         >
-          <span className="brand-mark"><Icon name="spark" size={17} /></span>
+          <span className="brand-mark"><BrandMark size={26} /></span>
           <span className="brand-name">Scrylet</span>
         </a>
         <button
@@ -109,7 +110,7 @@ export function App({
         />
       ) : (
         <main className="initial">
-          <span className="empty-icon"><Icon name="spark" size={34} /></span>
+          <span className="empty-icon"><BrandMark size={38} /></span>
           <h1>从一个问题开始</h1>
           <p role="status">{error || "正在连接电脑…"}</p>
           <p>请在电脑 App 的“模型服务”中添加 API Key。</p>

@@ -16,7 +16,8 @@ function packageConfig({
     directories: { output: "dist", buildResources: "packaging" },
     files: [
       "desktop/**/*.cjs", "desktop/ui/**/*", "web/**/*",
-      "config/providers.json", "config/prompts.json", "config/product-scope.json",
+      "static/favicon.png", "static/favicon.ico", "static/logo.png",
+      "config/providers.json", "config/prompts.json", "config/product-scope.json", "config/appearance.json",
       "package.json", "LICENSE", "THIRD_PARTY_NOTICES.md",
       "service/**/*.cjs", "service/migrations/schema/*.sql",
       "service/migrations/legacy-schema.json", "contracts/**/*.cjs", "contracts/http-v1.json",

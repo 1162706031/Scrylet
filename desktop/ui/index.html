@@ -6,12 +6,13 @@
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self'; img-src 'self' data:; connect-src 'none'; object-src 'none'" />
     <title>Scrylet</title>
     <link rel="stylesheet" href="style.css" />
+    <script src="../../web/appearance.js"></script>
     <script defer src="app.js"></script>
   </head>
   <body>
     <aside class="computer-panel" aria-label="桌面导航与快捷操作">
       <a class="brand" href="#overview" aria-label="Scrylet 连接概览">
-        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M12 2.5c.7 5.8 3.7 8.8 9.5 9.5-5.8.7-8.8 3.7-9.5 9.5-.7-5.8-3.7-8.8-9.5-9.5 5.8-.7 8.8-3.7 9.5-9.5Z"/></svg></span>
+        <span class="brand-mark" aria-hidden="true"><img src="../../static/logo.png" alt="" width="30" height="30" /></span>
         <span>Scrylet<small>你的桌面 AI 搭档</small></span>
       </a>
       <nav class="desktop-nav" aria-label="工作区">
@@ -21,6 +22,7 @@
         <button type="button" data-view="capture" aria-controls="capture-panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 3H3v5m13-5h5v5M3 16v5h5m13-5v5h-5M8 12h8m-4-4v8"/></svg><span>截图操作</span></button>
         <button type="button" data-view="network" aria-controls="network-panel"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 8a15 15 0 0 1 18 0M6 12a10 10 0 0 1 12 0m-9 4a5 5 0 0 1 6 0"/><circle cx="12" cy="20" r="1"/></svg><span>网络设置</span></button>
         <button type="button" data-view="activity" aria-controls="maintenance"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3" width="14" height="18" rx="2"/><path d="M9 7h6m-6 5h6m-6 5h4"/></svg><span>操作日志</span></button>
+        <button type="button" data-view="appearance" aria-controls="appearance-panel"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 0 0 18Z"/></svg><span>外观主题</span></button>
       </nav>
         <section class="capture-card sidebar-capture" aria-label="电脑截图">
           <h2 class="sidebar-label">快捷操作</h2>
@@ -46,6 +48,11 @@
     <div class="main-panel">
       <main id="desktop-main">
         <header class="page-heading"><span class="eyebrow" id="view-kicker">连接你的日常</span><h1 id="view-title">问题在电脑，答案在手边。</h1><p id="view-description">连接手机，让每一个问题都有清晰的答案。</p></header>
+        <section id="appearance-panel" data-panel="appearance" aria-label="外观主题" hidden>
+          <div class="appearance-intro"><h2>选一种喜欢的氛围</h2><p>电脑与连接到这台电脑的手机同步使用。选择会自动保存。</p></div>
+          <div id="appearance-options" class="appearance-options" role="group" aria-label="配色风格"></div>
+          <p id="appearance-status" class="appearance-status" role="status" aria-live="polite"></p>
+        </section>
         <section id="overview-panel" data-panel="overview" aria-label="连接概览">
         <section class="pair-section" aria-label="连接手机">
           <div class="qr-frame"><img id="qr" alt="用手机相机扫描连接" width="224" height="224" /><div id="qr-cover">准备中…</div></div>

@@ -6,7 +6,7 @@ async function serviceTestArchive(root, directory, { main = "tests/service/main.
   const staging = path.join(directory, "staging"); fs.mkdirSync(staging, { recursive: true });
   for (const folder of ["desktop", "service", "contracts", "web", "tests/service", "tests/phone"]) fs.cpSync(path.join(root, folder), path.join(staging, folder), { recursive: true, filter: file => !/\.pyc?$/.test(file) && !file.split(path.sep).includes("__pycache__") });
   if (fs.existsSync(path.join(root, "build/phone/index.html"))) fs.cpSync(path.join(root, "build/phone"), path.join(staging, "phone-dist"), { recursive: true });
-  for (const file of ["config/providers.json", "config/prompts.json", "config/product-scope.json", "tests/fixtures/protocol-provider.cjs", "tests/fixtures/legacy-v1/database.json", "LICENSE", "THIRD_PARTY_NOTICES.md"]) {
+  for (const file of ["config/providers.json", "config/prompts.json", "config/product-scope.json", "config/appearance.json", "static/favicon.png", "static/favicon.ico", "static/logo.png", "tests/fixtures/protocol-provider.cjs", "tests/fixtures/legacy-v1/database.json", "LICENSE", "THIRD_PARTY_NOTICES.md"]) {
     fs.mkdirSync(path.dirname(path.join(staging, file)), { recursive: true }); fs.copyFileSync(path.join(root, file), path.join(staging, file));
   }
   function resolvePackage(name, from) {
@@ -37,9 +37,9 @@ async function serviceTestArchive(root, directory, { main = "tests/service/main.
     const license = asar.extractFile(target, path.join("phone-dist", "licenses.md")).toString();
     for (const name of ["react", "react-markdown", "katex", "cropperjs", "pdf-lib", "html2canvas"]) if (!license.toLowerCase().includes(name)) throw Error("PHONE_ARCHIVE_LICENSE_MISSING");
   }
-  const projectFiles = entries.filter(file => /^\/(desktop|service|contracts|web|config|phone-dist)\//.test(file) && !fs.statSync(path.join(staging, file.slice(1))).isDirectory());
+  const projectFiles = entries.filter(file => /^\/(desktop|service|contracts|web|config|static|phone-dist)\//.test(file) && !fs.statSync(path.join(staging, file.slice(1))).isDirectory());
   for (const file of projectFiles) if (!asar.extractFile(target, file.slice(1).replace(/\//g, path.sep)).equals(fs.readFileSync(path.join(staging, file.slice(1))))) throw Error("SERVICE_ARCHIVE_BYTE_MISMATCH");
-  for (const required of ["/service/main.cjs", "/service/migrations/schema/001.sql", "/service/migrations/schema/002.sql", "/contracts/validate.cjs", "/contracts/http-v1.json", "/node_modules/ai/dist/index.js", "/node_modules/express/index.js", "/LICENSE", "/THIRD_PARTY_NOTICES.md"]) if (!entries.includes(required)) throw Error("SERVICE_ARCHIVE_RESOURCE_MISSING");
+  for (const required of ["/config/appearance.json", "/desktop/appearance.cjs", "/web/appearance.js", "/service/main.cjs", "/service/migrations/schema/001.sql", "/service/migrations/schema/002.sql", "/contracts/validate.cjs", "/contracts/http-v1.json", "/node_modules/ai/dist/index.js", "/node_modules/express/index.js", "/LICENSE", "/THIRD_PARTY_NOTICES.md"]) if (!entries.includes(required)) throw Error("SERVICE_ARCHIVE_RESOURCE_MISSING");
   if (entries.some(f => /\/(?:\.runtime|\.test-data|\.snapsolver|python|runtime)\//.test(f) || f.endsWith(".py") || f.includes(".local.json"))) throw Error("SERVICE_ARCHIVE_PRIVATE_RESOURCE");
   return { file: target, entries: entries.length, matchedProjectFiles: projectFiles.length, productionPackages: [...packages.values()], bytes: fs.statSync(target).size,
     sha256: require("node:crypto").createHash("sha256").update(fs.readFileSync(target)).digest("hex") };

@@ -14,6 +14,7 @@ import { uploadSelection } from "../attachments/images";
 import { useDesktopReceiver } from "../capture/desktopReceiver";
 import { usePhoneSpeech, SpeechControls } from "../audio/ReadAloud";
 import { Icon } from "../Icon";
+import { BrandMark } from "../BrandMark";
 
 function resizeEditor(element: HTMLTextAreaElement | null): void {
   if (!element) return;
@@ -270,7 +271,7 @@ export function ConversationView({
       >
         {!conversation.messages.length && (
           <section className="empty">
-            <span className="empty-icon"><Icon name="spark" size={34} /></span>
+            <span className="empty-icon"><BrandMark size={38} /></span>
             <span className="section-kicker">一点好奇，无限可能</span>
             <h2>把问题，聊清楚。</h2>
             <p>屏幕上的难题，脑海中的想法。<br />和 Scrylet 一起，慢慢理出头绪。</p>
@@ -513,7 +514,7 @@ export function ConversationView({
         </div>
         <div className="composer-bottom">
           <div className="model-picker">
-            <Icon name="spark" size={14} />
+            <BrandMark size={18} />
           <select
             aria-label="当前模型"
             value={draft.modelId}

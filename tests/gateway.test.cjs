@@ -6,6 +6,32 @@ const path = require("node:path");
 const { Gateway } = require("../desktop/gateway.cjs");
 const { COOKIE } = require("../desktop/pairing.cjs");
 
+test("配对前和暂停页的 Logo 与 static 源图一致，保留网关来源检查", async (t) => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "snap-brand-"));
+  const gateway = new Gateway(directory, {}, { ready: false });
+  await gateway.start();
+  t.after(async () => { await gateway.close(); fs.rmSync(directory, { recursive: true, force: true }); });
+  const url = "http://127.0.0.1:" + gateway.port;
+  const source = fs.readFileSync(path.resolve(__dirname, "../static/logo.png"));
+  for (const paused of [false, true]) {
+    gateway.pause(paused);
+    for (const route of ["/snap/assets/brand/icon.png", "/snap/assets/brand/apple-touch-icon.png"]) {
+      const response = await fetch(url + route);
+      assert.equal(response.status, 200);
+      assert.equal(response.headers.get("content-type"), "image/png");
+      assert.equal(response.headers.get("cache-control"), "no-store");
+      assert.deepEqual(Buffer.from(await response.arrayBuffer()), source);
+    }
+  }
+  assert.equal((await fetch(url + "/snap/assets/brand/icon.png", { headers: { Origin: "https://example.invalid" } })).status, 403);
+  const invalidHost = await new Promise((resolve, reject) => {
+    require("node:http").get(url + "/snap/assets/brand/icon.png", { headers: { Host: "example.invalid" } }, response => {
+      response.resume(); response.on("end", () => resolve(response.statusCode));
+    }).on("error", reject);
+  });
+  assert.equal(invalidHost, 403);
+});
+
 for (const cue of ["notification.mp3", "greeting.mp3"]) test(`旧音频地址 ${cue} 在未配对及暂停时也只返回无缓存的静音`, async t => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "snap-silent-audio-"));
   const gateway = new Gateway(directory, {}, { ready: false });
@@ -194,10 +220,10 @@ test("安装目录包含点目录时仍能打开配对、模型设置旧址跳�
   const root = path.join(directory, ".apps", "Installed Client");
   fs.mkdirSync(root, { recursive: true });
   const source = path.resolve(__dirname, "..");
-  for (const name of ["desktop", "web", "contracts", "service"]) fs.cpSync(path.join(source, name), path.join(root, name), { recursive: true });
+  for (const name of ["desktop", "web", "static", "contracts", "service"]) fs.cpSync(path.join(source, name), path.join(root, name), { recursive: true });
   fs.copyFileSync(path.join(source, "package.json"), path.join(root, "package.json"));
   fs.mkdirSync(path.join(root, "config"));
-  for (const name of ["providers.json", "product-scope.json"])
+  for (const name of ["providers.json", "product-scope.json", "appearance.json"])
     fs.copyFileSync(path.join(source, "config", name), path.join(root, "config", name));
   // The relocated gateway resolves production modules from the real workspace;
   // only these two public vendor assets belong under its own resources root.
@@ -228,7 +254,7 @@ test("安装目录包含点目录时仍能打开配对、模型设置旧址跳�
     fs.rmSync(directory, { recursive: true, force: true });
   });
   const url = "http://127.0.0.1:" + gateway.port;
-  for (const route of ["/snap/pair", "/snap/assets/pair.js", "/snap/vendor/cropper.js", "/snap/vendor/cropper.css"])
+  for (const route of ["/snap/pair", "/snap/assets/pair.js", "/snap/assets/brand/icon.png", "/snap/vendor/cropper.js", "/snap/vendor/cropper.css"])
     assert.equal((await fetch(url + route)).status, 200, route);
   const paired = await fetch(url + "/snap/api/pair", {
     method: "POST", headers: { "Content-Type": "application/json", "X-Snap-Client": "mobile" },

@@ -7,6 +7,7 @@ import "katex/dist/katex.min.css";
 import type { UIMessage } from "ai";
 import type { Chat, Message } from "../../../contracts/index.js";
 import { Icon } from "../Icon";
+import { BrandMark } from "../BrandMark";
 
 export async function copy(text: string): Promise<void> {
   try {
@@ -205,7 +206,7 @@ export function MessageList({
           >
             <header>
               {message.role === "assistant" && (
-                <span className="assistant-mark" aria-hidden="true"><Icon name="spark" size={12} /></span>
+                <span className="assistant-mark" aria-hidden="true"><BrandMark size={23} /></span>
               )}
               <strong>{message.role === "user" ? "你" : "Scrylet"}</strong>
               {record?.modelId && <small>{record.modelId}</small>}
@@ -337,7 +338,7 @@ export function MessageList({
       })}
       {waiting && (
         <article className="message assistant thinking-message">
-          <header><span className="assistant-mark"><Icon name="spark" size={12} /></span><strong>Scrylet</strong></header>
+          <header><span className="assistant-mark"><BrandMark size={23} /></span><strong>Scrylet</strong></header>
           <Thinking />
         </article>
       )}

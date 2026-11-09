@@ -14,6 +14,8 @@ const event = { apiVersion: 1, chatId: "c1", generationId: "g1", messageId: "m3"
 const provider = { apiVersion: 1, providerId: "alibaba", revision: 0, baseUrl: "http://127.0.0.1:49999/custom/v1/", apiType: "chat", keyAction: "delete", modelIds: [chat.modelId] };
 /** @type {import("../../contracts/index.js").ContractMap} */
 const samples = {
+  appearance: { apiVersion: 1, themeId: "forest", revision: 0 },
+  appearanceChange: { apiVersion: 1, themeId: "ocean" },
   captureRequest: { displayId: "1" },
   capture: { displayId: "1", width: 1440, height: 900, image: "data:image/png;base64,synthetic" },
   desktopPollResult: { command: null, deferClaim: false },

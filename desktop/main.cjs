@@ -171,6 +171,7 @@ async function start() {
   handle("snap:activity", () => activity.list());
   handle("snap:cache-info", () => maintenance.stats());
   handle("snap:cache-clear", () => maintenance.clearCache());
+  handle("snap:appearance-save", change => gateway.appearance.save(change));
   handle("snap:providers", () => runtime.providers());
   handle("snap:provider-save", async (change) => {
     const value = validate("providerChange", change);
@@ -180,7 +181,7 @@ async function start() {
   });
   window = new BrowserWindow({
     title: NAME,
-    icon: path.join(ROOT, "web/brand/icon.png"),
+    icon: path.join(ROOT, "static", process.platform === "win32" ? "favicon.ico" : "favicon.png"),
     width: 860,
     height: 740,
     minWidth: 780,
@@ -234,7 +235,7 @@ async function start() {
     ]),
   );
   try {
-    const icon = nativeImage.createFromPath(path.join(ROOT, "web/brand", process.platform === "darwin" ? "trayTemplate.png" : "icon.png"));
+    const icon = nativeImage.createFromPath(path.join(ROOT, process.platform === "darwin" ? "web/brand/trayTemplate.png" : "static/favicon.png"));
     if (icon.isEmpty()) throw new Error("应用图标未加载");
     if (process.platform === "darwin") icon.setTemplateImage(true);
     tray = new Tray(icon);

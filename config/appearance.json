@@ -1,0 +1,9 @@
+{
+  "defaultTheme": "forest",
+  "themes": [
+    { "id": "forest", "name": "松林暖白", "description": "暖白与松绿，安静而自然" },
+    { "id": "ocean", "name": "雾海浅蓝", "description": "冷白与海蓝，清爽而专注" },
+    { "id": "clay", "name": "陶土暖杏", "description": "奶油白与陶土，温暖而柔和" },
+    { "id": "midnight", "name": "石墨夜色", "description": "深灰与雾蓝，适合低光环境" }
+  ]
+}

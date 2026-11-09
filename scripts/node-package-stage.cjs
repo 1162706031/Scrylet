@@ -14,7 +14,8 @@ function stageNodePackage(root, parent) {
   for (const name of [
     "config/providers.json",
     "config/prompts.json",
-    "config/product-scope.json",
+    "config/product-scope.json", "config/appearance.json",
+    "static/favicon.png", "static/favicon.ico", "static/logo.png",
     "LICENSE",
     "THIRD_PARTY_NOTICES.md",
   ]) {

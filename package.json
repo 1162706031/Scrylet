@@ -25,6 +25,7 @@
     "check": "node scripts/check.cjs",
     "test:desktop": "node scripts/smoke-desktop.cjs",
     "test:desktop-ui": "node scripts/test-desktop-ui.cjs",
+    "test:appearance": "node scripts/test-appearance.cjs",
     "test:desktop-input": "node scripts/smoke-desktop-input.cjs",
     "build:native": "node scripts/build-native.cjs",
     "build:mac-input": "node scripts/build-mac-input.cjs",

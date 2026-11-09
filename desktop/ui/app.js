@@ -8,6 +8,7 @@ function notice(text, error = false, source = "action") {
 }
 function render(next) {
   state = next;
+  renderAppearance(next.appearance, next.appearanceThemes);
   if (next.capture) renderCapture(next.capture);
   const online = next.ready && !next.paused && !next.error && next.networks.length > 0;
   $("service-status").textContent = next.error
@@ -437,6 +438,7 @@ $("remove-provider").onclick = () => {
 // Navigation only changes the visible workspace; every existing control keeps
 // its original DOM node, draft values, event handler and IPC path.
 const workspaceCopy = {
+  appearance: ["让工作台更像你", "换一种配色，保持同一份专注。", "从明亮到深色，让电脑和手机都保持你喜欢的风格。"],
   overview: ["连接你的日常", "问题在电脑，答案在手边。", "连接手机，让每一个问题都有清晰的答案。"],
   models: ["模型服务", "连接你的 AI 搭档。", "在电脑上管理 API Key，手机只需选择模型并提问。"],
   capture: ["按你的习惯来", "让截图，成为提问的起点。", "设置顺手的快捷键与鼠标操作，用自己的方式开始对话。"],
@@ -469,3 +471,46 @@ document.querySelector("a.brand").addEventListener("click", (event) => {
   event.preventDefault();
   showWorkspace("overview");
 });
+
+let appearanceSaving = false, appearanceOptionsReady = false;
+function renderAppearance(value, themes) {
+  if (!value || !Array.isArray(themes)) return;
+  if (!window.scryletAppearance.apply(value)) return;
+  if (!appearanceOptionsReady) {
+    for (const theme of themes) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "theme-choice";
+      button.dataset.themeChoice = theme.id;
+      const preview = document.createElement("span");
+      preview.className = "theme-preview";
+      preview.dataset.previewTheme = theme.id;
+      preview.setAttribute("aria-hidden", "true");
+      for (const part of ["rail", "body", "bubble", "input"]) {
+        const element = document.createElement("i"); element.className = "preview-" + part; preview.append(element);
+      }
+      const title = document.createElement("strong"); title.textContent = theme.name;
+      const description = document.createElement("small"); description.textContent = theme.description;
+      button.append(preview, title, description);
+      button.onclick = async () => {
+        if (appearanceSaving) return;
+        appearanceSaving = true;
+        for (const choice of $("appearance-options").children) choice.disabled = true;
+        $("appearance-status").textContent = "正在保存…";
+        try {
+          const saved = await window.snap.saveAppearance({ apiVersion: 1, themeId: theme.id });
+          renderAppearance(saved, themes);
+          $("appearance-status").textContent = "已保存，手机会自动同步";
+        } catch { $("appearance-status").textContent = "未能保存配色，请重试。当前主题已保留。"; }
+        finally {
+          appearanceSaving = false;
+          for (const choice of $("appearance-options").children) choice.disabled = false;
+        }
+      };
+      $("appearance-options").append(button);
+    }
+    appearanceOptionsReady = true;
+  }
+  for (const button of $("appearance-options").children)
+    button.setAttribute("aria-pressed", String(button.dataset.themeChoice === value.themeId));
+}

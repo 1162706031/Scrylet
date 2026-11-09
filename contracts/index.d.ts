@@ -60,3 +60,7 @@ export interface RuntimePort {
   saveProvider(providerId: string, value: ProviderChange): Promise<{ success: true }>; availableModels(): Promise<boolean>;
   request(path: string, options?: InternalRequest): Promise<unknown>;
 }
+
+export type ThemeId = 'forest' | 'ocean' | 'clay' | 'midnight';
+export interface Appearance { apiVersion: 1; themeId: ThemeId; revision: number }
+export interface ContractMap { appearance: Appearance; appearanceChange: { apiVersion: 1; themeId: ThemeId } }

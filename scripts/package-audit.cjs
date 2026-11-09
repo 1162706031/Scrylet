@@ -130,6 +130,9 @@ function auditPackage({
     );
   for (const name of [
     "desktop/main.cjs",
+    "desktop/appearance.cjs",
+    "config/appearance.json",
+    "web/appearance.js",
     "desktop/native-program.cjs",
     "desktop/mouse-input.cjs",
     "desktop/runtime-paths.cjs",
@@ -144,7 +147,9 @@ function auditPackage({
     "phone-dist/index.html",
     "phone-dist/licenses.md",
     "web/quiet.js",
-    "web/brand/icon.svg",
+    "static/favicon.png",
+    "static/favicon.ico",
+    "static/logo.png",
     "web/brand/trayTemplate.png",
     "node_modules/ai/package.json",
     "node_modules/express/package.json",
@@ -297,7 +302,7 @@ function auditPackage({
   }
   let matched = 0;
   for (const file of files.filter((f) =>
-    /^\/(desktop|service|contracts|web|config|phone-dist)\//.test(f),
+    /^\/(desktop|service|contracts|web|config|static|phone-dist)\//.test(f),
   )) {
     let source = file.slice(1);
     if (file.startsWith("/phone-dist/"))

@@ -49,7 +49,7 @@ for (const arch of ["x64", "arm64"])
         pythonOverride: "",
       });
       assert.equal(paths.packaged, true);
-      assert.equal(paths.observer, "/Applications/Scrylet.app/Contents/Resources/native/darwin-" + arch + "/input-observer");
+      assert.equal(paths.observer, path.join("/Applications/Scrylet.app/Contents/Resources", "native", "darwin-" + arch, "input-observer"));
     },
   );
 test("Mac wrappers reject unsupported arch/profile and non-Mac before creating success evidence", () => {
@@ -112,7 +112,7 @@ test("Mac observer rejects changed executable bytes and wrong architecture", (t)
   fs.appendFileSync(observer, "changed");
   assert.throws(() => observerProgram({ nativeDirectory: directory, observer }, { platform: "darwin", arch: "arm64" }), /HASH/);
 });
-test("generated ICNS contains native rasterized SVG sizes and Retina PNG entries", () => {
+test("generated ICNS contains static Logo sizes and Retina PNG entries", () => {
   const bytes = fs.readFileSync(
     path.resolve(__dirname, "../packaging/icon.icns"),
   );

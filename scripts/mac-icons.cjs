@@ -59,7 +59,7 @@ async function macIcons(root, svg, raster) {
   return {
     file: target,
     nativeIconutil: process.platform === "darwin",
-    source: "web/brand/icon.svg",
+    source: "static/favicon.ico",
     sizes: [...images.keys()],
   };
 }

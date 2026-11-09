@@ -1,7 +1,12 @@
-/* Shared surfaces and controls for the desktop companion and phone. */
+/* Shared appearance palettes for desktop, phone and connection pages. */
 :root {
+  --snap-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  color-scheme: var(--snap-scheme);
+}
+:root, [data-preview-theme="forest"] {
+  --snap-scheme: light;
   --snap-bg: #fafaf7;
-  --snap-paper: #fff;
+  --snap-paper: #ffffff;
   --snap-ink: #242d29;
   --snap-muted: #6a756e;
   --snap-faint: #6a756e;
@@ -9,11 +14,128 @@
   --snap-blue: #2e6553;
   --snap-blue-hover: #234f41;
   --snap-blue-soft: #edf3ed;
+  --snap-on-accent: #ffffff;
   --snap-success: #39765c;
   --snap-success-bg: #edf3e9;
   --snap-input: #f5f6f1;
   --snap-warn: #8b5b23;
   --snap-warn-bg: #fcf4e7;
-  --snap-font: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  --snap-warn-line: #efdfc4;
+  --snap-sidebar: #f3f5ef;
+  --snap-surface: #f4f6ef;
+  --snap-accent-surface: #eaf0e5;
+  --snap-accent-line: #dbe5d3;
+  --snap-user-bg: #edf0e9;
+  --snap-code-bg: #f2f4ee;
+  --snap-focus: #96b29b;
+  --snap-selection: #d9e7dd;
+  --snap-scrollbar: #cdd6c8;
+  --snap-disabled-bg: #eff2eb;
+  --snap-disabled-ink: #819078;
+  --snap-overlay: #1e302b59;
+  --snap-danger: #a44c3b;
+  --snap-danger-bg: #fcf2ed;
   --snap-shadow: 0 4px 20px #263a2c08;
+}
+:root[data-theme="ocean"], [data-preview-theme="ocean"] {
+  --snap-scheme: light;
+  --snap-bg: #f7f9fc;
+  --snap-paper: #ffffff;
+  --snap-ink: #243247;
+  --snap-muted: #657489;
+  --snap-faint: #657489;
+  --snap-line: #e0e7ef;
+  --snap-blue: #35689c;
+  --snap-blue-hover: #285380;
+  --snap-blue-soft: #eaf1fa;
+  --snap-on-accent: #ffffff;
+  --snap-success: #307566;
+  --snap-success-bg: #eaf4ef;
+  --snap-input: #f1f5fa;
+  --snap-warn: #8b5b23;
+  --snap-warn-bg: #fcf4e7;
+  --snap-warn-line: #efdfc4;
+  --snap-sidebar: #eef3f9;
+  --snap-surface: #f0f4fa;
+  --snap-accent-surface: #e3edf9;
+  --snap-accent-line: #cddff0;
+  --snap-user-bg: #eaf0f8;
+  --snap-code-bg: #edf2f8;
+  --snap-focus: #8caed0;
+  --snap-selection: #d5e5f5;
+  --snap-scrollbar: #c7d6e7;
+  --snap-disabled-bg: #eaf0f7;
+  --snap-disabled-ink: #7a8b9e;
+  --snap-overlay: #1e304759;
+  --snap-danger: #a44c3b;
+  --snap-danger-bg: #fcf2ed;
+  --snap-shadow: 0 4px 20px #263a2c08;
+}
+:root[data-theme="clay"], [data-preview-theme="clay"] {
+  --snap-scheme: light;
+  --snap-bg: #fcf8f3;
+  --snap-paper: #fffdfa;
+  --snap-ink: #3b2e29;
+  --snap-muted: #7d6f65;
+  --snap-faint: #7d6f65;
+  --snap-line: #e9e0d7;
+  --snap-blue: #9b583e;
+  --snap-blue-hover: #7d442f;
+  --snap-blue-soft: #f7ece3;
+  --snap-on-accent: #ffffff;
+  --snap-success: #53774d;
+  --snap-success-bg: #edf3e6;
+  --snap-input: #f8f0e8;
+  --snap-warn: #8b5b23;
+  --snap-warn-bg: #fcf4e7;
+  --snap-warn-line: #efdfc4;
+  --snap-sidebar: #f6eee4;
+  --snap-surface: #f9f0e6;
+  --snap-accent-surface: #f3e4d8;
+  --snap-accent-line: #e6cdbb;
+  --snap-user-bg: #f4e9de;
+  --snap-code-bg: #f5ede4;
+  --snap-focus: #bc9479;
+  --snap-selection: #eed7c5;
+  --snap-scrollbar: #dacbbc;
+  --snap-disabled-bg: #f1e8de;
+  --snap-disabled-ink: #958170;
+  --snap-overlay: #422c2259;
+  --snap-danger: #a44c3b;
+  --snap-danger-bg: #fcf2ed;
+  --snap-shadow: 0 4px 20px #263a2c08;
+}
+:root[data-theme="midnight"], [data-preview-theme="midnight"] {
+  --snap-scheme: dark;
+  --snap-bg: #171c24;
+  --snap-paper: #202733;
+  --snap-ink: #e7ecf4;
+  --snap-muted: #a6b4c7;
+  --snap-faint: #a6b4c7;
+  --snap-line: #343f50;
+  --snap-blue: #9dbfeb;
+  --snap-blue-hover: #bbd4f5;
+  --snap-blue-soft: #29394e;
+  --snap-on-accent: #142437;
+  --snap-success: #9acbb1;
+  --snap-success-bg: #263c34;
+  --snap-input: #252e3b;
+  --snap-warn: #e4c18b;
+  --snap-warn-bg: #3c3227;
+  --snap-warn-line: #62503a;
+  --snap-sidebar: #1c222c;
+  --snap-surface: #252e3b;
+  --snap-accent-surface: #293b53;
+  --snap-accent-line: #4a6484;
+  --snap-user-bg: #2b3748;
+  --snap-code-bg: #1c2430;
+  --snap-focus: #7297c5;
+  --snap-selection: #354e6f;
+  --snap-scrollbar: #4b5d75;
+  --snap-disabled-bg: #2b3442;
+  --snap-disabled-ink: #8797ad;
+  --snap-overlay: #090e18a6;
+  --snap-danger: #edac9d;
+  --snap-danger-bg: #452f2c;
+  --snap-shadow: 0 4px 20px #00000014;
 }

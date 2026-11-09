@@ -52,7 +52,10 @@ function isJson(value) {
 }
 const legacyPayload = z.custom(isJson); // local JSON only; never spread into requests or executable options
 const desktopDelivery = object({ id, image: z.string().startsWith("data:image/").max(32 * 1024 * 1024), prompt: z.string().min(1).max(1000000), showCaptureHints: z.literal(false) });
+const themeId = z.enum(require("../config/appearance.json").themes.map(theme => theme.id));
 const schemas = {
+  appearance: object({ apiVersion: z.literal(1), themeId, revision: count }),
+  appearanceChange: object({ apiVersion: z.literal(1), themeId }),
   captureRequest: object({ displayId: z.string().max(160) }),
   capture: object({ displayId: z.string().min(1).max(160), width: count.min(1), height: count.min(1), image: z.string().startsWith("data:image/").max(32 * 1024 * 1024) }).refine(v => v.width * v.height <= 80000000),
   desktopPollResult: object({ command: desktopDelivery.nullable(), deferClaim: z.boolean().optional() }),

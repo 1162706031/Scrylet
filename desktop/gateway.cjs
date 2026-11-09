@@ -1,4 +1,5 @@
 const http = require("node:http");
+const { Appearance, themes } = require("./appearance.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
 const express = require("express");
@@ -30,6 +31,7 @@ class Gateway {
     this.networkSettings = readJson(this.networkFile, {});
     this.preferredNetwork = this.networkSettings.selectedNetwork;
     this.pairing = new Pairing(directory);
+    this.appearance = new Appearance(directory);
     this.native = native;
     this.runtime = runtime;
     this.paused = false;
@@ -67,6 +69,13 @@ class Gateway {
       });
       next();
     });
+    // Public palette metadata only: pairing and paused pages can match the desktop.
+    // Writes stay exclusively behind the checked desktop IPC sender.
+    this.app.get("/snap/appearance", (_request, response) => response.json(this.appearance.snapshot()));
+    this.app.all("/snap/appearance", (_request, response) => response.sendStatus(405));
+    this.app.get(["/snap/assets/brand/icon.png", "/snap/assets/brand/apple-touch-icon.png"], (_request, response) =>
+      response.sendFile("logo.png", { root: path.resolve(__dirname, "../static") }),
+    );
     this.app.use("/snap/assets", express.static(ASSETS, { index: false }));
     this.app.get(["/audio/notification.mp3", "/audio/greeting.mp3"], sendSilentAudio);
     this.app.get("/snap/vendor/cropper.js", (_request, response) =>
@@ -345,6 +354,8 @@ class Gateway {
       platform: process.platform,
       harness: "Node Chat Service",
       runtimeKind: "node",
+      appearance: this.appearance.snapshot(),
+      appearanceThemes: themes,
     };
   }
   revoke(id) {

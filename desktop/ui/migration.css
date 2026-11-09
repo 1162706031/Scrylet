@@ -12,7 +12,7 @@ body {
 main {
   margin: 16px;
   padding: 16px 24px;
-  background: white;
+  background: var(--snap-paper);
   border: 1px solid var(--snap-line);
   border-radius: 14px;
 }
